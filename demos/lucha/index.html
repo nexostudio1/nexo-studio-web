@@ -1,0 +1,942 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Cierzo Lucha Club · Demo de club de lucha · Nexo Studio</title>
+  <meta name="description" content="Web de muestra para un club de lucha en Zaragoza: Lucha Olímpica, Grappling, MMA, Sambo y Defensa Personal Policial. Horario, tarifas, test de disciplina y clase gratis por WhatsApp.">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#0a0a0b">
+  <link rel="icon" href="../../assets/img/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SportsActivityLocation",
+    "name": "Cierzo Lucha Club",
+    "description": "Club de lucha en Zaragoza: Lucha Olímpica, Grappling, MMA, Sambo y Defensa Personal Policial.",
+    "address": { "@type": "PostalAddress", "addressLocality": "Zaragoza", "addressCountry": "ES" },
+    "sport": ["Lucha Olímpica", "Grappling", "MMA", "Sambo", "Defensa Personal Policial"]
+  }
+  </script>
+
+  <style>
+    :root {
+      --bg: #0a0a0b; --bg-2: #111113; --card: #161619; --card-2: #1d1d21; --line: #2a2a30;
+      --text: #f4f2ee; --muted: #a2a2aa; --red: #e5262f; --red-2: #ff3b44; --gold: #f5b70a; --blue: #2563eb; --ink: #0a0a0b;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 110px; }
+    body { margin: 0; font-family: Inter, system-ui, sans-serif; color: var(--text); background: var(--bg); line-height: 1.6; font-size: 16px; -webkit-font-smoothing: antialiased; overflow-x: clip; }
+    a { color: inherit; }
+    img, svg { display: block; max-width: 100%; }
+    h1, h2, h3, .display { font-family: "Big Shoulders Display", Impact, sans-serif; font-weight: 900; text-transform: uppercase; line-height: .9; letter-spacing: .005em; margin: 0; }
+    p { margin: 0; }
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+    .red { color: var(--red); }
+    .outline { color: transparent; -webkit-text-stroke: 1.5px var(--text); }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
+
+    /* Barra demo (igual que el resto de demos) */
+    .demo-bar { position: fixed; z-index: 100; top: 0; left: 0; right: 0; display: flex; align-items: center; justify-content: center; gap: 12px; padding: 8px 16px; background: #0b1230; color: #dfe5f7; font-size: 13px; text-align: center; }
+    .demo-bar b { color: #fff; }
+    .demo-bar > span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .demo-bar a { color: #fff; background: linear-gradient(120deg, #19c8ff, #1f5bff); padding: 4px 12px; border-radius: 99px; text-decoration: none; font-weight: 600; white-space: nowrap; }
+    @media (max-width: 560px) { .demo-bar { font-size: 12px; gap: 10px; padding: 8px 12px; } }
+
+    /* Navegación */
+    .nav { position: fixed; z-index: 50; top: 37px; left: 0; right: 0; transition: background .3s, border-color .3s; border-bottom: 1px solid transparent; }
+    .nav.solid { background: rgba(10, 10, 11, .88); backdrop-filter: blur(14px); border-bottom-color: var(--line); }
+    .nav__in { display: flex; align-items: center; justify-content: space-between; height: 68px; gap: 20px; }
+    .brand { text-decoration: none; display: flex; align-items: center; gap: 11px; }
+    .brand__mark { width: 38px; height: 38px; flex: none; }
+    .brand__txt { font-family: "Big Shoulders Display", sans-serif; font-weight: 900; font-size: 25px; letter-spacing: .03em; text-transform: uppercase; line-height: 1; }
+    .brand__txt small { display: block; font-family: Inter, sans-serif; font-size: 9.5px; font-weight: 600; letter-spacing: .32em; color: var(--muted); margin-top: 3px; }
+    .nav__links { display: flex; gap: 24px; }
+    .nav__links a { text-decoration: none; color: #cfcfd4; font-size: 15px; font-weight: 500; transition: color .2s; }
+    .nav__links a:hover { color: var(--red-2); }
+    @media (max-width: 980px) { .nav__links { display: none; } }
+
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 15px 26px; border-radius: 12px; font: inherit; font-weight: 700; text-decoration: none; cursor: pointer; border: 1.5px solid transparent; transition: transform .2s, background .2s, color .2s, border-color .2s; }
+    .btn:hover { transform: translateY(-2px); }
+    .btn--red { background: var(--red); color: #fff; box-shadow: 0 10px 30px -10px rgba(229, 38, 47, .7); }
+    .btn--red:hover { background: var(--red-2); }
+    .btn--line { border-color: rgba(255, 255, 255, .3); color: #fff; background: rgba(255, 255, 255, .04); }
+    .btn--line:hover { border-color: #fff; }
+    .btn--sm { padding: 10px 18px; font-size: 14px; border-radius: 10px; }
+    .btn svg { width: 18px; height: 18px; }
+
+    /* Portada con el tapiz */
+    .hero { position: relative; min-height: 100svh; display: flex; align-items: center; padding: 150px 0 80px; overflow: hidden; isolation: isolate; }
+    .hero::before { content: ""; position: absolute; inset: 0; z-index: -3; background: radial-gradient(1000px 600px at 78% 45%, rgba(37, 99, 235, .22), transparent 60%), radial-gradient(700px 500px at 10% 100%, rgba(229, 38, 47, .18), transparent 60%); }
+    .hero::after { content: ""; position: absolute; inset: 0; z-index: -2; opacity: .5; background-image: linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px); background-size: 56px 56px; mask-image: radial-gradient(circle at 70% 50%, #000 0%, transparent 70%); }
+    .hero__grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: 40px; align-items: center; }
+    .hero__in > * { animation: up 1s cubic-bezier(.2, .7, .2, 1) both; }
+    .hero__in > :nth-child(2) { animation-delay: .1s; } .hero__in > :nth-child(3) { animation-delay: .2s; } .hero__in > :nth-child(4) { animation-delay: .3s; } .hero__in > :nth-child(5) { animation-delay: .4s; }
+    @keyframes up { from { opacity: 0; transform: translateY(30px); } }
+    .eyebrow { display: inline-flex; gap: 10px; align-items: center; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .2em; color: var(--red-2); }
+    .eyebrow::before { content: ""; width: 26px; height: 2px; background: var(--red); }
+    .hero h1 { font-size: clamp(72px, 11.5vw, 170px); margin: 18px 0 24px; }
+    .hero h1 span { display: block; }
+    .hero .lead { font-size: clamp(17px, 1.6vw, 20px); color: #d4d4d9; max-width: 540px; }
+    .hero__ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
+    .hero__meta { display: flex; flex-wrap: wrap; gap: 14px 40px; margin-top: 46px; padding-top: 24px; border-top: 1px solid rgba(255, 255, 255, .12); font-size: 14px; color: var(--muted); }
+    .hero__meta b { display: block; font-family: "Big Shoulders Display", sans-serif; font-weight: 900; font-size: 44px; color: #fff; line-height: 1; margin-bottom: 2px; }
+
+    .mat { position: relative; aspect-ratio: 1; width: 100%; max-width: 560px; justify-self: end; animation: matIn 1.6s cubic-bezier(.2, .7, .2, 1) both .2s; }
+    @keyframes matIn { from { opacity: 0; transform: scale(.85) rotate(-30deg); } }
+    .mat svg { width: 100%; height: 100%; transform: perspective(900px) rotateX(52deg) rotateZ(var(--rot, 0deg)); filter: drop-shadow(0 60px 50px rgba(0, 0, 0, .6)); }
+    .mat__label { position: absolute; padding: 8px 14px; border-radius: 99px; background: rgba(10, 10, 11, .82); border: 1px solid var(--line); backdrop-filter: blur(10px); font-size: 13px; font-weight: 600; white-space: nowrap; animation: float 5s ease-in-out infinite; }
+    .mat__label i { font-style: normal; display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; background: var(--red); box-shadow: 0 0 0 4px rgba(229, 38, 47, .25); }
+    .mat__label--1 { top: 18%; left: 0; } .mat__label--2 { top: 8%; right: 4%; animation-delay: -1.6s; } .mat__label--3 { bottom: 20%; right: 0; animation-delay: -3s; }
+    @keyframes float { 50% { transform: translateY(-10px); } }
+    @media (max-width: 900px) { .hero__grid { grid-template-columns: 1fr; } .mat { order: -1; max-width: 360px; margin: -30px auto -60px; justify-self: center; } .mat__label { font-size: 12px; } }
+
+    /* Cinta */
+    .ticker-wrap { overflow: hidden; padding: 14px 0; }
+    .ticker { background: var(--red); color: #fff; overflow: hidden; padding: 14px 0; transform: rotate(-1.5deg) scale(1.03); }
+    .ticker__track { display: flex; width: max-content; animation: tick 30s linear infinite; }
+    .ticker span { font-family: "Big Shoulders Display", sans-serif; font-weight: 900; font-size: 28px; text-transform: uppercase; white-space: nowrap; padding: 0 22px; }
+    .ticker span::after { content: "●"; margin-left: 44px; font-size: 12px; vertical-align: middle; color: var(--gold); }
+    @keyframes tick { to { transform: translateX(-50%); } }
+
+    .section { padding: clamp(80px, 11vw, 130px) 0; }
+    .section--alt { background: var(--bg-2); }
+    .head { display: flex; justify-content: space-between; align-items: flex-end; gap: 30px; flex-wrap: wrap; margin-bottom: 46px; }
+    .head h2, .h2 { font-size: clamp(50px, 7vw, 92px); margin-top: 14px; }
+    .head p { color: var(--muted); max-width: 440px; }
+    .js [data-reveal] { opacity: 0; transform: translateY(34px); transition: opacity .9s cubic-bezier(.2, .7, .2, 1), transform .9s cubic-bezier(.2, .7, .2, 1); }
+    .js [data-reveal].in { opacity: 1; transform: none; }
+
+    /* Disciplinas */
+    .disc { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; }
+    .d { grid-column: span 2; position: relative; background: var(--card); border: 1px solid var(--line); border-radius: 24px; padding: 28px; display: flex; flex-direction: column; overflow: hidden; isolation: isolate; transition: border-color .35s, transform .35s; }
+    .d:nth-child(4), .d:nth-child(5) { grid-column: span 3; }
+    .d::before { content: attr(data-n); position: absolute; right: 18px; top: 4px; z-index: -1; font-family: "Big Shoulders Display", sans-serif; font-weight: 900; font-size: 130px; line-height: 1; color: rgba(255, 255, 255, .035); transition: color .35s; }
+    .d:hover { border-color: var(--c, var(--red)); transform: translateY(-4px); }
+    .d:hover::before { color: color-mix(in srgb, var(--c, var(--red)) 18%, transparent); }
+    .d__ico { width: 56px; height: 56px; border-radius: 16px; display: grid; place-items: center; background: color-mix(in srgb, var(--c, var(--red)) 15%, transparent); color: var(--c, var(--red)); margin-bottom: 22px; }
+    .d__ico svg { width: 30px; height: 30px; }
+    .d h3 { font-size: 40px; margin-bottom: 10px; }
+    .d p { color: var(--muted); font-size: 15px; }
+    .d__tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 18px 0; }
+    .d__tags span { font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 99px; border: 1px solid var(--line); color: #cfcfd4; }
+    .d__meter { margin-top: auto; display: grid; gap: 8px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+    .d__meter div { display: grid; grid-template-columns: 90px 1fr; align-items: center; gap: 10px; }
+    .bar { display: flex; gap: 4px; }
+    .bar i { flex: 1; height: 6px; border-radius: 3px; background: var(--line); }
+    .bar i.on { background: var(--c, var(--red)); }
+    .d details { margin-top: 16px; }
+    .d summary { cursor: pointer; list-style: none; font-weight: 600; font-size: 14px; color: var(--c, var(--red)); display: inline-flex; gap: 6px; align-items: center; }
+    .d summary::-webkit-details-marker { display: none; }
+    .d summary::after { content: "+"; font-size: 18px; transition: transform .3s; }
+    .d details[open] summary::after { transform: rotate(45deg); }
+    .d ol { margin: 12px 0 0; padding-left: 20px; color: #cfcfd4; font-size: 14px; display: grid; gap: 4px; }
+    .kids { margin-top: 16px; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; padding: 22px 28px; border-radius: 22px; background: linear-gradient(110deg, rgba(245, 183, 10, .14), rgba(245, 183, 10, .03)); border: 1px solid rgba(245, 183, 10, .35); }
+    .kids b { font-family: "Big Shoulders Display", sans-serif; font-weight: 900; font-size: 30px; text-transform: uppercase; display: block; line-height: 1; margin-bottom: 4px; }
+    .kids span { color: #d9d4c4; font-size: 15px; }
+    @media (max-width: 980px) { .disc { grid-template-columns: 1fr 1fr; } .d, .d:nth-child(4), .d:nth-child(5) { grid-column: span 1; } .d:nth-child(5) { grid-column: span 2; } }
+    @media (max-width: 640px) { .disc { grid-template-columns: 1fr; } .d:nth-child(5) { grid-column: span 1; } .d h3 { font-size: 36px; } }
+
+    /* Test */
+    .quiz { display: grid; grid-template-columns: .9fr 1.1fr; gap: 50px; align-items: start; }
+    .quiz__box { background: var(--card); border: 1px solid var(--line); border-radius: 26px; padding: 30px; min-height: 380px; }
+    .quiz__prog { display: flex; gap: 6px; margin-bottom: 24px; }
+    .quiz__prog i { flex: 1; height: 4px; border-radius: 2px; background: var(--line); transition: background .3s; }
+    .quiz__prog i.on { background: var(--red); }
+    .quiz__q { font-family: "Big Shoulders Display", sans-serif; font-weight: 800; font-size: 34px; text-transform: uppercase; line-height: 1; margin-bottom: 20px; }
+    .opts { display: grid; gap: 10px; }
+    .opt { font: inherit; text-align: left; color: var(--text); background: var(--card-2); border: 1px solid var(--line); border-radius: 14px; padding: 15px 18px; cursor: pointer; display: flex; gap: 12px; align-items: center; transition: border-color .2s, transform .2s; animation: up .45s cubic-bezier(.2, .7, .2, 1) both; }
+    .opt:hover { border-color: var(--red); transform: translateX(4px); }
+    .opt em { font-style: normal; font-size: 20px; }
+    .result { animation: up .5s cubic-bezier(.2, .7, .2, 1) both; }
+    .result small { font-size: 13px; text-transform: uppercase; letter-spacing: .16em; color: var(--muted); font-weight: 600; }
+    .result h3 { font-size: 64px; margin: 8px 0 12px; color: var(--red-2); }
+    .result p { color: #d4d4d9; }
+    .result .also { margin-top: 14px; font-size: 14px; color: var(--muted); }
+    .result__ctas { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+    .link-btn { font: inherit; background: none; border: 0; color: var(--muted); text-decoration: underline; cursor: pointer; padding: 10px 4px; }
+    @media (max-width: 900px) { .quiz { grid-template-columns: 1fr; gap: 30px; } .quiz__box { padding: 22px; } }
+
+    /* Horario */
+    .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+    @media (max-width: 700px) { .filters { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 -20px 14px; padding: 0 20px 4px; } .filters::-webkit-scrollbar { display: none; } .chip { flex: none; } }
+    .chip { font: inherit; font-size: 14px; font-weight: 600; padding: 9px 15px; border-radius: 99px; border: 1px solid var(--line); background: transparent; color: #cfcfd4; cursor: pointer; display: inline-flex; gap: 8px; align-items: center; transition: all .2s; }
+    .chip i { width: 8px; height: 8px; border-radius: 50%; background: var(--c, #888); }
+    .chip[aria-pressed="true"] { background: #fff; color: var(--ink); border-color: #fff; }
+    .tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 18px; scrollbar-width: none; }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab { flex: none; font: inherit; font-weight: 700; font-size: 15px; padding: 11px 18px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); color: var(--text); cursor: pointer; transition: all .2s; text-align: center; }
+    .tab small { display: block; font-size: 11px; font-weight: 500; opacity: .7; }
+    .tab[aria-selected="true"] { background: var(--red); border-color: var(--red); }
+    .classes { display: grid; gap: 10px; }
+    .cls { display: grid; grid-template-columns: 120px 1fr auto auto; gap: 20px; align-items: center; background: var(--card); border: 1px solid var(--line); border-left: 4px solid var(--c, var(--red)); border-radius: 16px; padding: 16px 20px; animation: up .45s cubic-bezier(.2, .7, .2, 1) both; }
+    .cls__time { font-family: "Big Shoulders Display", sans-serif; font-weight: 900; font-size: 28px; line-height: 1; }
+    .cls__time small { display: block; font-family: Inter, sans-serif; font-size: 12px; font-weight: 500; color: var(--muted); margin-top: 4px; }
+    .cls__name b { display: block; font-size: 17px; }
+    .cls__name span { color: var(--muted); font-size: 14px; }
+    .lvl { font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 99px; border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
+    .cls__go { font-size: 14px; font-weight: 700; color: var(--red-2); text-decoration: none; white-space: nowrap; }
+    .cls__go:hover { text-decoration: underline; }
+    .empty { padding: 30px; text-align: center; color: var(--muted); border: 1px dashed var(--line); border-radius: 16px; }
+    .sched-note { margin-top: 16px; font-size: 14px; color: var(--muted); }
+    @media (max-width: 700px) { .cls { grid-template-columns: 1fr auto; gap: 8px 14px; } .cls__time { grid-row: span 1; } .cls__name { grid-column: 1 / -1; order: 3; } .lvl { justify-self: end; } .cls__go { grid-column: 1 / -1; order: 4; } }
+
+    /* Defensa policial */
+    .police { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+    .police__card { position: relative; border-radius: 28px; padding: 34px; background: linear-gradient(160deg, #13203f, #0c1222 70%); border: 1px solid #22345f; overflow: hidden; isolation: isolate; }
+    .police__card::after { content: ""; position: absolute; right: -80px; bottom: -80px; width: 320px; height: 320px; z-index: -1; border-radius: 50%; border: 40px solid rgba(37, 99, 235, .12); }
+    .police__card h3 { font-size: 36px; margin-bottom: 18px; }
+    .bodies { display: flex; flex-wrap: wrap; gap: 8px; }
+    .bodies span { font-size: 13.5px; font-weight: 600; padding: 8px 13px; border-radius: 10px; background: rgba(255, 255, 255, .07); border: 1px solid rgba(255, 255, 255, .1); }
+    .checklist { list-style: none; padding: 0; margin: 26px 0 0; display: grid; gap: 12px; }
+    .checklist li { display: grid; grid-template-columns: 26px 1fr; gap: 12px; color: #cfd6e8; font-size: 15px; }
+    .checklist li::before { content: "✓"; width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center; background: var(--blue); color: #fff; font-weight: 800; font-size: 13px; }
+    .checklist b { color: #fff; }
+    .police p.big { font-size: 19px; color: #d4d4d9; margin-top: 20px; }
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 30px 0; }
+    .stat { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 18px; }
+    .stat b { font-family: "Big Shoulders Display", sans-serif; font-weight: 900; font-size: 48px; line-height: 1; display: block; color: var(--text); }
+    .stat span { font-size: 13.5px; color: var(--muted); }
+    @media (max-width: 900px) { .police { grid-template-columns: 1fr; gap: 36px; } .police__card { padding: 26px; } }
+    @media (max-width: 480px) { .stats { grid-template-columns: 1fr 1fr 1fr; gap: 8px; } .stat { padding: 14px 10px; } .stat b { font-size: 36px; } .stat span { font-size: 12px; } }
+
+    /* Competición */
+    .comp { position: relative; overflow: hidden; }
+    .comp__big { font-family: "Big Shoulders Display", sans-serif; font-weight: 900; text-transform: uppercase; font-size: clamp(56px, 11.5vw, 180px); line-height: .85; letter-spacing: -.01em; white-space: nowrap; text-align: center; padding: 0 20px; transform: translateX(calc((1 - var(--g, 1)) * 30%)); }
+    @media (max-width: 700px) { .comp__big { white-space: normal; font-size: 22vw; text-align: left; } }
+    .comp__big span { color: var(--red); }
+    .comp__row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 50px; }
+    .medal { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 24px; }
+    .medal b { font-family: "Big Shoulders Display", sans-serif; font-weight: 900; font-size: 60px; line-height: 1; display: block; }
+    .medal.g b { color: var(--gold); } .medal.s b { color: #c9ccd3; } .medal.b b { color: #d58a4d; }
+    .medal span { color: var(--muted); font-size: 14px; }
+    .comp__path { margin-top: 18px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; counter-reset: p; }
+    .comp__path div { counter-increment: p; padding: 22px 22px 22px 0; border-top: 2px solid var(--line); position: relative; }
+    .comp__path div::before { content: ""; position: absolute; top: -7px; left: 0; width: 12px; height: 12px; border-radius: 50%; background: var(--red); }
+    .comp__path b { display: block; font-size: 17px; margin-bottom: 4px; }
+    .comp__path span { font-size: 14px; color: var(--muted); }
+    @media (max-width: 900px) { .comp__row, .comp__path { grid-template-columns: 1fr 1fr; } }
+
+    /* Equipo */
+    .team { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 16px; }
+    .coach { background: var(--card); border: 1px solid var(--line); border-radius: 24px; overflow: hidden; display: flex; flex-direction: column; }
+    .coach__ph { position: relative; aspect-ratio: 4 / 3.4; display: grid; place-items: center; overflow: hidden; background: radial-gradient(circle at 50% 120%, var(--c, var(--red)) 0%, transparent 65%), #121215; }
+    .coach__ph svg { width: 62%; height: auto; opacity: .9; }
+    .coach__ph small { position: absolute; top: 14px; left: 14px; font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; padding: 6px 10px; border-radius: 99px; background: rgba(0, 0, 0, .5); color: #cfcfd4; }
+    .coach__body { padding: 22px 24px 26px; }
+    .coach__body h3 { font-size: 34px; }
+    .coach__role { color: var(--c, var(--red)); font-weight: 700; font-size: 14px; margin: 4px 0 12px; }
+    .coach__body ul { margin: 0; padding-left: 18px; color: var(--muted); font-size: 14.5px; display: grid; gap: 4px; }
+    .coach--main .coach__ph { aspect-ratio: 4 / 3.1; }
+    @media (max-width: 900px) { .team { grid-template-columns: 1fr 1fr; } .coach--main { grid-column: span 2; } }
+    @media (max-width: 600px) { .team { grid-template-columns: 1fr; } .coach--main { grid-column: span 1; } }
+
+    /* Tarifas */
+    .switch { display: inline-flex; padding: 5px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); margin-bottom: 26px; }
+    .switch button { font: inherit; font-weight: 700; font-size: 14px; padding: 10px 18px; border-radius: 10px; border: 0; background: transparent; color: var(--muted); cursor: pointer; transition: all .2s; }
+    .switch button[aria-pressed="true"] { background: #fff; color: var(--ink); }
+    .switch em { font-style: normal; font-size: 11px; background: var(--red); color: #fff; padding: 2px 6px; border-radius: 6px; margin-left: 6px; }
+    .plans { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+    .plan { position: relative; background: var(--card); border: 1px solid var(--line); border-radius: 24px; padding: 28px 24px; display: flex; flex-direction: column; }
+    .plan--top { border-color: var(--red); background: linear-gradient(180deg, rgba(229, 38, 47, .12), var(--card) 45%); }
+    .plan__flag { position: absolute; top: -12px; left: 24px; background: var(--red); color: #fff; font-size: 12px; font-weight: 700; padding: 5px 11px; border-radius: 8px; text-transform: uppercase; letter-spacing: .06em; }
+    .plan h3 { font-size: 30px; }
+    .plan__for { color: var(--muted); font-size: 14px; margin-top: 6px; min-height: 44px; }
+    .price { display: flex; align-items: baseline; gap: 6px; margin: 18px 0 4px; }
+    .price b { font-family: "Big Shoulders Display", sans-serif; font-weight: 900; font-size: 68px; line-height: 1; }
+    .price span { color: var(--muted); font-size: 14px; }
+    .price-sub { font-size: 13px; color: var(--muted); min-height: 20px; }
+    .plan ul { list-style: none; padding: 0; margin: 20px 0 24px; display: grid; gap: 9px; font-size: 14.5px; color: #d4d4d9; }
+    .plan li::before { content: "✓"; color: var(--red-2); font-weight: 800; margin-right: 9px; }
+    .plan .btn { margin-top: auto; }
+    .plans-foot { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 10px 26px; font-size: 14px; color: var(--muted); }
+    .plans-foot b { color: var(--text); }
+    @media (max-width: 1050px) { .plans { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 600px) { .plans { grid-template-columns: 1fr; } .plan__for { min-height: 0; } }
+
+    /* Opiniones */
+    .reviews { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .rev { background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 26px; display: flex; flex-direction: column; gap: 18px; margin: 0; }
+    .rev blockquote { margin: 0; font-size: 16px; color: #dedee2; }
+    .rev footer { margin-top: auto; display: flex; gap: 12px; align-items: center; font-size: 14px; }
+    .avatar { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; color: var(--ink); flex: none; }
+    .rev footer b { display: block; }
+    .rev footer small { color: var(--muted); }
+    .stars { color: var(--gold); letter-spacing: 2px; }
+    .rating { display: flex; align-items: center; gap: 14px; }
+    .rating b { font-family: "Big Shoulders Display", sans-serif; font-weight: 900; font-size: 56px; line-height: 1; }
+    .rating span { font-size: 14px; color: var(--muted); }
+    @media (max-width: 900px) { .reviews { grid-template-columns: 1fr; } }
+
+    /* Clase gratis */
+    .trial { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start; }
+    .steps { list-style: none; padding: 0; margin: 30px 0 0; display: grid; gap: 16px; counter-reset: s; }
+    .steps li { counter-increment: s; display: grid; grid-template-columns: 54px 1fr; gap: 16px; align-items: start; }
+    .steps li::before { content: counter(s); width: 54px; height: 54px; border-radius: 16px; display: grid; place-items: center; background: var(--card); border: 1px solid var(--line); font-family: "Big Shoulders Display", sans-serif; font-weight: 900; font-size: 28px; color: var(--red-2); }
+    .steps b { display: block; font-size: 17px; margin-top: 4px; }
+    .steps span { color: var(--muted); font-size: 15px; }
+    .bring { margin-top: 30px; padding: 20px 22px; border-radius: 18px; background: var(--card); border: 1px solid var(--line); font-size: 15px; color: var(--muted); }
+    .bring b { color: var(--text); }
+    .form { background: var(--card); border: 1px solid var(--line); border-radius: 26px; padding: 30px; display: grid; gap: 16px; }
+    .form h3 { font-size: 38px; }
+    .field { display: grid; gap: 7px; }
+    .field label, .field legend { font-size: 14px; font-weight: 600; color: #d4d4d9; padding: 0; }
+    .field input, .field select, .field textarea { font: inherit; color: var(--text); background: var(--card-2); border: 1px solid var(--line); border-radius: 12px; padding: 13px 14px; width: 100%; transition: border-color .2s; }
+    .field textarea { min-height: 80px; resize: vertical; }
+    .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--red); }
+    fieldset.field { border: 0; margin: 0; padding: 0; }
+    .pills { display: flex; flex-wrap: wrap; gap: 8px; }
+    .pills label { cursor: pointer; position: relative; }
+    .pills input { position: absolute; opacity: 0; pointer-events: none; }
+    .pills span { display: inline-block; font-size: 14px; font-weight: 600; padding: 9px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--card-2); transition: all .2s; }
+    .pills input:checked + span { background: var(--red); border-color: var(--red); color: #fff; }
+    .pills input:focus-visible + span { outline: 2px solid #fff; outline-offset: 2px; }
+    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form small.hint { color: var(--muted); font-size: 13px; text-align: center; }
+    .err { color: #ff8a8a; font-size: 13px; min-height: 18px; }
+    @media (max-width: 900px) { .trial { grid-template-columns: 1fr; gap: 36px; } .form { padding: 22px; } }
+    @media (max-width: 480px) { .row2 { grid-template-columns: 1fr; } }
+
+    /* FAQ */
+    .faq { max-width: 860px; margin: 0 auto; display: grid; gap: 10px; }
+    .faq details { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 0 22px; transition: border-color .2s; }
+    .faq details[open] { border-color: #45454d; }
+    .faq summary { cursor: pointer; list-style: none; padding: 20px 0; font-weight: 600; font-size: 17px; display: flex; justify-content: space-between; gap: 16px; }
+    .faq summary::-webkit-details-marker { display: none; }
+    .faq summary::after { content: "+"; color: var(--red-2); font-size: 24px; line-height: 1; transition: transform .3s; }
+    .faq details[open] summary::after { transform: rotate(45deg); }
+    .faq details p { padding: 0 0 20px; color: var(--muted); }
+
+    /* Ubicación */
+    .visit { display: grid; grid-template-columns: 1fr 1.2fr; gap: 16px; }
+    .info { background: var(--card); border: 1px solid var(--line); border-radius: 24px; padding: 30px; display: grid; gap: 22px; align-content: start; }
+    .info h3 { font-size: 40px; }
+    .info dl { margin: 0; display: grid; gap: 16px; }
+    .info dt { font-size: 12px; text-transform: uppercase; letter-spacing: .14em; color: var(--muted); font-weight: 600; margin-bottom: 4px; }
+    .info dd { margin: 0; font-size: 16px; }
+    .hours { display: grid; grid-template-columns: auto 1fr; gap: 4px 18px; font-size: 15px; }
+    .hours .now { color: var(--red-2); font-weight: 700; }
+    .open-badge { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; padding: 6px 12px; border-radius: 99px; background: rgba(255, 255, 255, .06); }
+    .open-badge i { width: 8px; height: 8px; border-radius: 50%; background: #888; }
+    .open-badge.on i { background: #35d07f; box-shadow: 0 0 0 4px rgba(53, 208, 127, .2); }
+    .map { border-radius: 24px; overflow: hidden; border: 1px solid var(--line); min-height: 420px; background: var(--card); }
+    .map iframe { width: 100%; height: 100%; min-height: 420px; border: 0; filter: grayscale(1) invert(.92) contrast(.9); }
+    @media (max-width: 900px) { .visit { grid-template-columns: 1fr; } }
+
+    /* CTA final */
+    .cta-final { text-align: center; position: relative; overflow: hidden; }
+    .cta-final h2 { font-size: clamp(60px, 11vw, 150px); }
+    .cta-final p { color: var(--muted); font-size: 18px; margin: 20px auto 30px; max-width: 520px; }
+    .cta-final .hero__ctas { justify-content: center; }
+
+    .site-foot { border-top: 1px solid var(--line); padding: 28px 0 100px; font-size: 14px; color: var(--muted); }
+    .site-foot .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+    .site-foot a { color: var(--text); }
+
+    /* Barra fija en móvil */
+    .mbar { position: fixed; z-index: 60; left: 12px; right: 12px; bottom: 12px; display: none; gap: 8px; padding: 8px; border-radius: 18px; background: rgba(22, 22, 25, .92); backdrop-filter: blur(14px); border: 1px solid var(--line); transform: translateY(140%); transition: transform .4s cubic-bezier(.2, .7, .2, 1); }
+    .mbar.show { transform: none; }
+    .mbar .btn { flex: 1; padding: 13px 10px; font-size: 15px; }
+    @media (max-width: 760px) { .mbar { display: flex; } .nav .btn--sm { display: none; } }
+  </style>
+</head>
+<body>
+  <div class="demo-bar"><span><b>Web de muestra</b> diseñada por Nexo Studio</span><a href="https://wa.me/34711591734?text=Hola,%20he%20visto%20la%20demo%20del%20club%20de%20lucha%20y%20quiero%20una%20web%20as%C3%AD" target="_blank" rel="noopener">Quiero una así</a></div>
+
+  <header class="nav" id="nav">
+    <div class="wrap nav__in">
+      <a class="brand" href="#inicio" aria-label="Cierzo Lucha Club, inicio">
+        <svg class="brand__mark" viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="10" fill="#2563eb"/><circle cx="20" cy="20" r="14" fill="#e5262f"/><circle cx="20" cy="20" r="10" fill="#f5b70a"/><circle cx="20" cy="20" r="3.2" fill="none" stroke="#0a0a0b" stroke-width="1.6"/></svg>
+        <span class="brand__txt">Cierzo<small>LUCHA CLUB · ZGZ</small></span>
+      </a>
+      <nav class="nav__links" aria-label="Principal">
+        <a href="#disciplinas">Disciplinas</a>
+        <a href="#horario">Horario</a>
+        <a href="#policial">Defensa policial</a>
+        <a href="#equipo">Equipo</a>
+        <a href="#tarifas">Tarifas</a>
+        <a href="#visitanos">Dónde estamos</a>
+      </nav>
+      <a class="btn btn--red btn--sm" href="#prueba">Clase gratis</a>
+    </div>
+  </header>
+
+  <main>
+    <!-- PORTADA -->
+    <section class="hero" id="inicio">
+      <div class="wrap hero__grid">
+        <div class="hero__in">
+          <span class="eyebrow">Club de lucha · Zaragoza</span>
+          <h1><span>Lucha.</span><span class="outline">Piensa.</span><span class="red">Gana.</span></h1>
+          <p class="lead">Lucha Olímpica, Grappling, MMA, Sambo y Defensa Personal Policial en un mismo tapiz. Grupos por nivel desde los 6 años, entrenadores titulados y equipo de competición federado.</p>
+          <div class="hero__ctas">
+            <a class="btn btn--red" href="#prueba">Reserva tu clase gratis</a>
+            <a class="btn btn--line" href="#test">¿Qué disciplina es para mí?</a>
+          </div>
+          <div class="hero__meta">
+            <div><b data-count="5">5</b>disciplinas</div>
+            <div><b data-count="32">32</b>clases a la semana</div>
+            <div><b data-count="180" data-suffix="m²">180m²</b>de tapiz</div>
+          </div>
+        </div>
+
+        <div class="mat" aria-hidden="true">
+          <svg viewBox="0 0 400 400" id="matsvg">
+            <rect x="10" y="10" width="380" height="380" rx="14" fill="#1d4fd1"/>
+            <rect x="10" y="10" width="380" height="380" rx="14" fill="url(#matshade)"/>
+            <circle cx="200" cy="200" r="168" fill="#e5262f"/>
+            <circle cx="200" cy="200" r="138" fill="#f5b70a"/>
+            <circle cx="200" cy="200" r="138" fill="url(#matgloss)"/>
+            <circle cx="200" cy="200" r="22" fill="none" stroke="#fff" stroke-width="5"/>
+            <rect x="140" y="194" width="18" height="12" fill="#1d4fd1"/>
+            <rect x="242" y="194" width="18" height="12" fill="#e5262f"/>
+            <defs>
+              <linearGradient id="matshade" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".12"/><stop offset="1" stop-color="#000" stop-opacity=".3"/></linearGradient>
+              <radialGradient id="matgloss" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#fff" stop-opacity=".25"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+            </defs>
+          </svg>
+          <span class="mat__label mat__label--1"><i></i>Hoy: Lucha 19:00</span>
+          <span class="mat__label mat__label--2">🥇 Cto. de Aragón</span>
+          <span class="mat__label mat__label--3">Primera clase gratis</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="ticker-wrap" aria-hidden="true">
+      <div class="ticker"><div class="ticker__track">
+        <span>Lucha Olímpica</span><span>Grappling</span><span>MMA</span><span>Sambo</span><span>Defensa Personal Policial</span><span>Lucha infantil</span>
+        <span>Lucha Olímpica</span><span>Grappling</span><span>MMA</span><span>Sambo</span><span>Defensa Personal Policial</span><span>Lucha infantil</span>
+      </div></div>
+    </div>
+
+    <!-- DISCIPLINAS -->
+    <section class="section" id="disciplinas">
+      <div class="wrap">
+        <div class="head" data-reveal>
+          <div><span class="eyebrow">Disciplinas</span><h2 class="h2">Cinco formas<br>de pisar el tapiz</h2></div>
+          <p>Todas comparten la misma base: derribar, controlar y no rendirse nunca. Empieza por la que más te llame y combínalas con la tarifa ilimitada.</p>
+        </div>
+
+        <div class="disc">
+          <article class="d" data-n="01" style="--c:#f5b70a" data-reveal>
+            <div class="d__ico"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="16" cy="20" r="8"/><path d="M11 3l5 9 5-9M16 16.5l1.2 2.4 2.6.4-1.9 1.8.5 2.6-2.4-1.3-2.4 1.3.5-2.6-1.9-1.8 2.6-.4z"/></svg></div>
+            <h3>Lucha Olímpica</h3>
+            <p>Libre y grecorromana. El deporte de combate más antiguo del mundo: derribos, proyecciones y control de pie y en el suelo.</p>
+            <div class="d__tags"><span>Libre</span><span>Grecorromana</span><span>Femenina</span><span>Federada</span></div>
+            <div class="d__meter"><div>Intensidad<span class="bar"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span></div><div>Contacto<span class="bar"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span></div></div>
+            <details><summary>Cómo es una clase</summary><ol><li>Calentamiento y gimnasia específica</li><li>Técnica de derribo y puente</li><li>Situaciones por parejas</li><li>Combates controlados</li></ol></details>
+          </article>
+
+          <article class="d" data-n="02" style="--c:#22c55e" data-reveal data-delay="80">
+            <div class="d__ico"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="16" r="7"/><circle cx="20" cy="16" r="7"/><path d="M16 10.3c1.8 1.3 3 3.4 3 5.7"/></svg></div>
+            <h3>Grappling</h3>
+            <p>Lucha de agarre sin golpes y sin kimono (No-Gi). Derribos, posiciones de control, luxaciones y estrangulaciones.</p>
+            <div class="d__tags"><span>No-Gi</span><span>Sumisiones</span><span>ADCC</span></div>
+            <div class="d__meter"><div>Intensidad<span class="bar"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span></div><div>Contacto<span class="bar"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span></div></div>
+            <details><summary>Cómo es una clase</summary><ol><li>Movilidad y desplazamientos en el suelo</li><li>Técnica del día (pasajes, guardias, finalizaciones)</li><li>Drills por posición</li><li>Rondas de rolling</li></ol></details>
+          </article>
+
+          <article class="d" data-n="03" style="--c:#e5262f" data-reveal data-delay="160">
+            <div class="d__ico"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M11 3h10l7 7v12l-7 7H11l-7-7V10z"/><path d="M12 13h8M12 19h8" stroke-linecap="round"/></svg></div>
+            <h3>MMA</h3>
+            <p>Artes Marciales Mixtas: golpeo, derribos y lucha en el suelo combinados. Con base de lucha, que es lo que gana combates.</p>
+            <div class="d__tags"><span>Striking</span><span>Lucha</span><span>Ground &amp; pound</span></div>
+            <div class="d__meter"><div>Intensidad<span class="bar"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span></div><div>Contacto<span class="bar"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span></div></div>
+            <details><summary>Cómo es una clase</summary><ol><li>Calentamiento y sombra</li><li>Golpeo en paos y saco</li><li>Transiciones golpeo-derribo</li><li>Sparring con protecciones (opcional)</li></ol></details>
+          </article>
+
+          <article class="d" data-n="04" style="--c:#38bdf8" data-reveal>
+            <div class="d__ico"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4l6 4 6-4 5 4-3 6v14H8V14L5 8z"/><path d="M8 18h16M16 8v10"/></svg></div>
+            <h3>Sambo</h3>
+            <p>El arte marcial que nació para combinar lo mejor de la lucha y el judo. Proyecciones explosivas con chaqueta y luxaciones de pierna. Modalidad deportiva y combat.</p>
+            <div class="d__tags"><span>Deportivo</span><span>Combat Sambo</span><span>Kurtka</span><span>Luxaciones de pierna</span></div>
+            <div class="d__meter"><div>Intensidad<span class="bar"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span></div><div>Contacto<span class="bar"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span></div></div>
+            <details><summary>Cómo es una clase</summary><ol><li>Caídas y desplazamientos</li><li>Proyecciones con agarre de chaqueta</li><li>Luxaciones de brazo y pierna</li><li>Combates a tiempo</li></ol></details>
+          </article>
+
+          <article class="d" data-n="05" style="--c:#2563eb" data-reveal data-delay="80">
+            <div class="d__ico"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3l11 4v8c0 7-4.7 11.6-11 14C9.7 26.6 5 22 5 15V7z"/><path d="M11 16l3.5 3.5L21 13"/></svg></div>
+            <h3>Defensa Personal Policial</h3>
+            <p>Técnicas reales de intervención para cuerpos de seguridad, vigilantes y opositores: reducciones, inmovilizaciones, engrilletamiento y defensa ante armas, siempre dentro del marco legal.</p>
+            <div class="d__tags"><span>Policía Nacional</span><span>Guardia Civil</span><span>Policía Local</span><span>Vigilantes</span><span>Opositores</span></div>
+            <div class="d__meter"><div>Intensidad<span class="bar"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span></div><div>Contacto<span class="bar"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span></div></div>
+            <details><summary>Cómo es una clase</summary><ol><li>Posición de seguridad y distancias</li><li>Luxaciones y conducciones</li><li>Reducción, cacheo y engrilletamiento</li><li>Escenarios con arma simulada</li></ol></details>
+          </article>
+        </div>
+
+        <div class="kids" data-reveal>
+          <div><b>Lucha infantil · 6 a 13 años</b><span>Coordinación, respeto y confianza a través del juego y la lucha olímpica. Grupos reducidos y competición escolar opcional.</span></div>
+          <a class="btn btn--line btn--sm" href="#prueba" data-pick="Lucha infantil">Probar con mi hijo/a</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- TEST -->
+    <section class="section section--alt" id="test">
+      <div class="wrap quiz">
+        <div data-reveal>
+          <span class="eyebrow">Test de 20 segundos</span>
+          <h2 class="h2" style="margin-top:14px">¿Qué disciplina<br>es para ti?</h2>
+          <p style="color:var(--muted);margin-top:20px;max-width:440px">Tres preguntas y te decimos por dónde empezar. Al final puedes reservar tu clase gratis con la disciplina ya elegida.</p>
+        </div>
+        <div class="quiz__box" id="quiz" data-reveal data-delay="100" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <!-- HORARIO -->
+    <section class="section" id="horario">
+      <div class="wrap">
+        <div class="head" data-reveal>
+          <div><span class="eyebrow">Horario</span><h2 class="h2">Encuentra<br>tu hora</h2></div>
+          <p>Filtra por disciplina y elige día. Las clases de iniciación están marcadas para que no tengas que adivinar.</p>
+        </div>
+        <div class="filters" id="filters" role="group" aria-label="Filtrar por disciplina"></div>
+        <div class="tabs" id="tabs" role="tablist" aria-label="Día de la semana"></div>
+        <div class="classes" id="classes"></div>
+        <p class="sched-note">Horario de septiembre a junio. En julio se mantienen las clases de tarde; agosto, cerrado.</p>
+      </div>
+    </section>
+
+    <!-- DEFENSA POLICIAL -->
+    <section class="section section--alt" id="policial">
+      <div class="wrap police">
+        <div data-reveal>
+          <span class="eyebrow" style="color:#7aa2ff">Defensa Personal Policial</span>
+          <h2 class="h2" style="margin-top:14px">Para quien<br>se juega el tipo</h2>
+          <p class="big">Un programa pensado para profesionales y opositores: técnicas que funcionan bajo estrés, con el uso proporcional de la fuerza que exige la ley.</p>
+          <div class="stats">
+            <div class="stat"><b data-count="2">2</b><span>días por semana</span></div>
+            <div class="stat"><b data-count="12">12</b><span>alumnos por grupo</span></div>
+            <div class="stat"><b data-count="100" data-suffix="%">100%</b><span>práctico</span></div>
+          </div>
+          <a class="btn btn--red" href="#prueba" data-pick="Defensa Personal Policial">Pedir información</a>
+        </div>
+        <div class="police__card" data-reveal data-delay="100">
+          <h3>Pensado para</h3>
+          <div class="bodies"><span>Policía Nacional</span><span>Guardia Civil</span><span>Policía Local</span><span>Policía Autonómica</span><span>Funcionarios de prisiones</span><span>Vigilantes de seguridad</span><span>Escoltas</span></div>
+          <ul class="checklist">
+            <li><span><b>Reducción e inmovilización</b> — controlar sin lesionar, de pie y en el suelo.</span></li>
+            <li><span><b>Engrilletamiento y cacheo</b> — protocolo seguro con uno y dos agentes.</span></li>
+            <li><span><b>Defensa ante arma blanca y palo</b> — escenarios realistas con material simulado.</span></li>
+            <li><span><b>Defensa extensible</b> — uso, retención y conducción.</span></li>
+            <li><span><b>Marco legal</b> — proporcionalidad, congruencia y oportunidad en cada técnica.</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- COMPETICIÓN -->
+    <section class="section comp" id="competicion">
+      <div class="comp__big" data-grow aria-hidden="true">Del tapiz <span>al podio</span></div>
+      <div class="wrap">
+        <div class="head" style="margin-top:40px" data-reveal>
+          <div><span class="eyebrow">Equipo de competición</span><h2 class="h2">Si quieres competir,<br>te llevamos</h2></div>
+          <p>Somos club federado. Preparamos a nuestros luchadores para campeonatos autonómicos, nacionales e internacionales, desde categoría benjamín hasta veteranos.</p>
+        </div>
+        <div class="comp__row">
+          <div class="medal g" data-reveal><b data-count="47">47</b><span>oros autonómicos</span></div>
+          <div class="medal s" data-reveal data-delay="80"><b data-count="18">18</b><span>medallas nacionales</span></div>
+          <div class="medal b" data-reveal data-delay="160"><b data-count="6">6</b><span>internacionales</span></div>
+          <div class="medal" data-reveal data-delay="240"><b data-count="25" data-suffix="+">25+</b><span>años formando luchadores</span></div>
+        </div>
+        <div class="comp__path" data-reveal>
+          <div><b>Iniciación</b><span>Aprendes a caer, a moverte y lo básico de cada disciplina.</span></div>
+          <div><b>Intermedio</b><span>Técnica, combates controlados y primeras ligas internas.</span></div>
+          <div><b>Competición</b><span>Plan de temporada, control de peso y torneos federados.</span></div>
+          <div><b>Alto nivel</b><span>Campeonatos de España, selección autonómica e internacional.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- EQUIPO -->
+    <section class="section section--alt" id="equipo">
+      <div class="wrap">
+        <div class="head" data-reveal>
+          <div><span class="eyebrow">Equipo</span><h2 class="h2">Quién te<br>entrena</h2></div>
+          <p>Entrenadores titulados que siguen compitiendo y arbitrando. Aquí nadie te deja solo en la esquina del tapiz.</p>
+        </div>
+        <div class="team">
+          <article class="coach coach--main" style="--c:#e5262f" data-reveal>
+            <div class="coach__ph"><small>Foto del entrenador</small><svg viewBox="0 0 200 160" fill="none" aria-hidden="true"><circle cx="100" cy="52" r="30" fill="#2a2a30"/><path d="M30 160c4-44 34-66 70-66s66 22 70 66z" fill="#2a2a30"/></svg></div>
+            <div class="coach__body">
+              <h3>Head Coach</h3>
+              <p class="coach__role">Director técnico · Lucha, Grappling y MMA</p>
+              <ul><li>Entrenador Nacional de Lucha Olímpica</li><li>Ex-competidor internacional</li><li>Árbitro y seleccionador autonómico</li></ul>
+            </div>
+          </article>
+          <article class="coach" style="--c:#38bdf8" data-reveal data-delay="80">
+            <div class="coach__ph"><small>Foto</small><svg viewBox="0 0 200 160" fill="none" aria-hidden="true"><circle cx="100" cy="52" r="30" fill="#2a2a30"/><path d="M30 160c4-44 34-66 70-66s66 22 70 66z" fill="#2a2a30"/></svg></div>
+            <div class="coach__body">
+              <h3>Laura P.</h3>
+              <p class="coach__role">Sambo y Lucha infantil</p>
+              <ul><li>Medallista en Cto. de España</li><li>Monitora de base titulada</li></ul>
+            </div>
+          </article>
+          <article class="coach" style="--c:#2563eb" data-reveal data-delay="160">
+            <div class="coach__ph"><small>Foto</small><svg viewBox="0 0 200 160" fill="none" aria-hidden="true"><circle cx="100" cy="52" r="30" fill="#2a2a30"/><path d="M30 160c4-44 34-66 70-66s66 22 70 66z" fill="#2a2a30"/></svg></div>
+            <div class="coach__body">
+              <h3>Marcos R.</h3>
+              <p class="coach__role">Defensa Personal Policial</p>
+              <ul><li>Instructor de intervención policial</li><li>15 años de servicio operativo</li></ul>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- TARIFAS -->
+    <section class="section" id="tarifas">
+      <div class="wrap">
+        <div class="head" data-reveal>
+          <div><span class="eyebrow">Tarifas</span><h2 class="h2">Sin permanencia.<br><span class="red">Sin letra pequeña.</span></h2></div>
+          <p>Paga al mes o ahorra pagando por trimestre. La primera clase siempre es gratis.</p>
+        </div>
+        <div class="switch" role="group" aria-label="Periodo de pago">
+          <button type="button" data-period="m" aria-pressed="true">Mensual</button>
+          <button type="button" data-period="t" aria-pressed="false">Trimestral <em>-10%</em></button>
+        </div>
+        <div class="plans">
+          <article class="plan" data-reveal>
+            <h3>Una disciplina</h3>
+            <p class="plan__for">Para empezar con la que más te guste.</p>
+            <div class="price"><b data-m="45">45€</b><span>/mes</span></div>
+            <p class="price-sub" data-sub></p>
+            <ul><li>2 clases por semana</li><li>Lucha, Grappling, MMA o Sambo</li><li>Seguimiento del entrenador</li></ul>
+            <a class="btn btn--line" href="#prueba">Empezar</a>
+          </article>
+          <article class="plan plan--top" data-reveal data-delay="80">
+            <span class="plan__flag">La más elegida</span>
+            <h3>Ilimitada</h3>
+            <p class="plan__for">Todas las disciplinas, todas las clases.</p>
+            <div class="price"><b data-m="59">59€</b><span>/mes</span></div>
+            <p class="price-sub" data-sub></p>
+            <ul><li>Clases ilimitadas</li><li>Las 4 disciplinas deportivas</li><li>Open mat del sábado</li><li>Acceso al equipo de competición</li></ul>
+            <a class="btn btn--red" href="#prueba">Quiero esta</a>
+          </article>
+          <article class="plan" data-reveal data-delay="160">
+            <h3>Policial</h3>
+            <p class="plan__for">Profesionales de la seguridad y opositores.</p>
+            <div class="price"><b data-m="50">50€</b><span>/mes</span></div>
+            <p class="price-sub" data-sub></p>
+            <ul><li>2 sesiones por semana</li><li>Material de prácticas incluido</li><li>Certificado de asistencia</li></ul>
+            <a class="btn btn--line" href="#prueba" data-pick="Defensa Personal Policial">Informarme</a>
+          </article>
+          <article class="plan" data-reveal data-delay="240">
+            <h3>Infantil</h3>
+            <p class="plan__for">De 6 a 13 años.</p>
+            <div class="price"><b data-m="35">35€</b><span>/mes</span></div>
+            <p class="price-sub" data-sub></p>
+            <ul><li>2 clases por semana</li><li>Grupos reducidos por edad</li><li>-10% segundo hermano</li></ul>
+            <a class="btn btn--line" href="#prueba" data-pick="Lucha infantil">Apuntar a mi hijo/a</a>
+          </article>
+        </div>
+        <div class="plans-foot">
+          <span><b>Matrícula:</b> 20 € (camiseta del club incluida)</span>
+          <span><b>Licencia federativa:</b> solo si compites</span>
+          <span><b>Pago:</b> domiciliación, Bizum o tarjeta</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- OPINIONES -->
+    <section class="section section--alt" id="opiniones">
+      <div class="wrap">
+        <div class="head" data-reveal>
+          <div><span class="eyebrow">Opiniones</span><h2 class="h2">Lo dicen<br>en el tapiz</h2></div>
+          <div class="rating"><b>4,9</b><span><span class="stars">★★★★★</span><br>128 reseñas en Google</span></div>
+        </div>
+        <div class="reviews">
+          <figure class="rev" data-reveal>
+            <blockquote>“Llegué sin haber luchado nunca y a los tres meses ya estaba compitiendo en el autonómico. El ambiente es de familia, pero aquí se entrena en serio.”</blockquote>
+            <footer><span class="avatar" style="background:#f5b70a">S</span><span><b>Sergio A.</b><small>Grappling y Lucha</small></span></footer>
+          </figure>
+          <figure class="rev" data-reveal data-delay="80">
+            <blockquote>“Preparé la oposición a Policía Nacional con el grupo de defensa policial. Técnicas que se entienden y que funcionan. Totalmente recomendable.”</blockquote>
+            <footer><span class="avatar" style="background:#7aa2ff">A</span><span><b>Andrea M.</b><small>Defensa Personal Policial</small></span></footer>
+          </figure>
+          <figure class="rev" data-reveal data-delay="160">
+            <blockquote>“Mi hijo de 8 años era muy tímido. Ahora va contento a cada clase, ha ganado confianza y respeta muchísimo a sus compañeros.”</blockquote>
+            <footer><span class="avatar" style="background:#ff8a8a">J</span><span><b>Javier L.</b><small>Padre · Lucha infantil</small></span></footer>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- CLASE GRATIS -->
+    <section class="section" id="prueba">
+      <div class="wrap trial">
+        <div data-reveal>
+          <span class="eyebrow">Primera clase gratis</span>
+          <h2 class="h2" style="margin-top:14px">Ven a<br>probar</h2>
+          <ol class="steps">
+            <li><span><b>Elige disciplina y día</b><span>Rellena el formulario. Tarda 30 segundos.</span></span></li>
+            <li><span><b>Te confirmamos por WhatsApp</b><span>Te respondemos el mismo día con todo lo que necesitas saber.</span></span></li>
+            <li><span><b>Pisa el tapiz</b><span>Llega 10 minutos antes. Sin compromiso y sin experiencia previa.</span></span></li>
+          </ol>
+          <div class="bring"><b>¿Qué traigo?</b> Ropa deportiva cómoda, chanclas, agua y ganas. Si vienes a MMA y tienes guantes o bucal, tráelos; si no, te los dejamos.</div>
+        </div>
+
+        <form class="form" id="trial-form" novalidate data-reveal data-delay="100">
+          <h3>Reservar clase gratis</h3>
+          <div class="field"><label for="f-name">Nombre</label><input id="f-name" name="name" autocomplete="given-name" placeholder="Tu nombre" required></div>
+          <fieldset class="field">
+            <legend>Disciplina</legend>
+            <div class="pills" id="f-disc">
+              <label><input type="radio" name="disc" value="Lucha Olímpica" checked><span>Lucha Olímpica</span></label>
+              <label><input type="radio" name="disc" value="Grappling"><span>Grappling</span></label>
+              <label><input type="radio" name="disc" value="MMA"><span>MMA</span></label>
+              <label><input type="radio" name="disc" value="Sambo"><span>Sambo</span></label>
+              <label><input type="radio" name="disc" value="Defensa Personal Policial"><span>Defensa Policial</span></label>
+              <label><input type="radio" name="disc" value="Lucha infantil"><span>Infantil</span></label>
+            </div>
+          </fieldset>
+          <div class="row2">
+            <div class="field"><label for="f-day">Día preferido</label>
+              <select id="f-day" name="day"><option>Lunes</option><option>Martes</option><option>Miércoles</option><option>Jueves</option><option>Viernes</option><option>Sábado</option></select>
+            </div>
+            <div class="field"><label for="f-exp">Experiencia</label>
+              <select id="f-exp" name="exp"><option>Ninguna</option><option>Algo (menos de 1 año)</option><option>Bastante (1 año o más)</option><option>Compito</option></select>
+            </div>
+          </div>
+          <div class="field"><label for="f-msg">¿Algo que debamos saber? <span style="color:var(--muted);font-weight:400">(opcional)</span></label><textarea id="f-msg" name="msg" placeholder="Lesiones, objetivos, edad del niño/a…"></textarea></div>
+          <p class="err" id="f-err" role="alert"></p>
+          <button class="btn btn--red" type="submit"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2z"/></svg>Enviar por WhatsApp</button>
+          <small class="hint">Se abrirá WhatsApp con tu mensaje listo. No guardamos tus datos.</small>
+        </form>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section section--alt" id="faq">
+      <div class="wrap">
+        <div class="head" style="justify-content:center;text-align:center" data-reveal>
+          <div><span class="eyebrow">Dudas</span><h2 class="h2">Preguntas frecuentes</h2></div>
+        </div>
+        <div class="faq" data-reveal>
+          <details><summary>Nunca he hecho lucha, ¿puedo empezar?</summary><p>Sí. La mayoría de nuestros alumnos empezaron desde cero. Hay clases de iniciación marcadas en el horario y el entrenador adapta cada ejercicio a tu nivel.</p></details>
+          <details><summary>¿Me voy a hacer daño?</summary><p>La lucha es un deporte de contacto, pero aprendes primero a caer y a protegerte. Los combates son controlados y nadie hace sparring hasta que el entrenador lo ve oportuno.</p></details>
+          <details><summary>¿Qué diferencia hay entre Grappling y Sambo?</summary><p>El Grappling se practica sin chaqueta y se centra en el control y las sumisiones en el suelo. El Sambo usa chaqueta (kurtka), tiene proyecciones más explosivas y permite luxaciones de pierna.</p></details>
+          <details><summary>¿Tengo que competir?</summary><p>No. Competir es totalmente opcional. Muchos alumnos vienen por salud, defensa personal o simplemente porque les encanta entrenar.</p></details>
+          <details><summary>¿La defensa policial sirve para la oposición?</summary><p>Está pensada para opositores y profesionales: trabajamos las técnicas de intervención habituales en los cuerpos de seguridad. Te recomendamos combinarla con tu preparación física específica.</p></details>
+          <details><summary>¿Desde qué edad pueden venir los niños?</summary><p>Desde los 6 años, en grupos separados por edad. A partir de los 14 pueden unirse a las clases de adultos de iniciación.</p></details>
+          <details><summary>¿Hay vestuarios y duchas?</summary><p>Sí, vestuarios masculino y femenino con duchas y taquillas.</p></details>
+        </div>
+      </div>
+    </section>
+
+    <!-- UBICACIÓN -->
+    <section class="section" id="visitanos">
+      <div class="wrap">
+        <div class="head" data-reveal>
+          <div><span class="eyebrow">Dónde estamos</span><h2 class="h2">Ven a vernos</h2></div>
+          <span class="open-badge" id="open-badge"><i></i><span>Comprobando horario…</span></span>
+        </div>
+        <div class="visit">
+          <div class="info" data-reveal>
+            <h3>Cierzo Lucha Club</h3>
+            <dl>
+              <div><dt>Dirección</dt><dd>Calle de ejemplo, 12 · 50000 Zaragoza</dd></div>
+              <div><dt>Teléfono y WhatsApp</dt><dd><a href="tel:+34600000000">600 000 000</a></dd></div>
+              <div><dt>Horario de tapiz</dt><dd class="hours" id="hours"></dd></div>
+            </dl>
+            <a class="btn btn--line" href="https://maps.google.com/?q=Zaragoza" target="_blank" rel="noopener">Cómo llegar</a>
+          </div>
+          <div class="map" data-reveal data-delay="100">
+            <iframe title="Mapa de ubicación" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://maps.google.com/maps?q=Zaragoza&amp;z=13&amp;output=embed"></iframe>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--alt cta-final">
+      <div class="wrap" data-reveal>
+        <h2>El tapiz<br><span class="red">te espera</span></h2>
+        <p>La primera clase es gratis. Lo único que tienes que traer son ganas.</p>
+        <div class="hero__ctas"><a class="btn btn--red" href="#prueba">Reservar clase gratis</a><a class="btn btn--line" href="#horario">Ver horario</a></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-foot">
+    <div class="wrap"><span>Cierzo Lucha Club · Negocio de muestra (ficticio)</span><span>Web diseñada por <a href="../../">Nexo Studio</a></span></div>
+  </footer>
+
+  <div class="mbar" id="mbar">
+    <a class="btn btn--line" href="#horario">Horario</a>
+    <a class="btn btn--red" href="#prueba">Clase gratis</a>
+  </div>
+
+  <script defer src="../demo.js"></script>
+  <script>
+    (function () {
+      // Cambia este número por el WhatsApp del club (formato internacional sin +)
+      var WHATSAPP = "34711591734";
+
+      var DAYS_LONG = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+      var COLORS = { "Lucha Olímpica": "#f5b70a", "Grappling": "#22c55e", "MMA": "#e5262f", "Sambo": "#38bdf8", "Defensa Personal Policial": "#2563eb", "Lucha infantil": "#f472b6" };
+
+      // Navegación con fondo y barra móvil
+      var nav = document.getElementById("nav"), mbar = document.getElementById("mbar"), matsvg = document.getElementById("matsvg");
+      function onScroll() {
+        var y = window.scrollY;
+        nav.classList.toggle("solid", y > 40);
+        mbar.classList.toggle("show", y > window.innerHeight * .7);
+        if (matsvg && y < window.innerHeight * 1.2) matsvg.style.setProperty("--rot", (y * .08) + "deg");
+      }
+      onScroll(); window.addEventListener("scroll", onScroll, { passive: true });
+
+      // Preseleccionar disciplina al pulsar un botón que lleva al formulario
+      function pick(disc) {
+        var r = document.querySelector('#f-disc input[value="' + disc + '"]');
+        if (r) r.checked = true;
+      }
+      document.querySelectorAll("[data-pick]").forEach(function (a) {
+        a.addEventListener("click", function () { pick(a.getAttribute("data-pick")); });
+      });
+
+      // ---------- Horario ----------
+      // [inicio, fin, disciplina, nivel]
+      var WEEK = {
+        1: [["10:00", "11:30", "Defensa Personal Policial", "Todos los niveles"], ["17:30", "18:30", "Lucha infantil", "6-13 años"], ["18:30", "20:00", "Lucha Olímpica", "Todos los niveles"], ["20:00", "21:30", "Grappling", "Iniciación"], ["21:30", "22:30", "MMA", "Avanzado"]],
+        2: [["17:30", "18:30", "Lucha infantil", "6-13 años"], ["18:30", "20:00", "Sambo", "Todos los niveles"], ["20:00", "21:30", "MMA", "Iniciación"], ["20:00", "21:30", "Defensa Personal Policial", "Todos los niveles"]],
+        3: [["10:00", "11:30", "Defensa Personal Policial", "Todos los niveles"], ["17:30", "18:30", "Lucha infantil", "6-13 años"], ["18:30", "20:00", "Lucha Olímpica", "Competición"], ["20:00", "21:30", "Grappling", "Todos los niveles"], ["21:30", "22:30", "MMA", "Sparring"]],
+        4: [["17:30", "18:30", "Lucha infantil", "6-13 años"], ["18:30", "20:00", "Sambo", "Todos los niveles"], ["20:00", "21:30", "MMA", "Iniciación"], ["20:00", "21:30", "Defensa Personal Policial", "Todos los niveles"]],
+        5: [["18:30", "20:00", "Lucha Olímpica", "Iniciación"], ["20:00", "21:30", "Grappling", "Todos los niveles"]],
+        6: [["10:30", "12:00", "Lucha Olímpica", "Competición"], ["12:00", "13:30", "Grappling", "Open mat"]],
+        0: []
+      };
+      var tabsEl = document.getElementById("tabs"), clsEl = document.getElementById("classes"), filEl = document.getElementById("filters");
+      var order = [1, 2, 3, 4, 5, 6, 0], today = new Date().getDay(), curDay = today === 0 ? 1 : today, curFilter = "Todas";
+
+      ["Todas"].concat(Object.keys(COLORS)).forEach(function (name) {
+        var b = document.createElement("button");
+        b.type = "button"; b.className = "chip"; b.setAttribute("aria-pressed", name === curFilter ? "true" : "false");
+        if (COLORS[name]) b.style.setProperty("--c", COLORS[name]);
+        b.innerHTML = (COLORS[name] ? "<i></i>" : "") + name;
+        b.addEventListener("click", function () {
+          curFilter = name;
+          filEl.querySelectorAll(".chip").forEach(function (c) { c.setAttribute("aria-pressed", c === b ? "true" : "false"); });
+          // Si el día elegido no tiene esa disciplina, salta al siguiente que sí la tenga
+          if (!list(curDay).length) {
+            var i0 = order.indexOf(curDay);
+            for (var k = 1; k < order.length; k++) { var d = order[(i0 + k) % order.length]; if (list(d).length) { curDay = d; break; } }
+          }
+          render();
+        });
+        filEl.appendChild(b);
+      });
+
+      order.forEach(function (d) {
+        var b = document.createElement("button");
+        b.type = "button"; b.className = "tab"; b.setAttribute("role", "tab"); b.dataset.day = d;
+        b.addEventListener("click", function () { curDay = d; render(); });
+        tabsEl.appendChild(b);
+      });
+
+      function list(d) { return WEEK[d].filter(function (c) { return curFilter === "Todas" || c[2] === curFilter; }); }
+      function render() {
+        tabsEl.querySelectorAll(".tab").forEach(function (t) {
+          var d = +t.dataset.day, n = list(d).length;
+          t.setAttribute("aria-selected", d === curDay ? "true" : "false");
+          t.innerHTML = DAYS_LONG[d] + "<small>" + (d === today ? "Hoy · " : "") + (n ? n + (n === 1 ? " clase" : " clases") : "—") + "</small>";
+        });
+        var items = list(curDay);
+        if (!items.length) {
+          clsEl.innerHTML = '<div class="empty">' + (curDay === 0 ? "Domingo: descanso. ¡El tapiz también necesita recuperarse!" : "No hay clases de " + curFilter + " este día. Prueba otro día.") + "</div>";
+          return;
+        }
+        clsEl.innerHTML = items.map(function (c, i) {
+          var msg = encodeURIComponent("Hola, quiero probar la clase de " + c[2] + " del " + DAYS_LONG[curDay].toLowerCase() + " a las " + c[0] + ".");
+          return '<div class="cls" style="--c:' + COLORS[c[2]] + ";animation-delay:" + (i * 60) + 'ms"><span class="cls__time">' + c[0] + "<small>hasta " + c[1] + '</small></span><span class="cls__name"><b>' + c[2] + "</b><span>" + (c[2] === "Lucha infantil" ? "Grupo infantil" : "Adultos") + '</span></span><span class="lvl">' + c[3] + '</span><a class="cls__go" target="_blank" rel="noopener" href="https://wa.me/' + WHATSAPP + "?text=" + msg + '">Probar gratis →</a></div>';
+        }).join("");
+      }
+      render();
+
+      // ---------- Test de disciplina ----------
+      var Q = [
+        { q: "¿Qué buscas sobre todo?", o: [["🏆", "Competir", { lucha: 3, grap: 2, mma: 2, sambo: 2 }], ["💪", "Ponerme en forma aprendiendo algo", { grap: 2, lucha: 2, sambo: 1, mma: 1 }], ["🛡️", "Saber defenderme", { mma: 2, sambo: 2, poli: 1 }], ["👮", "Preparar oposición o trabajo de seguridad", { poli: 5 }], ["🧒", "Busco clase para mi hijo/a", { kids: 6 }]] },
+        { q: "¿Qué experiencia tienes?", o: [["🌱", "Ninguna, empiezo de cero", { grap: 1, lucha: 1 }], ["🥋", "He hecho judo, BJJ u otro arte marcial", { sambo: 2, grap: 2 }], ["🥊", "Vengo del boxeo o kickboxing", { mma: 3 }], ["🤼", "Ya he luchado antes", { lucha: 2, sambo: 1 }]] },
+        { q: "¿Dónde te ves más cómodo/a?", o: [["⚡", "De pie: derribos y proyecciones", { lucha: 3, sambo: 2 }], ["🌀", "En el suelo: control y sumisiones", { grap: 3, sambo: 1 }], ["🔥", "Un poco de todo, golpes incluidos", { mma: 3 }], ["🤷", "No lo sé todavía", { lucha: 1, grap: 1 }]] }
+      ];
+      var R = {
+        lucha: ["Lucha Olímpica", "La base de todo. Ganarás fuerza, explosividad y un control del cuerpo que te servirá en cualquier disciplina."],
+        grap: ["Grappling", "Técnica, estrategia y mucho trabajo en el suelo. Ideal para aprender sin golpes y con progreso visible cada semana."],
+        mma: ["MMA", "Lo más completo: golpeo, derribos y suelo. Empieza por la clase de iniciación de martes o jueves."],
+        sambo: ["Sambo", "Proyecciones espectaculares y luxaciones de pierna. Si vienes del judo o la lucha, te vas a sentir en casa."],
+        poli: ["Defensa Personal Policial", "Técnicas de intervención reales y legales, pensadas para tu oposición o tu día a día profesional."],
+        kids: ["Lucha infantil", "Grupos de 6 a 13 años donde aprenden jugando: coordinación, respeto y confianza. La primera clase es gratis."]
+      };
+      var quiz = document.getElementById("quiz"), step = 0, score = {};
+      function drawQ() {
+        var prog = '<div class="quiz__prog">' + Q.map(function (_, i) { return '<i class="' + (i <= step ? "on" : "") + '"></i>'; }).join("") + "</div>";
+        quiz.innerHTML = prog + '<p class="quiz__q">' + Q[step].q + '</p><div class="opts">' + Q[step].o.map(function (o, i) {
+          return '<button type="button" class="opt" data-i="' + i + '" style="animation-delay:' + (i * 50) + 'ms"><em aria-hidden="true">' + o[0] + "</em>" + o[1] + "</button>";
+        }).join("") + "</div>";
+        quiz.querySelectorAll(".opt").forEach(function (b) {
+          b.addEventListener("click", function () {
+            var w = Q[step].o[+b.dataset.i][2];
+            Object.keys(w).forEach(function (k) { score[k] = (score[k] || 0) + w[k]; });
+            if (step === 0 && w.kids) { drawResult(); return; }
+            step++; step < Q.length ? drawQ() : drawResult();
+          });
+        });
+      }
+      function drawResult() {
+        var ranked = Object.keys(score).sort(function (a, b) { return score[b] - score[a]; });
+        var top = R[ranked[0]], second = ranked[1] && ranked[0] !== "kids" ? R[ranked[1]] : null;
+        quiz.innerHTML = '<div class="result"><div class="quiz__prog"><i class="on"></i><i class="on"></i><i class="on"></i></div><small>Tu disciplina ideal</small><h3>' + top[0] + "</h3><p>" + top[1] + "</p>" +
+          (second ? '<p class="also">También te encajaría: <b>' + second[0] + "</b>. Con la tarifa ilimitada puedes combinarlas.</p>" : "") +
+          '<div class="result__ctas"><a class="btn btn--red" href="#prueba" id="q-go">Probar ' + top[0] + ' gratis</a><button class="link-btn" type="button" id="q-again">Repetir test</button></div></div>';
+        document.getElementById("q-go").addEventListener("click", function () { pick(top[0]); });
+        document.getElementById("q-again").addEventListener("click", function () { step = 0; score = {}; drawQ(); });
+      }
+      drawQ();
+
+      // ---------- Tarifas mensual / trimestral ----------
+      document.querySelectorAll(".switch button").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          var t = btn.dataset.period === "t";
+          document.querySelectorAll(".switch button").forEach(function (b) { b.setAttribute("aria-pressed", b === btn ? "true" : "false"); });
+          document.querySelectorAll(".price b[data-m]").forEach(function (b) {
+            var m = +b.dataset.m, v = t ? Math.round(m * .9) : m;
+            b.textContent = v + "€";
+            b.closest(".plan").querySelector("[data-sub]").textContent = t ? (v * 3) + " € cada 3 meses · ahorras " + (m * 3 - v * 3) + " €" : "";
+          });
+        });
+      });
+
+      // ---------- Formulario de clase gratis ----------
+      var form = document.getElementById("trial-form"), err = document.getElementById("f-err");
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var name = form.elements.name.value.trim();
+        if (!name) { err.textContent = "Escribe tu nombre para que sepamos a quién esperar."; form.elements.name.focus(); return; }
+        err.textContent = "";
+        var disc = form.querySelector('input[name="disc"]:checked').value;
+        var text = "Hola, soy " + name + ". Me gustaría probar una clase gratis de " + disc + ".\n" +
+          "· Día preferido: " + form.elements.day.value + "\n· Experiencia: " + form.elements.exp.value +
+          (form.elements.msg.value.trim() ? "\n· Comentario: " + form.elements.msg.value.trim() : "");
+        window.open("https://wa.me/" + WHATSAPP + "?text=" + encodeURIComponent(text), "_blank", "noopener");
+      });
+
+      // ---------- Horario de apertura y estado ----------
+      // [día, abre, cierra] en horas decimales; null = cerrado
+      var OPEN = { 1: [10, 22.5], 2: [17.5, 21.5], 3: [10, 22.5], 4: [17.5, 21.5], 5: [18.5, 21.5], 6: [10.5, 13.5], 0: null };
+      function fmt(h) { var m = Math.round((h % 1) * 60); return Math.floor(h) + ":" + (m < 10 ? "0" : "") + m; }
+      var hoursEl = document.getElementById("hours");
+      hoursEl.innerHTML = order.map(function (d) {
+        var o = OPEN[d], cls = d === today ? ' class="now"' : "";
+        return "<span" + cls + ">" + DAYS_LONG[d] + "</span><span" + cls + ">" + (o ? fmt(o[0]) + " – " + fmt(o[1]) : "Cerrado") + "</span>";
+      }).join("");
+      var now = new Date(), h = now.getHours() + now.getMinutes() / 60, o = OPEN[today], badge = document.getElementById("open-badge");
+      var isOpen = o && h >= o[0] && h < o[1];
+      badge.classList.toggle("on", !!isOpen);
+      badge.querySelector("span").textContent = isOpen ? "Abierto ahora · hasta las " + fmt(o[1]) : (o && h < o[0] ? "Cerrado · abre hoy a las " + fmt(o[0]) : "Cerrado ahora");
+    })();
+  </script>
+</body>
+</html>
