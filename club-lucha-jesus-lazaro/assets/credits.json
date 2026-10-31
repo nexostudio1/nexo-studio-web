@@ -1,0 +1,26 @@
+{
+  "combate": {
+    "src": "assets/img/combate.webp",
+    "title": "Havana - Cuba - 2189 (International Wrestling Match in the National Stadium)",
+    "creator": "Jorge Royan",
+    "creator_url": "https://commons.wikimedia.org/wiki/User:Jorgeroyan",
+    "license": "by-sa",
+    "license_version": "3.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+    "foreign_landing_url": "https://commons.wikimedia.org/wiki/File:Havana_-_Cuba_-_2189.jpg",
+    "source": "wikimedia",
+    "modified": "Recortada y tratada en duotono"
+  },
+  "esquina": {
+    "src": "assets/img/esquina.webp",
+    "title": "Havana - Cuba - 2334 (International Wrestling Match in the National Stadium)",
+    "creator": "Jorge Royan",
+    "creator_url": "https://commons.wikimedia.org/wiki/User:Jorgeroyan",
+    "license": "by-sa",
+    "license_version": "3.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+    "foreign_landing_url": "https://commons.wikimedia.org/wiki/File:Havana_-_Cuba_-_2334.jpg",
+    "source": "wikimedia",
+    "modified": "Recortada y tratada en duotono"
+  }
+}
