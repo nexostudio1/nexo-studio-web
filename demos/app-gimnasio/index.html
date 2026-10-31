@@ -1,0 +1,853 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Forja App · Demo de app para gimnasio · Nexo Studio</title>
+  <meta name="description" content="App de muestra para un gimnasio con entrenamiento personal, diseñada por Nexo Studio. Panel del entrenador con clientes, bonos y cobros, y app del cliente con rutina, reservas y progreso.">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#0b0b0c">
+  <link rel="icon" href="../../assets/img/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg: #0b0b0c; --bg-2: #111113; --card: #17171a; --card-2: #1f1f23; --line: #2a2a2f; --text: #f3f3f0; --muted: #a3a3aa; --dim: #6f6f77; --volt: #d4ff3a; --ink: #0b0b0c; --ok: #4ade80; --warn: #ffb23a; --bad: #ff6b5a; --wa: #25d366; --top: 89px; }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body { margin: 0; font-family: Inter, system-ui, sans-serif; color: var(--text); background: var(--bg); line-height: 1.5; font-size: 15px; -webkit-font-smoothing: antialiased; overflow-x: clip; }
+    button { font: inherit; color: inherit; }
+    h1, h2, h3, .display { font-family: Archivo, Impact, sans-serif; font-stretch: 72%; font-weight: 850; text-transform: uppercase; line-height: .95; margin: 0; letter-spacing: -.005em; }
+    p { margin: 0; }
+    .volt { color: var(--volt); }
+    .muted { color: var(--muted); }
+
+    .demo-bar { position: fixed; z-index: 100; top: 0; left: 0; right: 0; height: 37px; display: flex; align-items: center; justify-content: center; gap: 12px; padding: 0 16px; background: #0b1230; color: #dfe5f7; font-size: 13px; }
+    .demo-bar b { color: #fff; }
+    .demo-bar > span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .demo-bar a { color: #fff; background: linear-gradient(120deg, #19c8ff, #1f5bff); padding: 4px 12px; border-radius: 99px; text-decoration: none; font-weight: 600; white-space: nowrap; }
+    @media (max-width: 560px) { .demo-bar { font-size: 12px; gap: 10px; padding: 0 12px; } }
+
+    /* Selector de rol */
+    .rolebar { position: fixed; z-index: 90; top: 37px; left: 0; right: 0; height: 52px; display: flex; align-items: center; justify-content: center; gap: 14px; padding: 0 12px; background: #141417; border-bottom: 1px solid var(--line); }
+    .rolebar__hint { font-size: 13px; color: var(--muted); }
+    .seg { display: inline-flex; padding: 4px; border-radius: 12px; background: var(--bg); border: 1px solid var(--line); }
+    .seg button { border: 0; background: transparent; color: var(--muted); font-weight: 600; font-size: 14px; padding: 7px 14px; border-radius: 9px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: background .2s, color .2s; white-space: nowrap; }
+    .seg button[aria-pressed="true"] { background: var(--volt); color: var(--ink); }
+    .seg .dot { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; font-weight: 700; background: var(--card-2); color: var(--text); }
+    .seg button[aria-pressed="true"] .dot { background: var(--ink); color: var(--volt); }
+    @media (max-width: 760px) { .rolebar__hint { display: none; } }
+
+    /* Estructura */
+    .app { display: grid; grid-template-columns: 250px 1fr; min-height: 100vh; padding-top: var(--top); }
+    .side { position: sticky; top: var(--top); height: calc(100vh - var(--top)); border-right: 1px solid var(--line); padding: 22px 16px; display: flex; flex-direction: column; gap: 6px; background: var(--bg-2); }
+    .brand { display: flex; align-items: center; gap: 10px; padding: 0 8px 18px; }
+    .brand__mark { width: 34px; height: 34px; border-radius: 9px; background: var(--volt); color: var(--ink); display: grid; place-items: center; font-family: Archivo, sans-serif; font-stretch: 72%; font-weight: 900; font-size: 22px; }
+    .brand__txt { font-family: Archivo, sans-serif; font-stretch: 72%; font-weight: 900; font-size: 22px; text-transform: uppercase; line-height: 1; }
+    .brand__txt small { display: block; font-family: Inter, sans-serif; font-stretch: 100%; font-size: 9.5px; font-weight: 600; letter-spacing: .26em; color: var(--muted); margin-top: 3px; }
+    .navbtn { display: flex; align-items: center; gap: 12px; width: 100%; padding: 11px 12px; border-radius: 12px; border: 0; background: transparent; color: var(--muted); font-weight: 600; cursor: pointer; text-align: left; position: relative; transition: background .2s, color .2s; }
+    .navbtn:hover { background: var(--card); color: var(--text); }
+    .navbtn[aria-current="page"] { background: var(--card-2); color: var(--text); }
+    .navbtn[aria-current="page"] svg { color: var(--volt); }
+    .navbtn svg { width: 20px; height: 20px; flex: none; }
+    .badge { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 99px; background: var(--volt); color: var(--ink); font-size: 11.5px; font-weight: 700; display: inline-grid; place-items: center; margin-left: auto; }
+    .me { margin-top: auto; display: flex; align-items: center; gap: 10px; padding: 12px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); font-size: 13px; }
+    .me b { display: block; font-size: 14px; }
+    .main { padding: 30px clamp(16px, 3vw, 40px) 60px; max-width: 1180px; width: 100%; min-width: 0; }
+    .tabbar { display: none; }
+
+    /* Cabecera de vista */
+    .vhead { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
+    .vhead h1 { font-size: clamp(38px, 5vw, 56px); }
+    .vhead p { color: var(--muted); margin-top: 8px; }
+    .eyebrow { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .16em; color: var(--volt); margin-bottom: 10px; display: block; }
+
+    /* Piezas */
+    .grid { display: grid; gap: 14px; }
+    .g2 { grid-template-columns: 1fr 1fr; }
+    .g3 { grid-template-columns: repeat(3, 1fr); }
+    .g4 { grid-template-columns: repeat(4, 1fr); }
+    .split { display: grid; grid-template-columns: 1.4fr 1fr; gap: 14px; align-items: start; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 20px; min-width: 0; }
+    .card__h { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 14px; }
+    .card__h h2 { font-size: 24px; }
+    .card__h small { color: var(--muted); font-size: 13px; }
+    .tile .lbl { font-size: 13px; color: var(--muted); }
+    .tile .num { font-family: Archivo, sans-serif; font-stretch: 72%; font-weight: 850; font-size: 42px; line-height: 1.05; margin-top: 6px; }
+    .tile .sub { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+    .tile .sub b { color: var(--ok); font-weight: 600; }
+    .meter { height: 8px; border-radius: 99px; background: var(--card-2); overflow: hidden; margin-top: 10px; }
+    .meter i { display: block; height: 100%; border-radius: 99px; background: var(--volt); transition: width .6s cubic-bezier(.2, .7, .2, 1); }
+    .meter--sm { height: 6px; margin-top: 6px; }
+    .meter--warn i { background: var(--warn); }
+    .meter--bad i { background: var(--bad); }
+
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 16px; border-radius: 11px; border: 1px solid var(--line); background: var(--card-2); color: var(--text); font-weight: 600; font-size: 14px; cursor: pointer; text-decoration: none; transition: transform .15s, border-color .2s, background .2s; white-space: nowrap; }
+    .btn:hover { border-color: #55555c; }
+    .btn:active { transform: scale(.97); }
+    .btn--volt { background: var(--volt); color: var(--ink); border-color: var(--volt); }
+    .btn--volt:hover { background: #e2ff70; border-color: #e2ff70; }
+    .btn--wa { background: var(--wa); color: #06210f; border-color: var(--wa); }
+    .btn--ghost { background: transparent; }
+    .btn--sm { padding: 7px 12px; font-size: 13px; border-radius: 9px; }
+    .btn--block { width: 100%; }
+    .btn svg { width: 16px; height: 16px; }
+
+    .av { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 13px; color: var(--ink); flex: none; }
+    .av--lg { width: 64px; height: 64px; font-size: 22px; }
+    .pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 99px; white-space: nowrap; border: 1px solid transparent; }
+    .pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .pill--ok { color: var(--ok); background: rgba(74, 222, 128, .1); }
+    .pill--warn { color: var(--warn); background: rgba(255, 178, 58, .1); }
+    .pill--bad { color: var(--bad); background: rgba(255, 107, 90, .1); }
+    .pill--plain { color: var(--muted); border-color: var(--line); }
+    .pill--plain::before { display: none; }
+
+    /* Agenda */
+    .agenda { display: grid; gap: 8px; }
+    .slot { display: grid; grid-template-columns: 58px 1fr auto; gap: 14px; align-items: center; padding: 12px 14px; border-radius: 14px; background: var(--bg-2); border: 1px solid var(--line); transition: opacity .3s, border-color .3s; }
+    .slot--next { border-color: var(--volt); }
+    .slot--done { opacity: .5; }
+    .slot__t { font-family: Archivo, sans-serif; font-stretch: 72%; font-weight: 850; font-size: 22px; }
+    .slot__who { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .slot__who b { display: block; font-size: 14.5px; }
+    .slot__who div > span { font-size: 12.5px; color: var(--muted); }
+    .slot__who > div { min-width: 0; }
+    .nowtag { font-size: 11px; font-weight: 700; color: var(--ink); background: var(--volt); padding: 2px 7px; border-radius: 6px; margin-left: 6px; text-transform: uppercase; letter-spacing: .06em; }
+
+    /* Avisos y actividad */
+    .alerts, .feed { display: grid; gap: 8px; }
+    .alert { display: flex; gap: 12px; align-items: center; padding: 12px 14px; border-radius: 14px; background: var(--bg-2); border: 1px solid var(--line); }
+    .alert__ico { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; flex: none; font-size: 16px; }
+    .alert__ico svg { width: 18px; height: 18px; }
+    .alert p { font-size: 14px; flex: 1; min-width: 0; }
+    .alert p span { display: block; font-size: 12.5px; color: var(--muted); }
+    .feed__it { display: flex; gap: 12px; align-items: flex-start; font-size: 14px; padding: 8px 2px; border-bottom: 1px dashed var(--line); }
+    .feed__it:last-child { border-bottom: 0; }
+    .feed__it .av { width: 30px; height: 30px; font-size: 11px; }
+    .feed__it small { display: block; color: var(--dim); font-size: 12px; }
+    .feed__it--new { animation: flash 2.4s ease-out; border-radius: 10px; }
+    @keyframes flash { 0% { background: rgba(212, 255, 58, .18); } 100% { background: transparent; } }
+    .empty { color: var(--muted); font-size: 14px; padding: 14px; text-align: center; border: 1px dashed var(--line); border-radius: 14px; }
+
+    /* Clientes */
+    .toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
+    .search { flex: 1 1 220px; display: flex; align-items: center; gap: 8px; padding: 0 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); }
+    .search svg { width: 18px; height: 18px; color: var(--muted); flex: none; }
+    .search input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--text); font: inherit; font-size: 16px; padding: 11px 0; outline: none; }
+    .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+    .chip { border: 1px solid var(--line); background: var(--card); color: var(--muted); font-weight: 600; font-size: 13px; padding: 8px 12px; border-radius: 10px; cursor: pointer; }
+    .chip[aria-pressed="true"] { background: var(--text); color: var(--ink); border-color: var(--text); }
+    .rows { display: grid; gap: 8px; }
+    .row { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) 150px 120px; gap: 16px; align-items: center; padding: 12px 16px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); cursor: pointer; text-align: left; width: 100%; transition: border-color .2s, transform .15s; }
+    .row:hover { border-color: #4a4a51; }
+    .row__who { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .row__who b { display: block; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .row__who div > span, .row__plan span { font-size: 12.5px; color: var(--muted); }
+    .row__plan b { display: block; font-size: 14px; font-weight: 600; }
+    .row__bono { font-size: 12.5px; color: var(--muted); }
+    .count { color: var(--muted); font-size: 13px; margin-top: 12px; }
+
+    /* Ficha (panel lateral) */
+    .scrim { position: fixed; inset: 0; z-index: 120; background: rgba(0, 0, 0, .6); backdrop-filter: blur(3px); opacity: 0; pointer-events: none; transition: opacity .25s; }
+    .scrim.open { opacity: 1; pointer-events: auto; }
+    .drawer { position: fixed; z-index: 130; top: 0; right: 0; bottom: 0; width: min(520px, 100%); background: var(--bg-2); border-left: 1px solid var(--line); transform: translateX(100%); transition: transform .35s cubic-bezier(.2, .7, .2, 1); overflow-y: auto; padding: 24px; }
+    .drawer.open { transform: none; }
+    .drawer__close { position: absolute; top: 16px; right: 16px; width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line); background: var(--card); cursor: pointer; font-size: 20px; line-height: 1; }
+    .drawer__head { display: flex; gap: 14px; align-items: center; margin-bottom: 20px; padding-right: 40px; }
+    .drawer__head h2 { font-size: 34px; }
+    .kv { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+    .kv > div { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; }
+    .kv small { display: block; color: var(--muted); font-size: 12px; }
+    .kv b { font-size: 15px; }
+    .stack { display: grid; gap: 14px; }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .note { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; font-size: 14px; color: #d4d4d8; }
+    .note small { display: block; color: var(--muted); font-size: 12px; margin-bottom: 4px; }
+
+    /* Gráfica */
+    .chart { position: relative; width: 100%; }
+    .chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+    .chart .tick { fill: var(--dim); font-size: 11px; font-family: Inter, sans-serif; }
+    .chart .grid-l { stroke: var(--line); stroke-width: 1; }
+    .tip { position: absolute; pointer-events: none; background: #fff; color: var(--ink); font-size: 12.5px; padding: 6px 10px; border-radius: 8px; white-space: nowrap; transform: translate(-50%, calc(-100% - 12px)); opacity: 0; transition: opacity .12s; box-shadow: 0 8px 20px -8px rgba(0, 0, 0, .6); }
+    .tip b { font-size: 14px; }
+
+    /* Clases */
+    .daytabs { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin-bottom: 16px; padding-bottom: 2px; }
+    .daytab { flex: none; min-width: 68px; padding: 9px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); cursor: pointer; text-align: center; line-height: 1.15; }
+    .daytab small { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+    .daytab b { font-size: 18px; }
+    .daytab[aria-pressed="true"] { background: var(--volt); color: var(--ink); border-color: var(--volt); }
+    .daytab[aria-pressed="true"] small { color: var(--ink); opacity: .7; }
+    .cls { display: grid; grid-template-columns: 70px 1fr 200px auto; gap: 16px; align-items: center; padding: 14px 16px; border-radius: 16px; background: var(--card); border: 1px solid var(--line); }
+    .cls--mine { border-color: var(--volt); }
+    .cls__t { font-family: Archivo, sans-serif; font-stretch: 72%; font-weight: 850; font-size: 24px; }
+    .cls__n b { display: block; font-size: 15.5px; }
+    .cls__n > span { font-size: 13px; color: var(--muted); }
+    .cls__occ { font-size: 12.5px; color: var(--muted); }
+    .faces { display: flex; margin-top: 6px; }
+    .faces .av { width: 24px; height: 24px; font-size: 9.5px; border: 2px solid var(--card); margin-right: -6px; }
+
+    /* Cliente */
+    .hello { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .big-n { font-family: Archivo, sans-serif; font-stretch: 72%; font-weight: 900; font-size: 84px; line-height: .9; color: var(--volt); }
+    .next { background: linear-gradient(150deg, #23281a, var(--card) 70%); border-color: #3b4420; }
+    .next__when { font-family: Archivo, sans-serif; font-stretch: 72%; font-weight: 850; font-size: 34px; text-transform: uppercase; line-height: 1; margin: 6px 0 4px; }
+    .streak { display: flex; gap: 6px; margin-top: 12px; }
+    .streak i { flex: 1; height: 34px; border-radius: 8px; background: var(--card-2); }
+    .streak i.on { background: var(--volt); }
+    .ex { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 16px 18px; }
+    .ex__top { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+    .ex__top b { font-size: 16px; display: block; }
+    .ex__top span { font-size: 13px; color: var(--muted); }
+    .ex__kg { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
+    .ex__kg input { width: 64px; padding: 7px 8px; border-radius: 9px; border: 1px solid var(--line); background: var(--bg-2); color: var(--text); font: inherit; font-size: 16px; font-weight: 600; text-align: center; }
+    .sets { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+    .set { width: 46px; height: 46px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg-2); cursor: pointer; font-weight: 700; color: var(--muted); transition: all .15s; }
+    .set[aria-pressed="true"] { background: var(--volt); color: var(--ink); border-color: var(--volt); }
+    .ex__tip { margin-top: 12px; font-size: 13px; color: #cfd6b5; background: rgba(212, 255, 58, .06); border-radius: 10px; padding: 8px 12px; }
+    .ex__tip b { color: var(--volt); }
+    .prog { position: sticky; top: calc(var(--top) + 8px); z-index: 5; display: flex; align-items: center; gap: 14px; padding: 12px 16px; border-radius: 16px; background: rgba(23, 23, 26, .92); backdrop-filter: blur(10px); border: 1px solid var(--line); margin-bottom: 14px; }
+    .prog .meter { flex: 1; margin: 0; }
+    .prog b { font-size: 14px; white-space: nowrap; }
+    .prs { display: grid; gap: 8px; }
+    .pr { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px dashed var(--line); font-size: 14px; }
+    .pr:last-child { border-bottom: 0; }
+    .pr b { font-size: 15px; }
+    .pr .up { color: var(--ok); font-size: 12.5px; font-weight: 600; margin-left: 8px; }
+    .inline-form { display: flex; gap: 8px; margin-top: 14px; }
+    .inline-form input { flex: 1; min-width: 0; padding: 10px 12px; border-radius: 11px; border: 1px solid var(--line); background: var(--bg-2); color: var(--text); font: inherit; font-size: 16px; }
+
+    /* Modal WhatsApp */
+    .modal { position: fixed; z-index: 140; left: 50%; top: 50%; width: min(440px, calc(100% - 24px)); transform: translate(-50%, -46%) scale(.97); opacity: 0; pointer-events: none; transition: all .25s cubic-bezier(.2, .7, .2, 1); background: var(--bg-2); border: 1px solid var(--line); border-radius: 22px; overflow: hidden; }
+    .modal.open { opacity: 1; pointer-events: auto; transform: translate(-50%, -50%); }
+    .wa__head { display: flex; align-items: center; gap: 12px; padding: 14px 16px; background: #1f2c25; }
+    .wa__head b { display: block; font-size: 15px; }
+    .wa__head span { font-size: 12px; color: #a7c4b4; }
+    .wa__body { padding: 18px 16px; background: #0f1a14; }
+    .wa__bubble { background: #1d5c3d; border-radius: 14px 14px 4px 14px; padding: 4px; margin-left: 30px; }
+    .wa__bubble textarea { width: 100%; min-height: 120px; resize: vertical; border: 0; background: transparent; color: #eafff2; font: inherit; font-size: 15px; padding: 8px 10px; outline: none; }
+    .wa__foot { display: flex; gap: 8px; justify-content: flex-end; padding: 14px 16px; }
+
+    .toast { position: fixed; z-index: 150; left: 50%; bottom: 24px; transform: translate(-50%, 20px); opacity: 0; pointer-events: none; transition: all .3s cubic-bezier(.2, .7, .2, 1); background: var(--text); color: var(--ink); font-weight: 600; font-size: 14px; padding: 12px 18px; border-radius: 14px; width: max-content; max-width: calc(100% - 24px); box-shadow: 0 16px 40px -12px rgba(0, 0, 0, .7); }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+    .view { animation: fade .35s cubic-bezier(.2, .7, .2, 1) both; }
+    @keyframes fade { from { opacity: 0; transform: translateY(10px); } }
+
+    @media (max-width: 1100px) {
+      .g4 { grid-template-columns: 1fr 1fr; }
+      .row { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) 120px; }
+      .row > :nth-child(3) { display: none; }
+    }
+    @media (max-width: 900px) {
+      .app { grid-template-columns: 1fr; padding-bottom: 80px; }
+      .side { display: none; }
+      .main { padding-top: 22px; }
+      .tabbar { display: grid; grid-template-columns: repeat(4, 1fr); position: fixed; z-index: 80; left: 0; right: 0; bottom: 0; background: rgba(17, 17, 19, .95); backdrop-filter: blur(14px); border-top: 1px solid var(--line); padding: 6px 6px calc(6px + env(safe-area-inset-bottom)); }
+      .tabbar .navbtn { flex-direction: column; gap: 3px; font-size: 11.5px; padding: 8px 4px; text-align: center; background: transparent; }
+      .tabbar .navbtn[aria-current="page"] { color: var(--volt); background: transparent; }
+      .tabbar .badge { position: absolute; top: 2px; left: calc(50% + 6px); margin: 0; min-width: 18px; height: 18px; font-size: 10.5px; }
+      .split, .g2, .g3 { grid-template-columns: 1fr; }
+      .toast { bottom: 90px; }
+      .cls { grid-template-columns: 60px 1fr auto; }
+      .cls > .cls__occ { grid-column: 2 / -1; grid-row: 2; }
+      .cls__t { grid-row: span 2; }
+    }
+    @media (max-width: 560px) {
+      .g4 { gap: 10px; }
+      .tile { padding: 14px; }
+      .tile .num { font-size: 34px; }
+      .row { grid-template-columns: minmax(0, 1fr) auto; padding: 12px; }
+      .row > :nth-child(2) { display: none; }
+      .slot { grid-template-columns: 48px 1fr; gap: 6px 12px; }
+      .slot__t { font-size: 19px; grid-row: span 2; }
+      .slot > :last-child { justify-self: start; }
+      .alert { flex-wrap: wrap; }
+      .alert p { flex: 1 1 calc(100% - 50px); }
+      .alert .btn { margin-left: 46px; }
+      .seg button { padding: 7px 10px; font-size: 13px; }
+      .drawer { padding: 20px 16px; }
+      .big-n { font-size: 70px; }
+      .kv { grid-template-columns: 1fr 1fr; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+  </style>
+</head>
+<body>
+  <div class="demo-bar"><span><b>App de muestra</b> diseñada por Nexo Studio</span><a href="https://wa.me/34711591734?text=Hola,%20he%20visto%20la%20demo%20de%20la%20app%20de%20gimnasio%20y%20me%20interesa" target="_blank" rel="noopener">Quiero una así</a></div>
+
+  <div class="rolebar">
+    <span class="rolebar__hint">Ver la app como:</span>
+    <div class="seg" role="group" aria-label="Ver la app como">
+      <button data-role="coach" aria-pressed="true"><span class="dot">ÁR</span>Entrenador</button>
+      <button data-role="client" aria-pressed="false"><span class="dot">LM</span>Cliente</button>
+    </div>
+    <span class="rolebar__hint" id="role-hint">Prueba a reservar como cliente y mira cómo le llega al entrenador.</span>
+  </div>
+
+  <div class="app">
+    <aside class="side" id="side"></aside>
+    <main class="main" id="main"></main>
+  </div>
+  <nav class="tabbar" id="tabbar" aria-label="Secciones"></nav>
+
+  <div class="scrim" id="scrim"></div>
+  <aside class="drawer" id="drawer" aria-label="Ficha del cliente"></aside>
+  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="Mensaje de WhatsApp"></div>
+  <div class="toast" id="toast" role="status"></div>
+
+  <script>
+  (function () {
+    "use strict";
+
+    // ---------- Utilidades ----------
+    var DAYS = ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"];
+    var DAYS_L = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
+    var MONTHS = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+    var MONTHS_L = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+    var TODAY = new Date(); TODAY.setHours(0, 0, 0, 0);
+    function addDays(n) { var d = new Date(TODAY); d.setDate(d.getDate() + n); return d; }
+    function dayLabel(d) { var diff = Math.round((d - TODAY) / 864e5); return diff === 0 ? "hoy" : diff === 1 ? "mañana" : DAYS[d.getDay()] + " " + d.getDate() + " " + MONTHS[d.getMonth()]; }
+    function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+    function eur(n) { return n.toLocaleString("es-ES", { maximumFractionDigits: 0 }) + " €"; }
+    function kg(n) { return n.toLocaleString("es-ES", { minimumFractionDigits: 1, maximumFractionDigits: 1 }); }
+    function first(name) { return name.split(" ")[0]; }
+    function nowMin() { var n = new Date(); return n.getHours() * 60 + n.getMinutes(); }
+    function tmin(t) { var p = t.split(":"); return +p[0] * 60 + +p[1]; }
+
+    var ICON = {
+      home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>',
+      users: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.2c2.9.3 5 2.6 5 5.8"/></svg>',
+      euro: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 6.5A7 7 0 1 0 17 17.5M4 10h9M4 14h9"/></svg>',
+      cal: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>',
+      dumb: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 7v10M3 9v6M18 7v10M21 9v6M6 12h12"/></svg>',
+      chart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18M5 16l4-5 4 3 6-8"/></svg>',
+      search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>',
+      wa: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm4.5 12.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.5 1 2.7c.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3z"/></svg>',
+      check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>',
+      bolt: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg>',
+      clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>'
+    };
+
+    // ---------- Datos de muestra (ficticios) ----------
+    var COLORS = ["#d4ff3a", "#7fd3ff", "#ffb38a", "#c9a7ff", "#7ef0c4", "#ffd36b", "#ff9fb8", "#a7b4ff"];
+    function weights(start, end, n, wobble) {
+      var out = [];
+      for (var i = 0; i < n; i++) {
+        var d = addDays(-(n - 1 - i) * 7);
+        var v = start + (end - start) * (i / (n - 1)) + Math.sin(i * 1.7) * wobble;
+        out.push({ label: d.getDate() + " " + MONTHS[d.getMonth()], v: Math.round(v * 10) / 10 });
+      }
+      return out;
+    }
+    var CLIENTS = [
+      { id: "laura", name: "Laura Martín", type: "pt", plan: "Bono 8 sesiones", total: 8, left: 3, price: 240, paid: true, last: 1, goal: "Perder grasa", since: "agosto", w: weights(74.2, 67.1, 12, .35), note: "Le molesta la rodilla izquierda en zancadas profundas: limitar rango. Muy constante." },
+      { id: "javier", name: "Javier Ruiz", type: "pt", plan: "Reto 12 semanas", total: 24, left: 1, price: 590, paid: true, last: 2, goal: "Oposiciones a bombero", since: "agosto", w: weights(82.5, 79.8, 12, .3), note: "Prueba física el 20 del mes que viene. Priorizar dominadas y carrera." },
+      { id: "pilar", name: "Pilar Gómez", type: "pt", plan: "Bono 8 sesiones", total: 8, left: 5, price: 240, paid: true, last: 3, goal: "Salud y espalda", since: "marzo", w: weights(66.0, 64.4, 12, .25), note: "58 años. Sin dolor lumbar desde junio. Subir carga en sentadilla poco a poco." },
+      { id: "marcos", name: "Marcos Lacasa", type: "gym", plan: "Cuota Club", price: 39, paid: false, last: 4, goal: "Ganar músculo", since: "enero" },
+      { id: "sergio", name: "Sergio Blasco", type: "gym", plan: "Cuota Libre", price: 29, paid: true, last: 12, goal: "Mantenerse en forma", since: "2024" },
+      { id: "nuria", name: "Nuria Pardo", type: "pt", plan: "Bono 8 sesiones", total: 8, left: 0, price: 240, paid: false, last: 3, goal: "Ganar fuerza", since: "septiembre", w: weights(61.0, 61.8, 8, .2), note: "Ha terminado el bono. Quiere seguir pero en horario de mañana." },
+      { id: "andres", name: "Andrés Gil", type: "gym", plan: "Cuota Club", price: 39, paid: true, last: 1, goal: "Ganar músculo", since: "mayo" },
+      { id: "elena", name: "Elena Sanz", type: "pt", plan: "Bono pareja · 8 sesiones", total: 8, left: 4, price: 176, paid: true, last: 2, goal: "Ponerse en forma con su pareja", since: "octubre", w: weights(70.4, 68.9, 6, .2), note: "Entrena con su pareja (Rubén). Les motiva competir entre ellos." },
+      { id: "raul", name: "Raúl Marco", type: "gym", plan: "Cuota Club", price: 39, paid: false, last: 6, goal: "Perder grasa", since: "julio" },
+      { id: "carmen", name: "Carmen Ibáñez", type: "gym", plan: "Cuota Libre", price: 29, paid: true, last: 15, goal: "Salud", since: "2023" },
+      { id: "david", name: "David Lorente", type: "pt", plan: "Bono 8 sesiones", total: 8, left: 6, price: 240, paid: true, last: 0, goal: "Hipertrofia", since: "octubre", w: weights(71.0, 72.6, 6, .2), note: "Quiere ganar 4 kg de músculo antes del verano. Revisar proteína." },
+      { id: "irene", name: "Irene Torres", type: "gym", plan: "Club anual", price: 390, paid: true, last: 3, goal: "Fuerza", since: "2024" }
+    ];
+    CLIENTS.forEach(function (c, i) { c.color = COLORS[i % COLORS.length]; c.ini = c.name.split(" ").map(function (p) { return p[0]; }).join(""); });
+    function byId(id) { for (var i = 0; i < CLIENTS.length; i++) if (CLIENTS[i].id === id) return CLIENTS[i]; }
+    var ME = byId("laura");
+    ME.prs = [["Sentadilla", 45, 62.5], ["Peso muerto", 50, 75], ["Hip thrust", 50, 85], ["Dominadas asistidas", "banda gruesa", "banda fina"]];
+    ME.measures = [["Cintura", 84, 76], ["Cadera", 104, 99], ["Grasa corporal", 31, 26]];
+
+    var SOCIOS = 184, PREVISTO = 8120;
+
+    // Sesiones 1 a 1 de hoy
+    var AGENDA = [
+      { t: "7:00", id: "david" }, { t: "9:00", id: "pilar" }, { t: "13:00", id: "javier" }, { t: "17:00", id: "elena" }, { t: "18:00", id: "laura" }
+    ].map(function (s) { s.done = false; s.kind = "pt"; return s; });
+
+    // Horario semanal de clases: [hora, clase, entrenador, plazas ocupadas de 10]
+    var WEEK = {
+      1: [["7:00", "Fuerza básica", "Álex", 6], ["9:30", "Movilidad y core", "Marta", 4], ["18:30", "Funcional", "Dani", 10], ["20:00", "Fuerza básica", "Álex", 7]],
+      2: [["7:00", "HIIT", "Dani", 5], ["10:00", "Salud +50", "Marta", 7], ["18:30", "Halterofilia", "Álex", 8], ["20:00", "Funcional", "Dani", 3]],
+      3: [["7:00", "Fuerza básica", "Álex", 4], ["9:30", "Movilidad y core", "Marta", 2], ["18:30", "Preparación oposiciones", "Álex", 9], ["20:00", "HIIT", "Dani", 10]],
+      4: [["7:00", "HIIT", "Dani", 5], ["10:00", "Salud +50", "Marta", 6], ["18:30", "Halterofilia", "Álex", 7], ["20:00", "Funcional", "Dani", 8]],
+      5: [["7:00", "Fuerza básica", "Álex", 5], ["14:00", "Express 30'", "Dani", 4], ["18:00", "Funcional por parejas", "Dani", 7]],
+      6: [["10:00", "Entrenamiento en grupo", "Álex", 8], ["11:30", "Movilidad y estiramientos", "Marta", 3]],
+      0: [["10:00", "Open box", "Álex", 4]]
+    };
+    var NAMES = CLIENTS.filter(function (c) { return c.id !== "laura"; });
+    var CLASSES = [];
+    for (var di = 0; di < 6; di++) {
+      var day = addDays(di);
+      WEEK[day.getDay()].forEach(function (c, k) {
+        var att = []; for (var j = 0; j < Math.min(c[3], 5); j++) att.push(NAMES[(di * 3 + k * 2 + j) % NAMES.length]);
+        CLASSES.push({ id: "c" + di + "_" + k, di: di, date: day, t: c[0], name: c[1], coach: c[2], cap: 10, booked: c[3], wait: c[3] >= 10 ? 2 : 0, att: att, mine: false, myWait: false });
+      });
+    }
+    // Laura ya tiene una clase reservada para darle vida
+    (function () { var c = CLASSES.filter(function (c) { return c.di >= 2 && c.booked < 10; })[0]; if (c) { c.mine = true; c.booked++; } })();
+
+    var PT_SLOTS = ["8:00", "11:00", "16:00", "18:00", "19:00"];
+    var state = {
+      role: "coach", view: { coach: "hoy", client: "inicio" },
+      clientFilter: "todos", q: "", classDay: 0, clientDay: 0, ptDay: 1,
+      laura: { next: { di: 0, t: "18:00" }, workoutDay: 0, sets: {}, kg: {} },
+      handled: {}, unseen: 0,
+      feed: [
+        { who: "pilar", txt: "Pilar ha reservado <b>Salud +50</b> · mañana 10:00", ago: "hace 20 min" },
+        { who: "andres", txt: "Andrés ha pagado su cuota de " + MONTHS_L[TODAY.getMonth()] + " (39 €)", ago: "hace 1 h" },
+        { who: "javier", txt: "Javier ha terminado su entreno: <b>Carrera y dominadas</b>", ago: "hace 3 h" },
+        { who: "elena", txt: "Elena ha cancelado <b>HIIT</b> del jueves y ha entrado alguien de la lista de espera", ago: "ayer" }
+      ]
+    };
+    function pushFeed(who, txt) { state.feed.unshift({ who: who, txt: txt, ago: "ahora mismo", fresh: true }); state.unseen++; }
+
+    var WORKOUTS = [
+      { name: "Pierna y glúteo", ex: [["Sentadilla con barra", 4, "8", 60, "Baja controlando 3 segundos y sube rápido."], ["Peso muerto rumano", 3, "10", 45, "Espalda neutra: piensa en llevar la cadera atrás."], ["Zancadas con mancuernas", 3, "12", 10, "Rango corto en la rodilla izquierda, sin dolor."], ["Hip thrust", 4, "10", 80, "Aguanta 1 segundo arriba apretando glúteo."], ["Plancha", 3, "40 s", 0, ""]] },
+      { name: "Torso", ex: [["Press banca", 4, "8", 32.5, "Escápulas juntas y pies firmes en el suelo."], ["Remo con mancuerna", 3, "10", 14, ""], ["Press militar", 3, "10", 10, "No arquees la espalda al subir."], ["Jalón al pecho", 3, "12", 35, ""], ["Face pull", 3, "15", 12, ""]] },
+      { name: "Full body y cardio", ex: [["Peso muerto", 4, "5", 70, "Este mes buscamos los 75 kg."], ["Dominadas asistidas", 3, "6", 0, "Con la banda fina."], ["Swing con kettlebell", 4, "15", 16, ""], ["Remo ergómetro", 1, "10 min", 0, "Ritmo cómodo, que puedas hablar."]] }
+    ];
+
+    // ---------- Navegación ----------
+    var NAV = {
+      coach: [["hoy", "Hoy", "home"], ["clientes", "Clientes", "users"], ["cobros", "Cobros", "euro"], ["clases", "Clases", "cal"]],
+      client: [["inicio", "Inicio", "home"], ["rutina", "Mi rutina", "dumb"], ["reservar", "Reservar", "cal"], ["progreso", "Progreso", "chart"]]
+    };
+    function navHTML(mobile) {
+      return NAV[state.role].map(function (n) {
+        var badge = state.role === "coach" && n[0] === "hoy" && state.unseen ? '<span class="badge">' + state.unseen + "</span>" : "";
+        return '<button class="navbtn" data-nav="' + n[0] + '"' + (state.view[state.role] === n[0] ? ' aria-current="page"' : "") + ">" + ICON[n[2]] + "<span>" + n[1] + "</span>" + badge + "</button>";
+      }).join("");
+    }
+    function renderShell() {
+      var me = state.role === "coach"
+        ? '<span class="av" style="background:var(--volt)">ÁR</span><div><b>Álex Romero</b><span class="muted">Entrenador · Admin</span></div>'
+        : '<span class="av" style="background:' + ME.color + '">LM</span><div><b>Laura Martín</b><span class="muted">' + ME.plan + "</span></div>";
+      document.getElementById("side").innerHTML = '<div class="brand"><span class="brand__mark">F</span><span class="brand__txt">Forja<small>' + (state.role === "coach" ? "Panel del club" : "Mi entreno") + "</small></span></div>" + navHTML() + '<div class="me">' + me + "</div>";
+      document.getElementById("tabbar").innerHTML = navHTML(true);
+      document.querySelectorAll(".seg button").forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.role === state.role ? "true" : "false"); });
+      document.getElementById("role-hint").textContent = state.role === "coach" ? "Prueba a reservar como cliente y mira cómo le llega al entrenador." : "Lo que hagas aquí le aparece a Álex en su panel.";
+    }
+    function render(keepScroll) {
+      if (state.role === "coach" && state.view.coach === "hoy") state.unseenShown = state.unseen, state.unseen = 0;
+      renderShell();
+      var v = state.view[state.role], main = document.getElementById("main");
+      var fn = VIEWS[state.role][v];
+      main.innerHTML = '<div class="view">' + fn() + "</div>";
+      if (AFTER[v]) AFTER[v]();
+      state.feed.forEach(function (f) { f.fresh = false; });
+      if (!keepScroll) window.scrollTo(0, 0);
+    }
+
+    // ---------- Piezas ----------
+    function av(c, extra) { return '<span class="av' + (extra || "") + '" style="background:' + c.color + '">' + c.ini + "</span>"; }
+    function meter(val, max, mod) { var p = max ? Math.max(0, Math.min(100, val / max * 100)) : 0; return '<div class="meter ' + (mod || "") + '"><i style="width:' + p + '%"></i></div>'; }
+    function payPill(c) { return c.paid ? '<span class="pill pill--ok">Pagado</span>' : '<span class="pill pill--bad">Pendiente</span>'; }
+    function bonoTxt(c) { return c.type === "pt" ? (c.left === 0 ? "Bono agotado" : "Quedan " + c.left + " de " + c.total + " sesiones") : "Acceso libre"; }
+    function bonoMod(c) { return c.left === 0 ? "meter--bad" : c.left <= 1 ? "meter--warn" : ""; }
+    function lastTxt(n) { return n === 0 ? "Ha venido hoy" : n === 1 ? "Vino ayer" : "Vino hace " + n + " días"; }
+
+    // ---------- Gráfica de línea (una serie, con tooltip) ----------
+    function lineChart(el, pts, unit) {
+      var W = Math.max(280, el.clientWidth), H = 210, L = 38, R = 46, T = 14, B = 26;
+      var vs = pts.map(function (p) { return p.v; });
+      var min = Math.floor(Math.min.apply(null, vs) - .5), max = Math.ceil(Math.max.apply(null, vs) + .5);
+      function x(i) { return L + i * (W - L - R) / Math.max(1, pts.length - 1); }
+      function y(v) { return T + (max - v) / (max - min) * (H - T - B); }
+      var mid = Math.round((min + max) / 2), s = "";
+      [min, mid, max].forEach(function (g) { s += '<line class="grid-l" x1="' + L + '" x2="' + (W - R) + '" y1="' + y(g) + '" y2="' + y(g) + '"/><text class="tick" x="' + (L - 8) + '" y="' + (y(g) + 4) + '" text-anchor="end">' + g + "</text>"; });
+      [0, Math.floor((pts.length - 1) / 2), pts.length - 1].forEach(function (i, k) { s += '<text class="tick" x="' + x(i) + '" y="' + (H - 6) + '" text-anchor="' + (k === 0 ? "start" : k === 2 ? "end" : "middle") + '">' + esc(pts[i].label) + "</text>"; });
+      var d = pts.map(function (p, i) { return (i ? "L" : "M") + x(i).toFixed(1) + " " + y(p.v).toFixed(1); }).join(" ");
+      var area = d + " L" + x(pts.length - 1) + " " + (H - B) + " L" + L + " " + (H - B) + " Z";
+      var li = pts.length - 1;
+      s += '<path d="' + area + '" fill="#d4ff3a" opacity=".07"/>';
+      s += '<path d="' + d + '" fill="none" stroke="#d4ff3a" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
+      s += '<circle cx="' + x(li) + '" cy="' + y(pts[li].v) + '" r="5" fill="#d4ff3a" stroke="#17171a" stroke-width="2"/>';
+      s += '<text x="' + (x(li) + 9) + '" y="' + (y(pts[li].v) + 4) + '" fill="#f3f3f0" font-size="12" font-weight="600" font-family="Inter">' + kg(pts[li].v) + "</text>";
+      s += '<line class="xh" x1="0" x2="0" y1="' + T + '" y2="' + (H - B) + '" stroke="#6f6f77" stroke-dasharray="3 3" opacity="0"/><circle class="hd" r="5" fill="#d4ff3a" stroke="#17171a" stroke-width="2" opacity="0"/>';
+      s += '<rect x="' + L + '" y="0" width="' + (W - L - R) + '" height="' + H + '" fill="transparent" class="hit"/>';
+      el.innerHTML = '<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="Evolución del peso: de ' + kg(pts[0].v) + " a " + kg(pts[li].v) + ' kg">' + s + '</svg><div class="tip"></div>';
+      var svg = el.querySelector("svg"), tip = el.querySelector(".tip"), xh = el.querySelector(".xh"), hd = el.querySelector(".hd");
+      function move(e) {
+        var r = svg.getBoundingClientRect(), px = (e.clientX - r.left) * W / r.width;
+        var i = Math.max(0, Math.min(pts.length - 1, Math.round((px - L) / ((W - L - R) / Math.max(1, pts.length - 1)))));
+        var cx = x(i), cy = y(pts[i].v);
+        xh.setAttribute("x1", cx); xh.setAttribute("x2", cx); xh.setAttribute("opacity", 1);
+        hd.setAttribute("cx", cx); hd.setAttribute("cy", cy); hd.setAttribute("opacity", 1);
+        tip.innerHTML = "<b>" + kg(pts[i].v) + " " + unit + "</b> · " + esc(pts[i].label);
+        tip.style.left = (cx * r.width / W) + "px"; tip.style.top = (cy * r.height / H) + "px"; tip.style.opacity = 1;
+      }
+      function leave() { xh.setAttribute("opacity", 0); hd.setAttribute("opacity", 0); tip.style.opacity = 0; }
+      var hit = el.querySelector(".hit");
+      hit.addEventListener("pointermove", move); hit.addEventListener("pointerdown", move); hit.addEventListener("pointerleave", leave);
+    }
+
+    // ---------- Vistas del entrenador ----------
+    function alertsList() {
+      var out = [];
+      CLIENTS.forEach(function (c) {
+        if (c.type === "pt" && c.left <= 1 && !state.handled["bono_" + c.id]) out.push({ key: "bono_" + c.id, c: c, kind: "bono", ico: ICON.bolt, col: "var(--warn)", txt: c.left === 0 ? first(c.name) + " ha agotado su bono" : "A " + first(c.name) + " le queda 1 sesión del bono", sub: "Buen momento para ofrecerle renovar" });
+        if (!c.paid && !state.handled["pago_" + c.id]) out.push({ key: "pago_" + c.id, c: c, kind: "pago", ico: ICON.euro, col: "var(--bad)", txt: first(c.name) + " tiene pendiente " + eur(c.price), sub: c.plan + " · " + MONTHS_L[TODAY.getMonth()] });
+        if (c.last >= 10 && !state.handled["ina_" + c.id]) out.push({ key: "ina_" + c.id, c: c, kind: "ina", ico: ICON.clock, col: "#7fd3ff", txt: first(c.name) + " no viene desde hace " + c.last + " días", sub: "Riesgo de baja · escríbele antes de que se vaya" });
+      });
+      return out;
+    }
+    function cobrado() { return PREVISTO - CLIENTS.filter(function (c) { return !c.paid; }).reduce(function (a, c) { return a + c.price; }, 0); }
+    function agendaItems() {
+      var items = AGENDA.map(function (s) { return { t: s.t, pt: s }; });
+      CLASSES.filter(function (c) { return c.di === 0; }).forEach(function (c) { items.push({ t: c.t, cls: c }); });
+      // Si Laura ha reservado sesión para hoy a otra hora, aparece
+      return items.sort(function (a, b) { return tmin(a.t) - tmin(b.t); });
+    }
+    var VIEWS = { coach: {}, client: {} };
+
+    VIEWS.coach.hoy = function () {
+      var h = new Date().getHours(), saludo = h < 13 ? "Buenos días" : h < 20 ? "Buenas tardes" : "Buenas noches";
+      var al = alertsList(), items = agendaItems(), n = nowMin(), nextIdx = -1;
+      items.forEach(function (it, i) { if (nextIdx < 0 && tmin(it.t) + 50 >= n && !(it.pt && it.pt.done)) nextIdx = i; });
+      var ptLeft = AGENDA.filter(function (s) { return !s.done; }).length;
+      var renov = CLIENTS.filter(function (c) { return c.type === "pt" && c.left <= 1; }).length;
+      var pend = CLIENTS.filter(function (c) { return !c.paid; }).length;
+      var html = '<div class="vhead"><div><span class="eyebrow">' + DAYS_L[TODAY.getDay()] + " " + TODAY.getDate() + " de " + MONTHS_L[TODAY.getMonth()] + "</span><h1>" + saludo + ', Álex.</h1><p>Tienes ' + ptLeft + " sesiones personales pendientes hoy y " + al.length + " avisos.</p></div></div>";
+      html += '<div class="grid g4" style="margin-bottom:14px">' +
+        '<div class="card tile"><div class="lbl">Socios activos</div><div class="num">' + SOCIOS + '</div><div class="sub"><b>+6</b> este mes</div></div>' +
+        '<div class="card tile"><div class="lbl">Cobrado en ' + MONTHS_L[TODAY.getMonth()] + '</div><div class="num">' + eur(cobrado()) + "</div>" + meter(cobrado(), PREVISTO) + '<div class="sub">de ' + eur(PREVISTO) + " previstos</div></div>" +
+        '<div class="card tile"><div class="lbl">Sesiones 1 a 1 hoy</div><div class="num">' + ptLeft + '</div><div class="sub">' + (AGENDA.length - ptLeft) + " hechas de " + AGENDA.length + "</div></div>" +
+        '<div class="card tile"><div class="lbl">Por renovar / por cobrar</div><div class="num">' + renov + ' <span class="muted" style="font-size:.6em">/</span> ' + pend + '</div><div class="sub">bonos acabándose · cuotas pendientes</div></div></div>';
+      html += '<div class="split"><div class="card"><div class="card__h"><h2>Agenda de hoy</h2><small>Sesiones 1 a 1 y clases</small></div><div class="agenda">';
+      items.forEach(function (it, i) {
+        if (it.pt) {
+          var c = byId(it.pt.id), done = it.pt.done;
+          html += '<div class="slot' + (done ? " slot--done" : i === nextIdx ? " slot--next" : "") + '"><span class="slot__t">' + it.t + '</span><div class="slot__who">' + av(c) + "<div><b>" + c.name + (i === nextIdx && !done ? '<span class="nowtag">Siguiente</span>' : "") + "</b><span>Sesión 1 a 1 · " + (c.type === "pt" ? bonoTxt(c) : c.plan) + "</span></div></div>" +
+            (done ? '<span class="pill pill--ok">Hecha</span>' : '<button class="btn btn--sm" data-act="done" data-id="' + c.id + '" data-t="' + it.t + '">' + ICON.check + "Hecha</button>") + "</div>";
+        } else {
+          var cl = it.cls;
+          html += '<div class="slot' + (i === nextIdx ? " slot--next" : "") + '"><span class="slot__t">' + it.t + '</span><div class="slot__who"><span class="av" style="background:var(--card-2);color:var(--volt)">' + ICON.users.replace("<svg", '<svg width="18" height="18"') + "</span><div><b>" + cl.name + (i === nextIdx ? '<span class="nowtag">Siguiente</span>' : "") + "</b><span>Clase con " + cl.coach + " · " + cl.booked + "/" + cl.cap + " plazas" + (cl.wait ? " · " + cl.wait + " en espera" : "") + "</span></div></div>" +
+            '<button class="btn btn--sm btn--ghost" data-act="goclass" data-di="0">Ver</button></div>';
+        }
+      });
+      html += "</div></div><div class=\"stack\"><div class=\"card\"><div class=\"card__h\"><h2>Avisos</h2><small>" + al.length + " pendientes</small></div><div class=\"alerts\">";
+      if (!al.length) html += '<div class="empty">Todo al día. Nada que hacer por aquí.</div>';
+      al.forEach(function (a) {
+        html += '<div class="alert"><span class="alert__ico" style="background:color-mix(in srgb, ' + a.col + ' 14%, transparent);color:' + a.col + '">' + a.ico + "</span><p>" + a.txt + "<span>" + a.sub + '</span></p><button class="btn btn--sm btn--wa" data-act="wa" data-kind="' + a.kind + '" data-id="' + a.c.id + '" data-key="' + a.key + '">' + ICON.wa + "Escribir</button></div>";
+      });
+      html += '</div></div><div class="card"><div class="card__h"><h2>Actividad</h2><small>En directo desde la app de clientes</small></div><div class="feed">';
+      state.feed.slice(0, 6).forEach(function (f) {
+        var c = byId(f.who);
+        html += '<div class="feed__it' + (f.fresh ? " feed__it--new" : "") + '">' + av(c) + "<div>" + f.txt + "<small>" + f.ago + "</small></div></div>";
+      });
+      html += "</div></div></div></div>";
+      return html;
+    };
+
+    VIEWS.coach.clientes = function () {
+      var f = state.clientFilter, q = state.q.toLowerCase();
+      var list = CLIENTS.filter(function (c) {
+        if (q && c.name.toLowerCase().indexOf(q) < 0) return false;
+        if (f === "pt") return c.type === "pt";
+        if (f === "gym") return c.type === "gym";
+        if (f === "pend") return !c.paid;
+        if (f === "renovar") return c.type === "pt" && c.left <= 1;
+        return true;
+      });
+      var html = '<div class="vhead"><div><span class="eyebrow">Clientes</span><h1>Tus socios.</h1><p>Toca un cliente para ver su ficha, su progreso y escribirle.</p></div><button class="btn btn--volt" data-act="toast" data-msg="En la app real se abriría el formulario de alta con sus datos y forma de pago.">+ Nuevo socio</button></div>';
+      html += '<div class="toolbar"><label class="search">' + ICON.search + '<input id="q" type="search" placeholder="Buscar por nombre" value="' + esc(state.q) + '" aria-label="Buscar cliente"></label><div class="chips">' +
+        [["todos", "Todos"], ["pt", "Entreno personal"], ["gym", "Solo cuota"], ["pend", "Pago pendiente"], ["renovar", "Bono por renovar"]].map(function (o) { return '<button class="chip" data-filter="' + o[0] + '" aria-pressed="' + (f === o[0]) + '">' + o[1] + "</button>"; }).join("") + "</div></div>";
+      html += '<div class="rows" id="rows">' + rowsHTML(list) + "</div>";
+      html += '<p class="count">Mostrando ' + list.length + " de " + SOCIOS + " socios (datos de muestra).</p>";
+      return html;
+    };
+    function rowsHTML(list) {
+      if (!list.length) return '<div class="empty">Ningún cliente coincide con la búsqueda.</div>';
+      return list.map(function (c) {
+        return '<button class="row" data-open="' + c.id + '"><div class="row__who">' + av(c) + "<div><b>" + c.name + "</b><span>" + lastTxt(c.last) + '</span></div></div><div class="row__plan"><b>' + c.plan + "</b><span>" + c.goal + '</span></div><div class="row__bono">' + bonoTxt(c) + (c.type === "pt" ? meter(c.left, c.total, "meter--sm " + bonoMod(c)) : "") + "</div><div>" + payPill(c) + "</div></button>";
+      }).join("");
+    }
+
+    VIEWS.coach.cobros = function () {
+      var pend = CLIENTS.filter(function (c) { return !c.paid; }), paid = CLIENTS.filter(function (c) { return c.paid; });
+      var deuda = pend.reduce(function (a, c) { return a + c.price; }, 0);
+      var html = '<div class="vhead"><div><span class="eyebrow">Cobros · ' + MONTHS_L[TODAY.getMonth()] + '</span><h1>Quién ha pagado.</h1><p>Las cuotas se cobran por domiciliación el día 1. Aquí ves lo que falta.</p></div>' + (pend.length ? '<button class="btn btn--wa" data-act="waall">' + ICON.wa + "Recordar a los " + pend.length + " pendientes</button>" : "") + "</div>";
+      html += '<div class="grid g3" style="margin-bottom:14px"><div class="card tile"><div class="lbl">Cobrado</div><div class="num">' + eur(cobrado()) + "</div>" + meter(cobrado(), PREVISTO) + '<div class="sub">' + Math.round(cobrado() / PREVISTO * 100) + ' % de lo previsto</div></div><div class="card tile"><div class="lbl">Pendiente</div><div class="num" style="color:' + (deuda ? "var(--bad)" : "var(--ok)") + '">' + eur(deuda) + '</div><div class="sub">' + pend.length + " recibos sin pagar</div></div>" +
+        '<div class="card tile"><div class="lbl">Renovaciones de bono</div><div class="num">' + eur(1920) + '</div><div class="sub">8 bonos renovados este mes</div></div></div>';
+      html += '<div class="card" style="margin-bottom:14px"><div class="card__h"><h2>Pendientes</h2><small>' + pend.length + "</small></div><div class=\"rows\">";
+      if (!pend.length) html += '<div class="empty">Todo cobrado este mes.</div>';
+      pend.forEach(function (c) {
+        html += '<div class="alert">' + av(c) + "<p><b>" + c.name + "</b> · " + eur(c.price) + "<span>" + c.plan + ' · recibo devuelto</span></p><div class="actions"><button class="btn btn--sm btn--wa" data-act="wa" data-kind="pago" data-id="' + c.id + '" data-key="pago_' + c.id + '">' + ICON.wa + 'Recordar</button><button class="btn btn--sm" data-act="paid" data-id="' + c.id + '">' + ICON.check + "Pagado</button></div></div>";
+      });
+      html += '</div></div><div class="card"><div class="card__h"><h2>Pagados</h2><small>' + paid.length + ' de esta lista</small></div><div class="rows">';
+      paid.forEach(function (c) { html += '<div class="alert">' + av(c) + "<p><b>" + c.name + "</b> · " + eur(c.price) + "<span>" + c.plan + '</span></p><span class="pill pill--ok">Pagado</span></div>'; });
+      return html + "</div></div>";
+    };
+
+    function dayTabs(sel, attr) {
+      var s = '<div class="daytabs">';
+      for (var i = 0; i < 6; i++) { var d = addDays(i); s += '<button class="daytab" ' + attr + '="' + i + '" aria-pressed="' + (sel === i) + '"><small>' + (i === 0 ? "Hoy" : DAYS[d.getDay()]) + "</small><b>" + d.getDate() + "</b></button>"; }
+      return s + "</div>";
+    }
+    VIEWS.coach.clases = function () {
+      var list = CLASSES.filter(function (c) { return c.di === state.classDay; });
+      var html = '<div class="vhead"><div><span class="eyebrow">Clases dirigidas</span><h1>Ocupación.</h1><p>Plazas reservadas por los socios desde su app. Máximo 10 por clase.</p></div></div>' + dayTabs(state.classDay, "data-cday") + '<div class="rows">';
+      list.forEach(function (c) {
+        var full = c.booked >= c.cap, faces = c.att.slice(0, 5).map(function (p) { return av(p); }).join("") + (c.mine ? av(ME) : "");
+        html += '<div class="cls"><span class="cls__t">' + c.t + '</span><div class="cls__n"><b>' + c.name + "</b><span>con " + c.coach + '</span><div class="faces">' + faces + '</div></div><div class="cls__occ">' + c.booked + "/" + c.cap + " plazas" + (c.wait ? " · " + c.wait + " en lista de espera" : "") + meter(c.booked, c.cap, full ? "meter--warn" : "") + "</div>" + (full ? '<span class="pill pill--warn">Completa</span>' : '<span class="pill pill--ok">' + (c.cap - c.booked) + " libres</span>") + "</div>";
+      });
+      return html + "</div>";
+    };
+
+    // ---------- Vistas del cliente ----------
+    function nextSession() {
+      var n = state.laura.next;
+      if (!n) return null;
+      var d = addDays(n.di);
+      return { label: dayLabel(d), t: n.t, d: d };
+    }
+    VIEWS.client.inicio = function () {
+      var ns = nextSession(), mine = CLASSES.filter(function (c) { return c.mine; }), w = WORKOUTS[state.laura.workoutDay];
+      var lost = ME.w[0].v - ME.w[ME.w.length - 1].v;
+      var html = '<div class="vhead hello"><div><span class="eyebrow">' + DAYS_L[TODAY.getDay()] + " " + TODAY.getDate() + " de " + MONTHS_L[TODAY.getMonth()] + '</span><h1>Hola, Laura.</h1><p>Llevas <b class="volt">' + kg(lost) + " kg</b> menos desde " + ME.since + ". Sigue así.</p></div></div>";
+      html += '<div class="grid g3" style="margin-bottom:14px">';
+      html += '<div class="card next"><span class="eyebrow">Próxima sesión con Álex</span>' + (ns ? '<div class="next__when">' + ns.label + " · " + ns.t + '</div><p class="muted">Sesión 1 a 1 · Forja, sala de fuerza</p><div class="actions" style="margin-top:14px"><button class="btn btn--sm" data-act="cancelpt">Cancelar</button><button class="btn btn--sm btn--ghost" data-nav="reservar">Cambiar hora</button></div>' : '<div class="next__when">Sin reservar</div><p class="muted">Elige tu próxima sesión.</p><div style="margin-top:14px"><button class="btn btn--volt btn--sm" data-nav="reservar">Reservar sesión</button></div>') + "</div>";
+      html += '<div class="card"><span class="eyebrow">Tu bono</span><div style="display:flex;align-items:baseline;gap:10px"><span class="big-n">' + ME.left + '</span><span class="muted">de ' + ME.total + " sesiones<br>restantes</span></div>" + meter(ME.left, ME.total, bonoMod(ME)) + (ME.left <= 2 ? '<button class="btn btn--volt btn--sm btn--block" style="margin-top:14px" data-act="renew">Renovar bono · 240 €</button>' : '<p class="muted" style="margin-top:10px;font-size:13px">Cuota de gimnasio incluida.</p>') + "</div>";
+      html += '<div class="card"><span class="eyebrow">Racha</span><div class="display" style="font-size:40px">7 semanas</div><p class="muted" style="font-size:13px">entrenando 2 o más días por semana</p><div class="streak">' + "<i class=on></i>".repeat(7) + "<i></i></div></div></div>";
+      html += '<div class="grid g2"><div class="card"><div class="card__h"><h2>Entreno de hoy</h2><small>' + w.ex.length + " ejercicios</small></div><p style=\"font-size:18px;font-weight:600\">" + w.name + '</p><p class="muted" style="font-size:14px;margin-top:4px">Preparado por Álex · ~55 min</p><button class="btn btn--volt" style="margin-top:16px" data-nav="rutina">' + ICON.dumb + "Empezar entreno</button></div>";
+      html += '<div class="card"><div class="card__h"><h2>Mis clases</h2><small>' + mine.length + (mine.length === 1 ? " reservada" : " reservadas") + "</small></div>";
+      if (!mine.length) html += '<div class="empty">No tienes clases reservadas. <button class="btn btn--sm" data-nav="reservar" style="margin-left:6px">Ver horario</button></div>';
+      mine.forEach(function (c) { html += '<div class="alert" style="margin-bottom:8px"><span class="alert__ico" style="background:rgba(212,255,58,.1);color:var(--volt)">' + ICON.cal + "</span><p><b>" + c.name + "</b><span>" + dayLabel(c.date) + " · " + c.t + " · con " + c.coach + '</span></p><button class="btn btn--sm" data-act="unbook" data-c="' + c.id + '">Cancelar</button></div>'; });
+      return html + "</div></div>";
+    };
+
+    VIEWS.client.rutina = function () {
+      var L = state.laura, w = WORKOUTS[L.workoutDay], total = 0, done = 0;
+      w.ex.forEach(function (e, i) { total += e[1]; for (var s = 0; s < e[1]; s++) if (L.sets[i + "_" + s]) done++; });
+      var html = '<div class="vhead"><div><span class="eyebrow">Mi rutina · plan de Álex</span><h1>' + w.name + '.</h1><p>Toca cada serie cuando la termines. Si subes peso, cámbialo: Álex lo verá.</p></div><div class="chips">' +
+        WORKOUTS.map(function (x, i) { return '<button class="chip" data-wday="' + i + '" aria-pressed="' + (i === L.workoutDay) + '">Día ' + "ABC"[i] + "</button>"; }).join("") + "</div></div>";
+      html += '<div class="prog"><b id="prog-n">' + done + "/" + total + " series</b>" + meter(done, total) + '<button class="btn btn--volt btn--sm" data-act="finish">Terminar</button></div><div class="stack">';
+      w.ex.forEach(function (e, i) {
+        var k = L.kg[L.workoutDay + "_" + i]; if (k === undefined) k = e[3];
+        html += '<div class="ex"><div class="ex__top"><div><b>' + e[0] + "</b><span>" + e[1] + " × " + e[2] + "</span></div>" + (e[3] ? '<label class="ex__kg"><input type="number" inputmode="decimal" step="0.5" min="0" value="' + k + '" data-kg="' + i + '" aria-label="Kilos en ' + e[0] + '">kg</label>' : "") + '</div><div class="sets">';
+        for (var s = 0; s < e[1]; s++) html += '<button class="set" data-set="' + i + "_" + s + '" aria-pressed="' + !!L.sets[i + "_" + s] + '" aria-label="Serie ' + (s + 1) + '">' + (s + 1) + "</button>";
+        html += "</div>" + (e[4] ? '<div class="ex__tip"><b>Álex:</b> ' + e[4] + "</div>" : "") + "</div>";
+      });
+      return html + "</div>";
+    };
+
+    VIEWS.client.reservar = function () {
+      var list = CLASSES.filter(function (c) { return c.di === state.clientDay; }), ns = state.laura.next;
+      var html = '<div class="vhead"><div><span class="eyebrow">Reservar</span><h1>Elige hora.</h1><p>Sesiones con Álex y clases en grupo. Puedes cancelar hasta 2 horas antes.</p></div></div>';
+      html += '<div class="card" style="margin-bottom:14px"><div class="card__h"><h2>Sesión 1 a 1 con Álex</h2><small>Te quedan ' + ME.left + " en el bono</small></div>" + dayTabs(state.ptDay, "data-ptday") + '<div class="chips">';
+      PT_SLOTS.forEach(function (t, i) {
+        var taken = (state.ptDay + i) % 3 === 0, mine = ns && ns.di === state.ptDay && ns.t === t;
+        html += '<button class="chip" ' + (taken && !mine ? "disabled style=\"opacity:.35;text-decoration:line-through;cursor:not-allowed\"" : 'data-pt="' + t + '"') + ' aria-pressed="' + !!mine + '">' + t + "</button>";
+      });
+      html += '</div><p class="muted" style="font-size:13px;margin-top:10px">' + (ns ? "Tienes reservada: <b style=\"color:var(--text)\">" + dayLabel(addDays(ns.di)) + " a las " + ns.t + "</b>. Si eliges otra hora, se cambia." : "No tienes ninguna sesión reservada.") + "</p></div>";
+      html += '<div class="card"><div class="card__h"><h2>Clases en grupo</h2><small>Incluidas con tu bono</small></div>' + dayTabs(state.clientDay, "data-clday") + '<div class="rows">';
+      if (!list.length) html += '<div class="empty">No hay clases este día.</div>';
+      list.forEach(function (c) {
+        var full = c.booked >= c.cap, btn;
+        if (c.mine) btn = '<button class="btn btn--sm" data-act="unbook" data-c="' + c.id + '">Cancelar</button>';
+        else if (c.myWait) btn = '<span class="pill pill--warn">En espera</span>';
+        else if (full) btn = '<button class="btn btn--sm" data-act="wait" data-c="' + c.id + '">Lista de espera</button>';
+        else btn = '<button class="btn btn--sm btn--volt" data-act="book" data-c="' + c.id + '">Reservar</button>';
+        html += '<div class="cls' + (c.mine ? " cls--mine" : "") + '"><span class="cls__t">' + c.t + '</span><div class="cls__n"><b>' + c.name + "</b><span>con " + c.coach + '</span></div><div class="cls__occ">' + (full ? "Completa" + (c.wait ? " · " + c.wait + " en espera" : "") : (c.cap - c.booked) + " plazas libres") + meter(c.booked, c.cap, full ? "meter--warn" : "") + "</div>" + btn + "</div>";
+      });
+      return html + "</div></div>";
+    };
+
+    VIEWS.client.progreso = function () {
+      var w = ME.w, lost = w[0].v - w[w.length - 1].v;
+      var html = '<div class="vhead"><div><span class="eyebrow">Progreso</span><h1>Tu evolución.</h1><p>Lo revisas con Álex cada 4 semanas.</p></div></div>';
+      html += '<div class="split"><div class="card"><div class="card__h"><h2>Peso corporal</h2><small>kg · semanal</small></div><div class="chart" id="chart"></div><div class="inline-form"><input id="newkg" type="text" inputmode="decimal" autocomplete="off" placeholder="Peso de hoy (kg)" aria-label="Peso de hoy en kilos"><button class="btn btn--volt" data-act="addkg">Añadir</button></div></div>';
+      html += '<div class="stack"><div class="card"><div class="card__h"><h2>Resumen</h2><small>desde ' + ME.since + '</small></div><div class="grid g2"><div><div class="display volt" style="font-size:44px">−' + kg(lost) + '</div><span class="muted" style="font-size:13px">kg de peso</span></div><div><div class="display volt" style="font-size:44px">−8</div><span class="muted" style="font-size:13px">cm de cintura</span></div></div></div>';
+      html += '<div class="card"><div class="card__h"><h2>Marcas</h2><small>antes → ahora</small></div><div class="prs">' + ME.prs.map(function (p) { var num = typeof p[1] === "number", f = function (v) { return num ? kg(v).replace(",0", "") + " kg" : v; }; return '<div class="pr"><span>' + p[0] + "</span><span><span class=\"muted\">" + f(p[1]) + "</span> → <b>" + f(p[2]) + "</b>" + (num ? '<span class="up">+' + kg(p[2] - p[1]).replace(",0", "") + "</span>" : "") + "</span></div>"; }).join("") + "</div></div>";
+      html += '<div class="card"><div class="card__h"><h2>Medidas</h2><small>agosto → hoy</small></div><div class="prs">' + ME.measures.map(function (m) { var u = m[0] === "Grasa corporal" ? " %" : " cm"; return '<div class="pr"><span>' + m[0] + '</span><span><span class="muted">' + m[1] + u + "</span> → <b>" + m[2] + u + "</b></span></div>"; }).join("") + "</div></div></div></div>";
+      return html;
+    };
+
+    // Ficha del cliente (entrenador)
+    function openClient(id) {
+      var c = byId(id), d = document.getElementById("drawer");
+      var html = '<button class="drawer__close" data-act="close" aria-label="Cerrar">×</button><div class="drawer__head">' + av(c, " av--lg") + "<div><h2>" + c.name + '</h2><span class="muted">' + c.goal + " · socio desde " + c.since + "</span></div></div>";
+      html += '<div class="kv"><div><small>Plan</small><b>' + c.plan + "</b></div><div><small>Cuota de " + MONTHS_L[TODAY.getMonth()] + "</small><b>" + eur(c.price) + "</b> " + payPill(c) + "</div><div><small>Última visita</small><b>" + lastTxt(c.last) + "</b></div><div><small>" + (c.type === "pt" ? "Bono" : "Acceso") + "</small><b>" + bonoTxt(c) + "</b>" + (c.type === "pt" ? meter(c.left, c.total, "meter--sm " + bonoMod(c)) : "") + "</div></div>";
+      html += '<div class="actions" style="margin-bottom:14px">' + (c.type === "pt" ? '<button class="btn btn--volt" data-act="done" data-id="' + c.id + '"' + (c.left === 0 ? " disabled style=\"opacity:.4\"" : "") + ">" + ICON.check + "Registrar sesión</button>" : "") + '<button class="btn btn--wa" data-act="wa" data-kind="' + (c.paid ? (c.type === "pt" && c.left <= 1 ? "bono" : "hola") : "pago") + '" data-id="' + c.id + '">' + ICON.wa + "WhatsApp</button>" + (!c.paid ? '<button class="btn" data-act="paid" data-id="' + c.id + '">Marcar pagado</button>' : "") + "</div>";
+      if (c.w) html += '<div class="card" style="margin-bottom:14px"><div class="card__h"><h2>Peso corporal</h2><small>' + (c.w[c.w.length - 1].v - c.w[0].v > 0 ? "+" : "−") + kg(Math.abs(c.w[c.w.length - 1].v - c.w[0].v)) + ' kg</small></div><div class="chart" id="dchart"></div></div>';
+      if (c.note) html += '<div class="note"><small>Notas privadas de Álex</small>' + c.note + "</div>";
+      if (!c.w && !c.note) html += '<div class="empty">Socio de cuota sin entrenamiento personal. ¿Le ofreces una sesión de valoración?</div>';
+      d.innerHTML = html; d.dataset.id = id;
+      d.classList.add("open"); document.getElementById("scrim").classList.add("open");
+      if (c.w) lineChart(document.getElementById("dchart"), c.w, "kg");
+    }
+    function closeAll() { ["drawer", "scrim", "modal"].forEach(function (id) { document.getElementById(id).classList.remove("open"); }); }
+
+    // Mensaje de WhatsApp
+    var MONTH = MONTHS_L[TODAY.getMonth()];
+    function waText(kind, c) {
+      var n = first(c.name);
+      if (kind === "bono") return c.left === 0 ? "¡Hola " + n + "! Has terminado tu bono de 8 sesiones 💪 ¿Te lo renuevo para seguir con el plan? Te guardo tu hora de siempre." : "¡Hola " + n + "! Te queda 1 sesión del bono. ¿Te lo renuevo para no cortar el progreso? Te guardo tu hora de siempre 💪";
+      if (kind === "pago") return "Hola " + n + ", te escribo de Forja: el recibo de " + MONTH + " (" + eur(c.price) + ") nos ha llegado devuelto. Puedes pagarlo por Bizum o en recepción. ¡Gracias!";
+      if (kind === "ina") return "¡Hola " + n + "! Hace " + c.last + " días que no te vemos por Forja. ¿Todo bien? Si quieres te preparo una rutina cortita para retomar 🙂";
+      return "¡Hola " + n + "! ";
+    }
+    function openWA(list, kind, key) {
+      var m = document.getElementById("modal"), c = list[0], multi = list.length > 1;
+      m.innerHTML = '<div class="wa__head">' + (multi ? '<span class="av" style="background:var(--wa)">' + list.length + "</span>" : av(c)) + "<div><b>" + (multi ? list.length + " socios con pago pendiente" : c.name) + '</b><span>WhatsApp · mensaje preparado</span></div></div><div class="wa__body"><div class="wa__bubble"><textarea id="watext" aria-label="Mensaje">' + esc(multi ? "Hola {nombre}, te escribo de Forja: el recibo de " + MONTH + " nos ha llegado devuelto. Puedes pagarlo por Bizum o en recepción. ¡Gracias!" : waText(kind, c)) + '</textarea></div></div><div class="wa__foot"><button class="btn btn--ghost" data-act="close">Cancelar</button><button class="btn btn--wa" data-act="send">' + ICON.wa + "Enviar" + (multi ? " a " + list.length : "") + "</button></div>";
+      m.dataset.key = key || ""; m.dataset.ids = list.map(function (x) { return x.id; }).join(",");
+      m.classList.add("open"); document.getElementById("scrim").classList.add("open");
+    }
+
+    var toastT;
+    function toast(msg) { var t = document.getElementById("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toastT); toastT = setTimeout(function () { t.classList.remove("show"); }, 3600); }
+
+    // Después de pintar
+    var AFTER = {
+      clientes: function () {
+        var q = document.getElementById("q");
+        q.addEventListener("input", function () {
+          state.q = q.value;
+          var f = state.clientFilter, s = q.value.toLowerCase();
+          var list = CLIENTS.filter(function (c) {
+            if (s && c.name.toLowerCase().indexOf(s) < 0) return false;
+            return f === "todos" || (f === "pt" && c.type === "pt") || (f === "gym" && c.type === "gym") || (f === "pend" && !c.paid) || (f === "renovar" && c.type === "pt" && c.left <= 1);
+          });
+          document.getElementById("rows").innerHTML = rowsHTML(list);
+          document.querySelector(".count").textContent = "Mostrando " + list.length + " de " + SOCIOS + " socios (datos de muestra).";
+        });
+      },
+      progreso: function () { lineChart(document.getElementById("chart"), ME.w, "kg"); },
+      rutina: function () {
+        document.querySelectorAll("[data-kg]").forEach(function (inp) {
+          inp.addEventListener("change", function () { state.laura.kg[state.laura.workoutDay + "_" + inp.dataset.kg] = inp.value; });
+        });
+      }
+    };
+
+    // ---------- Acciones ----------
+    function go(view) { state.view[state.role] = view; render(); }
+    function markDone(id) {
+      var c = byId(id);
+      if (c.type === "pt" && c.left > 0) c.left--;
+      c.last = 0;
+      var s = AGENDA.filter(function (a) { return a.id === id && !a.done; })[0];
+      if (s) s.done = true;
+      if (id === "laura" && state.laura.next && state.laura.next.di === 0) state.laura.next = null;
+      toast("Sesión registrada. A " + first(c.name) + " le quedan " + c.left + " sesiones del bono.");
+    }
+
+    document.addEventListener("click", function (e) {
+      var t = e.target.closest("button, [data-open]");
+      if (!t) { if (e.target.id === "scrim") closeAll(); return; }
+      var d = t.dataset, L = state.laura;
+
+      if (d.role && d.role !== state.role) { state.role = d.role; if (d.role === "coach" && state.unseen) { state.view.coach = "hoy"; toast("Tienes " + state.unseen + (state.unseen > 1 ? " novedades" : " novedad") + " de tus clientes en Actividad."); } closeAll(); render(); return; }
+      if (d.nav) { closeAll(); go(d.nav); return; }
+      if (d.open) { openClient(d.open); return; }
+      if (d.filter) { state.clientFilter = d.filter; render(true); return; }
+      if (d.cday !== undefined) { state.classDay = +d.cday; render(true); return; }
+      if (d.clday !== undefined) { state.clientDay = +d.clday; render(true); return; }
+      if (d.ptday !== undefined) { state.ptDay = +d.ptday; render(true); return; }
+      if (d.wday !== undefined) { L.workoutDay = +d.wday; L.sets = {}; render(true); return; }
+      if (d.set) {
+        L.sets[d.set] = !L.sets[d.set]; t.setAttribute("aria-pressed", L.sets[d.set]);
+        var w = WORKOUTS[L.workoutDay], tot = 0, dn = 0;
+        w.ex.forEach(function (x, i) { tot += x[1]; for (var s = 0; s < x[1]; s++) if (L.sets[i + "_" + s]) dn++; });
+        document.getElementById("prog-n").textContent = dn + "/" + tot + " series";
+        document.querySelector(".prog .meter i").style.width = (dn / tot * 100) + "%";
+        return;
+      }
+      if (d.pt) {
+        var had = L.next; L.next = { di: state.ptDay, t: d.pt };
+        pushFeed("laura", "Laura ha " + (had ? "cambiado su sesión 1 a 1 a" : "reservado sesión 1 a 1:") + " <b>" + dayLabel(addDays(state.ptDay)) + " a las " + d.pt + "</b>");
+        if (state.ptDay === 0) { AGENDA = AGENDA.filter(function (a) { return a.id !== "laura" || a.done; }); AGENDA.push({ t: d.pt, id: "laura", done: false, kind: "pt" }); }
+        else AGENDA = AGENDA.filter(function (a) { return a.id !== "laura" || a.done; });
+        toast("Reservado: " + dayLabel(addDays(state.ptDay)) + " a las " + d.pt + ". Álex ya lo tiene en su agenda.");
+        render(true); return;
+      }
+
+      switch (d.act) {
+        case "toast": toast(d.msg); break;
+        case "close": closeAll(); break;
+        case "goclass": state.classDay = +d.di; go("clases"); break;
+        case "done":
+          markDone(d.id);
+          if (document.getElementById("drawer").classList.contains("open")) openClient(d.id);
+          render(true); break;
+        case "paid":
+          byId(d.id).paid = true; state.handled["pago_" + d.id] = true;
+          toast("Pago de " + first(byId(d.id).name) + " registrado.");
+          if (document.getElementById("drawer").classList.contains("open")) openClient(d.id);
+          render(true); break;
+        case "wa": openWA([byId(d.id)], d.kind, d.key); break;
+        case "waall": openWA(CLIENTS.filter(function (c) { return !c.paid; }), "pago", "all"); break;
+        case "send":
+          var m = document.getElementById("modal"), ids = m.dataset.ids.split(",");
+          if (m.dataset.key === "all") ids.forEach(function (id) { state.handled["pago_" + id] = true; });
+          else if (m.dataset.key) state.handled[m.dataset.key] = true;
+          closeAll();
+          toast(ids.length > 1 ? "En la app real se enviaría este WhatsApp a " + ids.length + " socios, cada uno con su nombre." : "En la app real se abriría WhatsApp con este mensaje para " + first(byId(ids[0]).name) + ".");
+          render(true); break;
+        case "book":
+          var c = CLASSES.filter(function (x) { return x.id === d.c; })[0];
+          c.mine = true; c.booked++;
+          pushFeed("laura", "Laura ha reservado <b>" + c.name + "</b> · " + dayLabel(c.date) + " " + c.t);
+          toast("¡Plaza reservada! " + c.name + ", " + dayLabel(c.date) + " a las " + c.t + ".");
+          render(true); break;
+        case "unbook":
+          var u = CLASSES.filter(function (x) { return x.id === d.c; })[0];
+          u.mine = false; u.booked--;
+          var moved = u.wait > 0; if (moved) { u.wait--; u.booked++; }
+          pushFeed("laura", "Laura ha cancelado <b>" + u.name + "</b> · " + dayLabel(u.date) + (moved ? " y ha entrado alguien de la lista de espera" : ""));
+          toast(moved ? "Cancelada. Tu plaza ya es de alguien de la lista de espera." : "Reserva cancelada.");
+          render(true); break;
+        case "wait":
+          var wc = CLASSES.filter(function (x) { return x.id === d.c; })[0];
+          wc.myWait = true; wc.wait++;
+          pushFeed("laura", "Laura se ha apuntado a la lista de espera de <b>" + wc.name + "</b>");
+          toast("Estás en la lista de espera. Si alguien cancela, te avisamos por WhatsApp.");
+          render(true); break;
+        case "cancelpt":
+          var ns = nextSession();
+          L.next = null; AGENDA = AGENDA.filter(function (a) { return a.id !== "laura" || a.done; });
+          pushFeed("laura", "Laura ha cancelado su sesión 1 a 1 de <b>" + ns.label + " a las " + ns.t + "</b>");
+          toast("Sesión cancelada. No se descuenta del bono.");
+          render(true); break;
+        case "renew":
+          ME.left += 8; ME.total = ME.left > 8 ? ME.left : 8;
+          pushFeed("laura", "Laura ha renovado su <b>Bono 8 sesiones</b> (240 €)");
+          state.handled["bono_laura"] = true;
+          toast("¡Bono renovado! En la app real pagarías aquí con tarjeta o Bizum.");
+          render(true); break;
+        case "finish":
+          var wk = WORKOUTS[L.workoutDay], tt = 0, dd = 0;
+          wk.ex.forEach(function (x, i) { tt += x[1]; for (var s = 0; s < x[1]; s++) if (L.sets[i + "_" + s]) dd++; });
+          if (!dd) { toast("Marca al menos una serie antes de terminar."); break; }
+          ME.last = 0;
+          pushFeed("laura", "Laura ha terminado su entreno: <b>" + wk.name + "</b> (" + dd + "/" + tt + " series)");
+          L.sets = {};
+          toast("¡Entreno guardado! Álex lo verá en su panel.");
+          render(true); break;
+        case "addkg":
+          var inp = document.getElementById("newkg"), v = parseFloat(String(inp.value).replace(",", "."));
+          if (!(v >= 30 && v <= 200)) { toast("Escribe un peso válido, por ejemplo 66,8."); inp.focus(); break; }
+          ME.w.push({ label: "hoy", v: Math.round(v * 10) / 10 });
+          pushFeed("laura", "Laura ha registrado su peso: <b>" + kg(v) + " kg</b>");
+          toast("Peso guardado. Le aparece a Álex en tu ficha.");
+          render(true); break;
+      }
+    });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeAll(); });
+    var rz; window.addEventListener("resize", function () { clearTimeout(rz); rz = setTimeout(function () {
+      if (document.getElementById("chart")) lineChart(document.getElementById("chart"), ME.w, "kg");
+      var dc = document.getElementById("dchart"); if (dc) lineChart(dc, byId(document.getElementById("drawer").dataset.id).w, "kg");
+    }, 150); });
+
+    // Si se abre con #cliente, empieza en la vista de cliente
+    if (location.hash === "#cliente") state.role = "client";
+    render();
+  })();
+  </script>
+</body>
+</html>
