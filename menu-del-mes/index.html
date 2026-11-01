@@ -1,0 +1,1003 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2b6a3c">
+<title>Menú del Mes</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Elige tu supermercado, dinos cuántos sois y te preparamos el menú de todo el mes con la lista de la compra más barata.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anybody:wdth,wght@60..130,500..900&family=Figtree:wght@400;500;600;700&family=Courier+Prime:wght@400;700&display=swap">
+<style>
+/* Layout: cabecera fija con pestañas; debajo una columna central. El menú va por semanas de compra,
+   la lista de la compra se lee como un ticket y los precios como etiquetas amarillas de lineal. */
+:root {
+  --paper: #f3f5ef; --surface: #ffffff; --surface-2: #eaeee5; --ink: #18211b; --muted: #5a675d; --line: #d9dfd3;
+  --leaf: #2b6a3c; --leaf-ink: #ffffff; --leaf-soft: #e1eedf;
+  --tag: #ffd93b; --tag-ink: #1b1a10; --red: #c8382a; --receipt: #fffef7; --receipt-line: #c9c6b4;
+  --shadow: 0 1px 2px rgba(24, 40, 28, .06), 0 10px 30px rgba(24, 40, 28, .07);
+  --f-display: "Anybody", "Arial Narrow", "Helvetica Neue", sans-serif;
+  --f-body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "Courier Prime", "Courier New", ui-monospace, monospace;
+  --r: 14px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #101511; --surface: #182019; --surface-2: #1f2920; --ink: #e8eee6; --muted: #9caa9f; --line: #2b372d;
+    --leaf: #7fc58d; --leaf-ink: #0d1a10; --leaf-soft: #1d3223;
+    --tag: #f4cf35; --tag-ink: #17150a; --red: #ff7d6b; --receipt: #1b221c; --receipt-line: #3a453b;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.25); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #101511; --surface: #182019; --surface-2: #1f2920; --ink: #e8eee6; --muted: #9caa9f; --line: #2b372d;
+  --leaf: #7fc58d; --leaf-ink: #0d1a10; --leaf-soft: #1d3223;
+  --tag: #f4cf35; --tag-ink: #17150a; --red: #ff7d6b; --receipt: #1b221c; --receipt-line: #3a453b;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.25); color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--f-body); font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--surface); }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--leaf); outline-offset: 2px; }
+h1, h2, h3 { font-family: var(--f-display); font-stretch: 78%; font-weight: 850; line-height: 1.02; margin: 0; text-wrap: balance; letter-spacing: -.01em; }
+p { margin: 0; }
+.gut { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.wrap { max-width: 1040px; margin: 0 auto; }
+.muted { color: var(--muted); }
+.num { font-variant-numeric: tabular-nums; }
+
+/* Cabecera */
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--surface); border-bottom: 1px solid var(--line); }
+.top__row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 12px 8px; }
+.logo { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
+.logo b { font-family: var(--f-display); font-stretch: 70%; font-weight: 900; font-size: 26px; letter-spacing: -.01em; text-transform: uppercase; white-space: nowrap; }
+.logo b span { color: var(--leaf); }
+@media (max-width: 600px) { .who { display: none; } }
+.who { font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.tabs { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; padding-bottom: 8px; }
+.tabs::-webkit-scrollbar { display: none; }
+.tabs a { flex: none; text-decoration: none; color: var(--muted); font-weight: 600; font-size: 14px; padding: 8px 14px; border-radius: 99px; transition: background .15s, color .15s; }
+.tabs a:hover { color: var(--ink); background: var(--surface-2); }
+.tabs a[aria-current="page"] { background: var(--ink); color: var(--paper); }
+
+main { padding-block: 24px 80px; }
+.view[hidden] { display: none; }
+
+/* Botones */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-weight: 600; padding: 10px 16px; border-radius: 999px; text-decoration: none; transition: transform .1s, background .15s; }
+.btn:hover { background: var(--surface-2); }
+.btn:active { transform: translateY(1px); }
+.btn--go { background: var(--leaf); color: var(--leaf-ink); border-color: var(--leaf); }
+.btn--go:hover { background: var(--leaf); filter: brightness(1.06); }
+.btn--big { padding: 14px 22px; font-size: 16px; }
+.btn--small { padding: 6px 12px; font-size: 13px; }
+
+/* Etiqueta de precio tipo lineal */
+.tag { display: inline-flex; flex-direction: column; align-items: flex-end; background: var(--tag); color: var(--tag-ink); border-radius: 4px; padding: 3px 7px 2px; line-height: 1; font-variant-numeric: tabular-nums; flex: none; }
+.tag b { font-family: var(--f-display); font-stretch: 80%; font-weight: 850; font-size: 16px; }
+.tag small { font-size: 9.5px; font-weight: 600; letter-spacing: .02em; margin-top: 2px; opacity: .8; }
+.tag--big b { font-size: 34px; }
+.tag--big { padding: 8px 12px 6px; border-radius: 6px; }
+
+/* Aviso de ejemplo */
+.note { display: flex; gap: 14px; align-items: center; justify-content: space-between; flex-wrap: wrap; background: var(--leaf-soft); border: 1px solid var(--line); border-radius: var(--r); padding: 14px 16px; margin-bottom: 22px; }
+.note p { min-width: 0; flex: 1 1 280px; }
+
+/* Cabecera de vista */
+.vhead { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 22px; }
+.vhead h1 { font-size: clamp(32px, 6vw, 52px); text-transform: uppercase; }
+.vhead p { margin-top: 6px; color: var(--muted); }
+.vhead__side { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+/* Menú */
+.week { margin-bottom: 30px; }
+.week__head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; padding-bottom: 10px; border-bottom: 2px solid var(--ink); margin-bottom: 4px; }
+.week__head h2 { font-size: 24px; text-transform: uppercase; }
+.week__head a { color: var(--leaf); font-weight: 600; font-size: 14px; text-decoration: none; }
+.week__head a:hover { text-decoration: underline; }
+.day { display: grid; grid-template-columns: 64px 1fr; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.day--today .day__date b { background: var(--leaf); color: var(--leaf-ink); }
+.day__date { display: flex; flex-direction: column; align-items: center; gap: 2px; padding-top: 4px; }
+.day__date span { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.day__date b { font-family: var(--f-display); font-stretch: 80%; font-size: 24px; font-weight: 850; width: 42px; height: 42px; display: grid; place-items: center; border-radius: 50%; font-variant-numeric: tabular-nums; }
+.day__meals { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1fr) minmax(0, 1fr); gap: 8px; min-width: 0; }
+.day__meals--nob { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.meal { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; text-align: left; border: 1px solid var(--line); background: var(--surface); border-radius: 12px; padding: 9px 10px; min-width: 0; transition: border-color .15s, box-shadow .15s; }
+.meal:hover { border-color: var(--leaf); box-shadow: var(--shadow); }
+.meal__t { min-width: 0; }
+.meal__k { display: block; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+.meal__n { display: block; font-weight: 600; font-size: 14px; line-height: 1.3; }
+.meal--b { background: transparent; }
+.meal--b .meal__n { font-weight: 500; font-size: 13px; color: var(--muted); }
+@media (max-width: 760px) {
+  .day { grid-template-columns: 48px 1fr; gap: 10px; }
+  .day__date b { width: 36px; height: 36px; font-size: 20px; }
+  .day__meals, .day__meals--nob { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+}
+
+/* Lista de la compra */
+.trips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 18px; scrollbar-width: thin; }
+.trip { flex: none; text-align: left; border: 1px solid var(--line); background: var(--surface); border-radius: 12px; padding: 10px 14px; display: grid; gap: 2px; min-width: 150px; }
+.trip b { font-size: 14px; }
+.trip span { font-size: 12.5px; color: var(--muted); }
+.trip i { font-style: normal; font-family: var(--f-display); font-stretch: 80%; font-weight: 800; font-size: 18px; font-variant-numeric: tabular-nums; }
+.trip[aria-pressed="true"] { border-color: var(--ink); background: var(--ink); color: var(--paper); }
+.trip[aria-pressed="true"] span { color: inherit; opacity: .75; }
+.shop { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 24px; align-items: start; }
+@media (max-width: 860px) { .shop { grid-template-columns: minmax(0, 1fr); } }
+.receipt { background: var(--receipt); border-radius: 4px; box-shadow: var(--shadow); padding: 22px clamp(14px, 3vw, 28px) 26px; font-family: var(--f-mono); position: relative; min-width: 0; }
+.receipt::after { content: ""; position: absolute; left: 0; right: 0; bottom: -8px; height: 9px; background: linear-gradient(-45deg, transparent 6px, var(--receipt) 0) 0 0 / 12px 9px repeat-x, linear-gradient(45deg, transparent 6px, var(--receipt) 0) 0 0 / 12px 9px repeat-x; }
+.receipt__head { text-align: center; border-bottom: 1px dashed var(--receipt-line); padding-bottom: 12px; margin-bottom: 6px; }
+.receipt__head b { display: block; font-size: 18px; letter-spacing: .08em; text-transform: uppercase; }
+.receipt__head span { font-size: 13px; color: var(--muted); }
+.sec { margin-top: 14px; }
+.sec h3 { font-family: var(--f-mono); font-stretch: 100%; font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; padding-bottom: 4px; border-bottom: 1px dashed var(--receipt-line); }
+.item { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 10px; align-items: start; padding: 8px 0; border-bottom: 1px dotted var(--receipt-line); cursor: pointer; }
+.item input { width: 18px; height: 18px; margin: 2px 0 0; accent-color: var(--leaf); cursor: pointer; }
+.item__n, .item__d { display: block; }
+.item__n { font-size: 14px; font-weight: 700; line-height: 1.3; }
+.item__d { font-size: 12.5px; color: var(--muted); line-height: 1.35; margin-top: 2px; }
+.item__p { font-size: 14px; font-weight: 700; text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.item__p small { display: block; font-weight: 400; font-size: 11.5px; color: var(--muted); }
+.item.is-done .item__n, .item.is-done .item__p { text-decoration: line-through; opacity: .5; }
+.total { display: flex; justify-content: space-between; align-items: baseline; border-top: 2px solid var(--ink); margin-top: 16px; padding-top: 10px; font-size: 20px; font-weight: 700; }
+.receipt__foot { text-align: center; font-size: 12px; color: var(--muted); margin-top: 14px; }
+.aside { display: grid; gap: 14px; position: sticky; top: 120px; }
+@media (max-width: 860px) { .aside { position: static; } }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px; display: grid; gap: 10px; }
+.card h3 { font-size: 18px; text-transform: uppercase; }
+.card p { font-size: 14px; }
+.btnrow { display: flex; flex-wrap: wrap; gap: 8px; }
+.progress { height: 8px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
+.progress i { display: block; height: 100%; background: var(--leaf); border-radius: inherit; transition: width .3s; }
+.copybox { width: 100%; min-height: 160px; font-family: var(--f-mono); font-size: 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); padding: 8px; }
+
+/* Resumen */
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 26px; }
+@media (max-width: 640px) { .stats { grid-template-columns: minmax(0, 1fr); } }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px; display: grid; gap: 8px; align-content: start; }
+.stat > span:not(.tag) { font-size: 13px; color: var(--muted); font-weight: 600; }
+.stat .tag { justify-self: start; align-items: flex-start; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 18px; margin-bottom: 20px; }
+.panel h2 { font-size: 24px; text-transform: uppercase; margin-bottom: 4px; }
+.panel > p { color: var(--muted); font-size: 14px; margin-bottom: 14px; }
+.bars { display: grid; gap: 8px; }
+.bar { display: grid; grid-template-columns: 110px minmax(0, 1fr) 84px; gap: 10px; align-items: center; font-size: 14px; }
+.bar__track { height: 22px; background: var(--surface-2); border-radius: 5px; overflow: hidden; }
+.bar__fill { height: 100%; background: var(--muted); opacity: .45; border-radius: 5px; }
+.bar.is-me .bar__fill { background: var(--leaf); opacity: 1; }
+.bar.is-best .bar__fill { background: var(--tag); opacity: 1; }
+.bar.is-me b { color: var(--leaf); }
+.bar__v { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+@media (max-width: 480px) { .bar { grid-template-columns: 84px minmax(0, 1fr) 70px; font-size: 13px; } }
+.tips { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 24px; padding: 0; margin: 0; list-style: none; }
+@media (max-width: 640px) { .tips { grid-template-columns: minmax(0, 1fr); } }
+.tips li { font-size: 14px; padding-left: 14px; border-left: 3px solid var(--tag); }
+.tips b { display: block; }
+
+/* Ajustes */
+.form { display: grid; gap: 18px; }
+.q { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 20px; display: grid; gap: 14px; }
+.q__h { display: flex; gap: 12px; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; }
+.q__h h2 { font-size: 26px; text-transform: uppercase; display: flex; gap: 10px; align-items: baseline; }
+.q__h h2 span { font-family: var(--f-mono); font-size: 14px; color: var(--muted); font-weight: 700; }
+.q__h p { color: var(--muted); font-size: 14px; flex-basis: 100%; }
+.supers { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.super { position: relative; display: grid; gap: 2px; text-align: left; border: 1.5px solid var(--line); background: var(--paper); border-radius: 12px; padding: 12px; transition: border-color .15s; }
+.super:hover { border-color: var(--muted); }
+.super b { font-size: 16px; }
+.super span { font-size: 12px; color: var(--muted); }
+.super[aria-checked="true"] { border-color: var(--leaf); background: var(--leaf-soft); box-shadow: inset 0 0 0 1px var(--leaf); }
+.super[aria-checked="true"]::after { content: "✓"; position: absolute; top: 8px; right: 10px; width: 20px; height: 20px; border-radius: 50%; background: var(--leaf); color: var(--leaf-ink); font-size: 12px; font-weight: 700; display: grid; place-items: center; }
+.super .dist { font-weight: 700; color: var(--leaf); }
+.cost { letter-spacing: .1em; font-weight: 700; color: var(--ink) !important; }
+.cost i { font-style: normal; opacity: .25; }
+.geo { font-size: 13.5px; color: var(--muted); }
+.steppers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 520px) { .steppers { grid-template-columns: minmax(0, 1fr); } }
+.stepper { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+.stepper label b { display: block; }
+.stepper label span { font-size: 12.5px; color: var(--muted); }
+.stepper__ctl { display: flex; align-items: center; gap: 10px; }
+.stepper__ctl button { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); font-size: 20px; line-height: 1; display: grid; place-items: center; }
+.stepper__ctl output { font-family: var(--f-display); font-stretch: 80%; font-weight: 850; font-size: 28px; min-width: 28px; text-align: center; font-variant-numeric: tabular-nums; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: inline-flex; align-items: center; gap: 8px; border: 1.5px solid var(--line); background: var(--paper); border-radius: 99px; padding: 8px 14px; font-weight: 600; font-size: 14px; }
+.chip[aria-pressed="true"] { border-color: var(--leaf); background: var(--leaf); color: var(--leaf-ink); }
+.field { display: grid; gap: 6px; max-width: 320px; }
+.field label { font-weight: 600; font-size: 14px; }
+.field select { border: 1px solid var(--line); border-radius: 10px; background: var(--paper); padding: 10px 12px; }
+.checks { display: grid; gap: 10px; }
+.check { display: flex; gap: 10px; align-items: flex-start; font-size: 14.5px; cursor: pointer; }
+.check input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--leaf); }
+.check span small { display: block; color: var(--muted); font-size: 12.5px; }
+.go { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+.dislikes { display: flex; flex-wrap: wrap; gap: 6px; }
+.dislikes button { border: 1px solid var(--line); background: var(--paper); border-radius: 99px; padding: 4px 10px; font-size: 13px; }
+
+/* Ficha de receta */
+.overlay { position: fixed; inset: 0; z-index: 50; background: rgba(10, 16, 12, .5); display: flex; align-items: flex-end; justify-content: center; padding: 0; }
+@media (min-width: 700px) { .overlay { align-items: center; padding: 24px; } }
+.sheet { background: var(--surface); width: 100%; max-width: 640px; max-height: 92vh; overflow-y: auto; border-radius: 18px 18px 0 0; padding: 22px max(18px, env(safe-area-inset-right, 0px)) calc(24px + env(safe-area-inset-bottom, 0px)) max(18px, env(safe-area-inset-left, 0px)); display: grid; gap: 16px; }
+@media (min-width: 700px) { .sheet { border-radius: 18px; } }
+.sheet__h { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+.sheet__h h2 { font-size: 30px; text-transform: uppercase; }
+.sheet__h p { color: var(--muted); font-size: 14px; margin-top: 6px; }
+.x { border: 0; background: var(--surface-2); width: 36px; height: 36px; border-radius: 50%; font-size: 18px; flex: none; }
+.sheet h3 { font-size: 16px; text-transform: uppercase; letter-spacing: .02em; margin-bottom: 6px; }
+.ings { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 18px; font-size: 14px; }
+@media (max-width: 480px) { .ings { grid-template-columns: minmax(0, 1fr); } }
+.ings li { display: flex; justify-content: space-between; gap: 8px; border-bottom: 1px dotted var(--line); padding: 4px 0; }
+.ings li span:last-child { color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.steps { margin: 0; padding-left: 20px; display: grid; gap: 6px; font-size: 14.5px; }
+.alts { display: grid; gap: 6px; }
+.alt { display: flex; justify-content: space-between; align-items: center; gap: 10px; text-align: left; border: 1px solid var(--line); background: var(--paper); border-radius: 10px; padding: 9px 12px; }
+.alt:hover { border-color: var(--leaf); }
+.alt span { font-weight: 600; font-size: 14px; min-width: 0; }
+.alt small { display: block; font-weight: 400; color: var(--muted); font-size: 12px; }
+.alt em { font-style: normal; font-weight: 700; font-size: 13px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.alt em.down { color: var(--leaf); }
+.alt em.up { color: var(--red); }
+
+.toast { position: fixed; z-index: 60; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--paper); padding: 10px 18px; border-radius: 99px; font-weight: 600; font-size: 14px; box-shadow: var(--shadow); max-width: calc(100% - 32px); text-align: center; }
+.disclaimer { font-size: 12.5px; color: var(--muted); margin-top: 26px; max-width: 70ch; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<header class="top gut">
+  <div class="wrap">
+    <div class="top__row">
+      <div class="logo"><b>Menú <span>del Mes</span></b></div>
+      <div class="who" id="who"></div>
+    </div>
+    <nav class="tabs" aria-label="Secciones">
+      <a href="#menu" data-view="menu">Menú</a>
+      <a href="#compra" data-view="compra">Lista de la compra</a>
+      <a href="#resumen" data-view="resumen">Gasto</a>
+      <a href="#ajustes" data-view="ajustes">Mis datos</a>
+    </nav>
+  </div>
+</header>
+
+<main class="gut">
+  <div class="wrap">
+    <section class="view" id="v-menu"></section>
+    <section class="view" id="v-compra" hidden></section>
+    <section class="view" id="v-resumen" hidden></section>
+    <section class="view" id="v-ajustes" hidden></section>
+  </div>
+</main>
+
+<div class="overlay" id="overlay" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title"></div></div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+"use strict";
+/* ============ DATOS ============ */
+
+// Supermercados: índice de precio orientativo para fresco y para envasado (1 = referencia)
+const SUPERS = [
+  { id: "mercadona", name: "Mercadona", brand: "Hacendado", fresh: 1.00, pack: 1.00, keys: ["mercadona"] },
+  { id: "lidl", name: "Lidl", brand: "marca propia", fresh: 0.97, pack: 0.95, keys: ["lidl"] },
+  { id: "aldi", name: "Aldi", brand: "marca propia", fresh: 0.98, pack: 0.94, keys: ["aldi"] },
+  { id: "alcampo", name: "Alcampo", brand: "Auchan", fresh: 0.99, pack: 0.93, keys: ["alcampo", "auchan"] },
+  { id: "dia", name: "Dia", brand: "Dia", fresh: 1.03, pack: 0.96, keys: ["dia", "día"] },
+  { id: "carrefour", name: "Carrefour", brand: "Carrefour", fresh: 1.04, pack: 0.99, keys: ["carrefour"] },
+  { id: "ahorramas", name: "Ahorramás", brand: "Alipende", fresh: 1.03, pack: 1.00, keys: ["ahorramas", "ahorramás"] },
+  { id: "consum", name: "Consum", brand: "Consum", fresh: 1.05, pack: 1.03, keys: ["consum", "charter"] },
+  { id: "eroski", name: "Eroski", brand: "Eroski", fresh: 1.07, pack: 1.04, keys: ["eroski"] },
+  { id: "coviran", name: "Covirán", brand: "Covirán", fresh: 1.05, pack: 1.04, keys: ["coviran", "covirán"] }
+];
+const SUP = Object.fromEntries(SUPERS.map(s => [s.id, s]));
+
+const SECTIONS = { fruta: "Fruta y verdura", carne: "Carne", pescado: "Pescado", lacteos: "Lácteos y huevos", pan: "Panadería", despensa: "Despensa", congelados: "Congelados", basicos: "Sal y especias" };
+const FRESH = { fruta: 1, carne: 1, pescado: 1, pan: 1 };
+
+// id: [nombre, sección, unidad, tamaño, formato, precio base €, días que aguanta, tipo]
+// tipo: "peso" = a granel por peso; "pieza" = fresco en malla/bandeja; "marca" = envasado de marca blanca
+const ING = {
+  patata: ["Patatas", "fruta", "g", 3000, "malla de 3 kg", 3.39, 14, "pieza"],
+  cebolla: ["Cebollas", "fruta", "g", 2000, "malla de 2 kg", 2.19, 30, "pieza"],
+  ajo: ["Ajos", "fruta", "g", 250, "malla de 250 g", 1.29, 30, "pieza"],
+  tomate: ["Tomates", "fruta", "g", 500, "", 1.15, 7, "peso"],
+  pimiento: ["Pimientos", "fruta", "g", 500, "", 1.25, 7, "peso"],
+  zanahoria: ["Zanahorias", "fruta", "g", 1000, "bolsa de 1 kg", 0.99, 14, "pieza"],
+  calabacin: ["Calabacines", "fruta", "g", 500, "", 0.89, 7, "peso"],
+  berenjena: ["Berenjenas", "fruta", "g", 500, "", 1.09, 7, "peso"],
+  calabaza: ["Calabaza", "fruta", "g", 500, "", 0.75, 14, "peso"],
+  lechuga: ["Lechuga", "fruta", "g", 400, "pieza", 0.89, 7, "pieza"],
+  coliflor: ["Coliflor", "fruta", "g", 1000, "pieza", 1.79, 7, "pieza"],
+  puerro: ["Puerros", "fruta", "g", 500, "bandeja de 3", 1.39, 14, "pieza"],
+  champinon: ["Champiñones", "fruta", "g", 250, "bandeja de 250 g", 1.09, 7, "pieza"],
+  limon: ["Limones", "fruta", "g", 1000, "malla de 1 kg", 1.69, 30, "pieza"],
+  platano: ["Plátanos", "fruta", "g", 500, "", 0.95, 7, "peso"],
+  manzana: ["Manzanas", "fruta", "g", 500, "", 0.99, 14, "peso"],
+  naranja: ["Naranjas", "fruta", "g", 3000, "malla de 3 kg", 3.29, 14, "pieza"],
+  mandarina: ["Mandarinas", "fruta", "g", 2000, "malla de 2 kg", 2.79, 14, "pieza"],
+  muslo_pollo: ["Cuartos traseros de pollo", "carne", "g", 1000, "bandeja de ~1 kg", 3.09, 7, "pieza"],
+  pechuga: ["Filetes de pechuga de pollo", "carne", "g", 500, "bandeja de ~500 g", 3.69, 7, "pieza"],
+  picada_mixta: ["Carne picada mixta (vacuno y cerdo)", "carne", "g", 500, "bandeja de 500 g", 3.05, 7, "pieza"],
+  picada_vacuno: ["Carne picada de vacuno", "carne", "g", 500, "bandeja de 500 g", 4.25, 7, "pieza"],
+  ternera: ["Ternera para guisar", "carne", "g", 500, "bandeja de 500 g", 5.15, 7, "pieza"],
+  lomo: ["Lomo de cerdo en filetes", "carne", "g", 500, "bandeja de ~500 g", 3.29, 7, "pieza"],
+  chorizo: ["Chorizo para cocinar", "carne", "g", 250, "250 g", 1.99, 30, "marca"],
+  bacon: ["Bacon en taquitos", "carne", "g", 150, "2 × 75 g", 1.45, 21, "marca"],
+  sardina: ["Sardinas frescas", "pescado", "g", 500, "", 2.45, 7, "peso"],
+  huevo: ["Huevos L", "lacteos", "ud", 12, "docena", 2.75, 14, "marca"],
+  leche: ["Leche semidesnatada", "lacteos", "ml", 6000, "pack 6 × 1 L", 5.34, 90, "marca"],
+  yogur: ["Yogur natural", "lacteos", "ud", 8, "pack de 8", 1.39, 21, "marca"],
+  queso_rallado: ["Queso rallado para gratinar", "lacteos", "g", 200, "bolsa de 200 g", 1.69, 21, "marca"],
+  nata: ["Nata para cocinar", "lacteos", "ml", 600, "pack 3 × 200 ml", 1.65, 60, "marca"],
+  mantequilla: ["Mantequilla", "lacteos", "g", 250, "250 g", 2.35, 45, "marca"],
+  pan: ["Barra de pan", "pan", "g", 250, "barra", 0.55, 7, "pieza"],
+  tortillas: ["Tortillas de trigo", "pan", "ud", 8, "paquete de 8", 1.35, 21, "marca"],
+  arroz: ["Arroz redondo", "despensa", "g", 1000, "1 kg", 1.35, 365, "marca"],
+  macarrones: ["Macarrones", "despensa", "g", 1000, "1 kg", 1.19, 365, "marca"],
+  espaguetis: ["Espaguetis", "despensa", "g", 1000, "1 kg", 1.19, 365, "marca"],
+  fideos: ["Fideos", "despensa", "g", 500, "500 g", 0.75, 365, "marca"],
+  cuscus: ["Cuscús", "despensa", "g", 500, "500 g", 1.15, 365, "marca"],
+  lentejas: ["Lentejas pardinas", "despensa", "g", 1000, "1 kg", 2.10, 365, "marca"],
+  garbanzos: ["Garbanzos", "despensa", "g", 1000, "1 kg", 2.20, 365, "marca"],
+  alubias: ["Alubia blanca", "despensa", "g", 1000, "1 kg", 2.45, 365, "marca"],
+  harina: ["Harina de trigo", "despensa", "g", 1000, "1 kg", 0.85, 365, "marca"],
+  pan_rallado: ["Pan rallado", "despensa", "g", 500, "500 g", 0.89, 365, "marca"],
+  levadura: ["Levadura de panadería", "despensa", "ud", 5, "caja de 5 sobres", 0.95, 365, "marca"],
+  tomate_triturado: ["Tomate triturado", "despensa", "g", 800, "bote de 800 g", 0.85, 365, "marca"],
+  tomate_frito: ["Tomate frito", "despensa", "g", 400, "brik de 400 g", 0.79, 365, "marca"],
+  caldo: ["Caldo de pollo", "despensa", "ml", 1000, "brik de 1 L", 0.99, 365, "marca"],
+  atun: ["Atún claro en aceite", "despensa", "g", 156, "pack de 3 latas", 2.75, 365, "marca"],
+  aceite: ["Aceite de oliva suave", "despensa", "ml", 1000, "botella de 1 L", 4.79, 365, "marca"],
+  avena: ["Copos de avena", "despensa", "g", 500, "500 g", 0.99, 365, "marca"],
+  galletas: ["Galletas María", "despensa", "g", 800, "800 g", 1.55, 365, "marca"],
+  cafe: ["Café molido", "despensa", "g", 250, "250 g", 2.85, 365, "marca"],
+  cacao: ["Cacao soluble", "despensa", "g", 1000, "1 kg", 3.45, 365, "marca"],
+  espinacas: ["Espinacas congeladas", "congelados", "g", 750, "bolsa de 750 g", 1.45, 365, "marca"],
+  judias_verdes: ["Judías verdes congeladas", "congelados", "g", 1000, "bolsa de 1 kg", 1.89, 365, "marca"],
+  guisantes: ["Guisantes congelados", "congelados", "g", 1000, "bolsa de 1 kg", 1.85, 365, "marca"],
+  merluza: ["Filetes de merluza congelada", "congelados", "g", 800, "bolsa de 800 g", 5.95, 365, "marca"]
+};
+const BASICOS = [["Sal", 0.35], ["Pimentón dulce", 1.15], ["Comino molido", 1.05], ["Orégano", 0.95], ["Pimienta negra molida", 1.35], ["Laurel", 0.85]];
+const COUNT_WORD = { huevo: ["huevo", "huevos"], yogur: ["yogur", "yogures"], tortillas: ["tortilla", "tortillas"], levadura: ["sobre", "sobres"] };
+
+// Recetas: cantidades por ración de adulto. cat: leg legumbre, arr arroz y pasta, car carne, pes pescado, hue huevo y verdura, lig cena ligera, cap capricho de finde.
+// slot: c = comida, n = cena.
+const R = (id, n, cat, slot, t, tags, i, b, s) => ({ id, n, cat, slot, t, tags, i, b, s });
+const RECIPES = [
+  R("lentejas_verd", "Lentejas estofadas con verduras", "leg", "c", 45, ["legumbre"], { lentejas: 80, patata: 80, zanahoria: 50, cebolla: 40, pimiento: 30, ajo: 4, tomate_triturado: 40, aceite: 10 }, ["sal", "pimentón", "laurel"],
+    ["Sofríe la cebolla, el pimiento y el ajo picados en el aceite durante 8 minutos.", "Añade el tomate y una cucharadita de pimentón, remueve un minuto.", "Echa las lentejas lavadas, la zanahoria y la patata en dados, una hoja de laurel y agua que cubra el doble.", "Cuece a fuego suave 35–40 minutos y sala al final."]),
+  R("lentejas_chorizo", "Lentejas con chorizo", "leg", "c", 50, ["legumbre", "cerdo"], { lentejas: 80, chorizo: 30, patata: 80, zanahoria: 40, cebolla: 40, ajo: 4, aceite: 8 }, ["sal", "pimentón", "laurel"],
+    ["Pon en la olla las lentejas lavadas, la cebolla y el ajo picados, la zanahoria y el chorizo en rodajas.", "Cubre con agua fría, añade el laurel y el aceite y lleva a ebullición.", "A los 20 minutos añade la patata cascada y una cucharadita de pimentón.", "Cuece 20 minutos más a fuego suave y sala."]),
+  R("lentejas_arroz", "Lentejas con arroz y verduras", "leg", "c", 45, ["legumbre"], { lentejas: 70, arroz: 35, cebolla: 50, zanahoria: 50, pimiento: 30, ajo: 3, aceite: 10 }, ["sal", "comino"],
+    ["Sofríe la cebolla, el pimiento, la zanahoria y el ajo picados.", "Añade las lentejas, una pizca de comino y agua que cubra el triple.", "Cuece 25 minutos, añade el arroz y cuece 15 minutos más.", "Ajusta de sal y deja reposar 5 minutos."]),
+  R("garbanzos_espinacas", "Garbanzos con espinacas", "leg", "c", 40, ["legumbre", "gluten"], { garbanzos: 80, espinacas: 120, ajo: 5, pan: 15, aceite: 12 }, ["sal", "comino", "pimentón"],
+    ["La noche antes, pon los garbanzos en remojo.", "Cuécelos 90 minutos (25 en olla rápida) y guarda un vaso del caldo.", "Fríe los ajos y el pan, y májalos con comino y pimentón.", "Saltea las espinacas, añade garbanzos, el majado y el caldo. Cuece 10 minutos."]),
+  R("potaje", "Potaje de garbanzos con verduras", "leg", "c", 50, ["legumbre", "huevo"], { garbanzos: 80, patata: 100, zanahoria: 50, judias_verdes: 60, cebolla: 40, ajo: 3, aceite: 10, huevo: 0.5 }, ["sal", "pimentón", "laurel"],
+    ["La noche antes, pon los garbanzos en remojo.", "Cuécelos con laurel, cebolla, ajo y zanahoria hasta que estén tiernos.", "Añade la patata y las judías verdes y cuece 20 minutos.", "Sirve con huevo duro picado por encima."]),
+  R("alubias", "Alubias blancas estofadas", "leg", "c", 60, ["legumbre"], { alubias: 80, patata: 60, zanahoria: 40, cebolla: 40, pimiento: 40, tomate_triturado: 40, ajo: 3, aceite: 10 }, ["sal", "pimentón", "laurel"],
+    ["La noche antes, pon las alubias en remojo.", "Cuécelas en agua fría con laurel, a fuego suave, unos 50 minutos (20 en olla rápida).", "Mientras, sofríe cebolla, pimiento y ajo; añade tomate y pimentón.", "Junta el sofrito, la zanahoria y la patata con las alubias y cuece 20 minutos."]),
+  R("ensalada_garbanzos", "Ensalada de garbanzos con atún", "leg", "cn", 15, ["legumbre", "pescado", "huevo"], { garbanzos: 70, tomate: 100, pimiento: 40, cebolla: 25, atun: 30, huevo: 0.5, aceite: 12 }, ["sal", "vinagre"],
+    ["Usa garbanzos cocidos de otro día o cuécelos tras dejarlos en remojo.", "Pica tomate, pimiento y cebolla en dados pequeños.", "Mezcla con los garbanzos, el atún y el huevo duro.", "Aliña con aceite, vinagre y sal."]),
+
+  R("arroz_pollo", "Arroz con pollo y verduras", "arr", "c", 45, ["pollo"], { arroz: 85, muslo_pollo: 180, pimiento: 50, judias_verdes: 40, tomate_triturado: 50, ajo: 3, aceite: 12 }, ["sal", "pimentón", "colorante o azafrán"],
+    ["Trocea el pollo y dóralo con sal en el aceite.", "Añade el pimiento, el ajo y las judías; luego el tomate y el pimentón.", "Echa el doble de agua que de arroz (algo más si es cazuela) y el colorante.", "Al hervir, añade el arroz: 18 minutos y 5 de reposo."]),
+  R("arroz_cubana", "Arroz a la cubana", "arr", "cn", 25, ["huevo"], { arroz: 80, huevo: 1, tomate_frito: 70, aceite: 12 }, ["sal", "ajo"],
+    ["Cuece el arroz en agua con sal y un diente de ajo 16 minutos y escúrrelo.", "Calienta el tomate frito.", "Fríe un huevo por persona.", "Sirve el arroz con el tomate y el huevo encima."]),
+  R("paella_verduras", "Paella de verduras", "arr", "c", 45, [], { arroz: 85, judias_verdes: 50, guisantes: 30, pimiento: 50, calabacin: 50, tomate_triturado: 40, ajo: 3, aceite: 15 }, ["sal", "pimentón", "colorante o azafrán"],
+    ["Sofríe el pimiento, el calabacín y las judías en la paellera.", "Añade ajo, tomate y pimentón y cocina 3 minutos.", "Echa el agua (3 veces el arroz), sal y colorante; al hervir, reparte el arroz.", "Cuece 18 minutos sin remover, añade los guisantes al final y reposa 5."]),
+  R("macarrones_carne", "Macarrones con tomate y carne", "arr", "c", 30, ["cerdo", "vacuno", "gluten", "lactosa"], { macarrones: 100, picada_mixta: 80, tomate_triturado: 100, cebolla: 40, queso_rallado: 15, aceite: 8 }, ["sal", "orégano"],
+    ["Pocha la cebolla picada, añade la carne y dórala.", "Echa el tomate, sal y orégano y cocina 15 minutos.", "Cuece los macarrones el tiempo del paquete y escúrrelos.", "Mezcla con la salsa y gratina con el queso 5 minutos."]),
+  R("espaguetis_atun", "Espaguetis con atún y tomate", "arr", "cn", 20, ["pescado", "gluten"], { espaguetis: 100, atun: 40, tomate_triturado: 100, cebolla: 40, ajo: 3, aceite: 8 }, ["sal", "orégano"],
+    ["Sofríe la cebolla y el ajo picados.", "Añade el tomate, sal y orégano y cocina 10 minutos.", "Incorpora el atún escurrido al final.", "Mezcla con la pasta recién cocida."]),
+  R("espaguetis_bolo", "Espaguetis boloñesa de ternera", "arr", "c", 35, ["vacuno", "gluten"], { espaguetis: 100, picada_vacuno: 80, tomate_triturado: 100, cebolla: 40, zanahoria: 30, aceite: 8 }, ["sal", "orégano", "pimienta"],
+    ["Pica fina la cebolla y ralla la zanahoria; pócha las dos.", "Añade la carne y dórala bien.", "Echa el tomate, sal, pimienta y orégano y cuece 20 minutos.", "Sirve sobre los espaguetis cocidos."]),
+  R("carbonara", "Espaguetis carbonara", "arr", "c", 20, ["cerdo", "huevo", "gluten", "lactosa"], { espaguetis: 100, bacon: 35, nata: 50, huevo: 0.5, queso_rallado: 10, aceite: 5 }, ["sal", "pimienta"],
+    ["Dora el bacon en una sartén sin apenas aceite.", "Añade la nata y deja que dé un hervor.", "Escurre la pasta y mézclala con la salsa fuera del fuego.", "Añade el huevo batido y el queso y remueve rápido."]),
+  R("cazuela_fideos", "Cazuela de fideos con pollo", "arr", "c", 40, ["pollo", "gluten"], { fideos: 70, muslo_pollo: 150, pimiento: 40, tomate_triturado: 50, cebolla: 30, caldo: 200, aceite: 10 }, ["sal", "pimentón"],
+    ["Dora el pollo troceado y resérvalo.", "En el mismo aceite sofríe cebolla y pimiento; añade tomate y pimentón.", "Vuelve a poner el pollo, cubre con el caldo y cuece 15 minutos.", "Echa los fideos y cuece lo que indique el paquete."]),
+  R("arroz_salteado", "Arroz salteado con verduras y huevo", "arr", "cn", 25, ["huevo"], { arroz: 75, huevo: 1, zanahoria: 40, guisantes: 40, cebolla: 30, aceite: 12 }, ["sal"],
+    ["Cuece el arroz y déjalo enfriar (mejor si es del día anterior).", "Saltea la cebolla, la zanahoria en dados y los guisantes.", "Haz una tortilla fina, córtala en tiras.", "Saltea el arroz con todo a fuego fuerte 3 minutos."]),
+  R("ensalada_pasta", "Ensalada de pasta con atún", "arr", "cn", 20, ["pescado", "huevo", "gluten"], { macarrones: 80, atun: 35, tomate: 80, zanahoria: 30, huevo: 0.5, aceite: 10 }, ["sal", "vinagre"],
+    ["Cuece la pasta y el huevo; enfría los dos con agua fría.", "Pica el tomate y ralla la zanahoria.", "Mezcla todo con el atún y el huevo troceado.", "Aliña con aceite, vinagre y sal."]),
+  R("cuscus_pollo", "Cuscús con pollo y verduras", "arr", "cn", 25, ["pollo", "gluten"], { cuscus: 70, pechuga: 100, calabacin: 80, zanahoria: 50, cebolla: 30, aceite: 10 }, ["sal", "comino"],
+    ["Corta el pollo y las verduras en dados.", "Dora el pollo, añade las verduras y saltea 8 minutos con comino.", "Hidrata el cuscús con el mismo volumen de agua hirviendo y sal, 5 minutos tapado.", "Suéltalo con un tenedor y mézclalo con el salteado."]),
+
+  R("pollo_horno", "Pollo al horno con patatas", "car", "c", 60, ["pollo"], { muslo_pollo: 260, patata: 200, cebolla: 60, ajo: 4, limon: 20, aceite: 15 }, ["sal", "pimienta", "orégano"],
+    ["Precalienta el horno a 200 °C.", "Pon en la bandeja las patatas en rodajas y la cebolla en juliana con aceite y sal.", "Coloca encima el pollo con ajo, limón, sal, pimienta y orégano.", "Hornea 50 minutos, dándole la vuelta a mitad."]),
+  R("pollo_ajillo", "Pollo al ajillo con arroz blanco", "car", "c", 40, ["pollo"], { muslo_pollo: 230, ajo: 8, arroz: 60, aceite: 15 }, ["sal", "laurel"],
+    ["Trocea el pollo, sálalo y dóralo a fuego medio en el aceite.", "Añade los ajos laminados y el laurel.", "Echa medio vaso de agua y cuece tapado 20 minutos.", "Acompaña con arroz blanco cocido."]),
+  R("pollo_chilindron", "Pollo al chilindrón", "car", "c", 50, ["pollo"], { muslo_pollo: 230, pimiento: 90, tomate_triturado: 80, cebolla: 50, ajo: 3, aceite: 12 }, ["sal", "pimentón"],
+    ["Dora el pollo troceado y resérvalo.", "Sofríe cebolla, pimiento y ajo hasta que estén blandos.", "Añade el tomate y el pimentón y vuelve a poner el pollo.", "Cuece tapado 30 minutos a fuego suave."]),
+  R("albondigas", "Albóndigas en salsa con patatas", "car", "c", 50, ["cerdo", "vacuno", "huevo", "gluten"], { picada_mixta: 120, huevo: 0.25, pan_rallado: 15, tomate_triturado: 80, cebolla: 40, patata: 150, aceite: 20, harina: 5 }, ["sal", "ajo", "perejil"],
+    ["Mezcla la carne con huevo, pan rallado, ajo picado y sal; forma bolas.", "Pásalas por harina y dóralas; resérvalas.", "Sofríe la cebolla, añade el tomate y un vaso de agua y mete las albóndigas 15 minutos.", "Acompaña con patatas fritas o cocidas."]),
+  R("lomo_patatas", "Lomo con patatas y pimientos", "car", "c", 35, ["cerdo"], { lomo: 140, patata: 180, pimiento: 70, ajo: 3, aceite: 18 }, ["sal"],
+    ["Corta las patatas en rodajas finas y el pimiento en tiras.", "Haz las patatas y el pimiento a fuego medio tapados, 20 minutos.", "Haz el lomo a la plancha con sal y ajo.", "Sirve todo junto."]),
+  R("patatas_riojana", "Patatas a la riojana", "car", "c", 45, ["cerdo"], { patata: 280, chorizo: 45, cebolla: 40, pimiento: 30, ajo: 3, aceite: 8 }, ["sal", "pimentón", "laurel"],
+    ["Sofríe cebolla, pimiento y ajo picados; añade el chorizo en rodajas.", "Echa la patata cascada y rehoga 2 minutos con el pimentón.", "Cubre con agua, añade laurel y sal.", "Cuece 25 minutos a fuego medio."]),
+  R("ternera_guisada", "Ternera guisada con patatas", "car", "c", 90, ["vacuno"], { ternera: 140, patata: 150, zanahoria: 50, cebolla: 50, guisantes: 30, tomate_triturado: 40, aceite: 10, harina: 5 }, ["sal", "laurel", "pimienta"],
+    ["Enharina la carne y dórala por tandas.", "Sofríe la cebolla y la zanahoria; añade el tomate.", "Vuelve a poner la carne, cubre con agua y cuece 60 minutos (20 en olla rápida).", "Añade la patata y los guisantes y cuece 20 minutos más."]),
+  R("filetes_rusos", "Filetes rusos con ensalada", "car", "cn", 30, ["vacuno", "huevo", "gluten"], { picada_vacuno: 120, huevo: 0.25, pan_rallado: 15, lechuga: 60, tomate: 80, aceite: 15 }, ["sal", "ajo", "perejil"],
+    ["Mezcla la carne con huevo, pan rallado, ajo y perejil picados y sal.", "Forma filetes redondos.", "Hazlos a la plancha 3–4 minutos por cada lado.", "Acompaña con ensalada de lechuga y tomate."]),
+  R("salteado_pollo", "Salteado de pollo con verduras y arroz", "car", "cn", 30, ["pollo"], { pechuga: 120, pimiento: 60, cebolla: 50, calabacin: 60, arroz: 60, aceite: 10 }, ["sal", "pimienta"],
+    ["Cuece el arroz.", "Corta el pollo en tiras y saltéalo a fuego fuerte; resérvalo.", "Saltea las verduras en tiras 6 minutos.", "Junta el pollo y sirve con el arroz."]),
+  R("berenjenas_rellenas", "Berenjenas rellenas de carne", "car", "cn", 50, ["cerdo", "vacuno", "lactosa"], { berenjena: 250, picada_mixta: 70, cebolla: 40, tomate_frito: 50, queso_rallado: 20, aceite: 8 }, ["sal", "orégano"],
+    ["Parte las berenjenas por la mitad y ásalas 20 minutos a 200 °C.", "Vacíalas y pica la pulpa.", "Sofríe cebolla y carne, añade la pulpa y el tomate.", "Rellena, pon queso y gratina 10 minutos."]),
+  R("pollo_plancha", "Pechuga a la plancha con ensalada", "car", "n", 15, ["pollo"], { pechuga: 150, lechuga: 70, tomate: 90, zanahoria: 30, aceite: 10, limon: 10 }, ["sal", "orégano"],
+    ["Sala los filetes y hazlos a la plancha 3 minutos por lado.", "Prepara la ensalada con lechuga, tomate y zanahoria rallada.", "Aliña con aceite, limón y sal."]),
+
+  R("merluza_verde", "Merluza en salsa verde con patatas", "pes", "c", 35, ["pescado", "gluten"], { merluza: 160, patata: 160, guisantes: 20, ajo: 4, harina: 5, aceite: 15 }, ["sal", "perejil"],
+    ["Cuece la patata en rodajas gruesas 15 minutos.", "Dora el ajo en el aceite, añade la harina y luego un vaso de agua de cocer la patata.", "Pon la merluza (descongelada) y los guisantes 6–8 minutos moviendo la cazuela.", "Añade perejil y sirve con las patatas."]),
+  R("merluza_plancha", "Merluza a la plancha con verduras", "pes", "n", 20, ["pescado"], { merluza: 150, calabacin: 100, zanahoria: 50, aceite: 10, limon: 10 }, ["sal", "ajo", "perejil"],
+    ["Descongela la merluza en la nevera desde por la mañana.", "Saltea el calabacín y la zanahoria en bastones.", "Haz la merluza a la plancha 3 minutos por lado.", "Riégala con ajo, perejil, aceite y limón."]),
+  R("sardinas", "Sardinas al horno con ensalada", "pes", "cn", 25, ["pescado"], { sardina: 220, lechuga: 60, tomate: 90, ajo: 2, aceite: 10, limon: 15 }, ["sal gruesa", "perejil"],
+    ["Limpia las sardinas (o pídelas limpias en la pescadería).", "Ponlas en la bandeja con sal gruesa, ajo, perejil y un hilo de aceite.", "Hornea 12 minutos a 200 °C.", "Sirve con limón y ensalada."]),
+  R("merluza_rebozada", "Merluza rebozada con ensalada", "pes", "n", 25, ["pescado", "huevo", "gluten"], { merluza: 150, huevo: 0.3, harina: 15, aceite: 20, lechuga: 60, tomate: 80 }, ["sal"],
+    ["Seca bien la merluza descongelada y sálala.", "Pásala por harina y huevo batido.", "Fríela en aceite caliente 2 minutos por lado.", "Sirve con ensalada."]),
+
+  R("tortilla", "Tortilla de patatas con ensalada", "hue", "cn", 35, ["huevo"], { patata: 200, huevo: 2, cebolla: 40, aceite: 25, lechuga: 50, tomate: 70 }, ["sal"],
+    ["Pela y lamina las patatas y la cebolla; fríelas a fuego medio 20 minutos.", "Escúrrelas y mézclalas con el huevo batido y sal.", "Cuaja la tortilla en una sartén pequeña y dale la vuelta con un plato.", "Sirve con ensalada."]),
+  R("pisto", "Pisto con huevo", "hue", "cn", 40, ["huevo"], { calabacin: 150, pimiento: 70, cebolla: 60, tomate_triturado: 100, huevo: 1, aceite: 15 }, ["sal", "azúcar"],
+    ["Pica la cebolla y el pimiento y pócha los dos 10 minutos.", "Añade el calabacín en dados y cocina 10 minutos más.", "Echa el tomate, sal y una pizca de azúcar y cocina 15 minutos.", "Sirve con un huevo frito o cuajado encima."]),
+  R("judias_patatas", "Judías verdes con patatas y huevo duro", "hue", "cn", 30, ["huevo"], { judias_verdes: 200, patata: 150, huevo: 1, ajo: 4, aceite: 12 }, ["sal", "pimentón"],
+    ["Cuece las patatas troceadas 10 minutos y añade las judías 10 minutos más.", "Cuece los huevos 10 minutos.", "Dora el ajo laminado en el aceite, aparta y añade pimentón.", "Riega las verduras con el refrito y sirve con el huevo."]),
+  R("revuelto_champi", "Revuelto de champiñones y patatas", "hue", "n", 25, ["huevo"], { huevo: 2, champinon: 120, patata: 120, ajo: 3, aceite: 18 }, ["sal", "perejil"],
+    ["Fríe la patata en dados pequeños hasta que esté dorada.", "Añade los champiñones laminados y el ajo y saltea 5 minutos.", "Echa el huevo batido con sal y remueve a fuego bajo hasta que cuaje jugoso."]),
+  R("coliflor_gratinada", "Coliflor gratinada", "hue", "cn", 35, ["lactosa", "gluten"], { coliflor: 280, leche: 120, harina: 12, mantequilla: 10, queso_rallado: 20 }, ["sal", "nuez moscada"],
+    ["Cuece la coliflor en ramitos 10 minutos y escúrrela.", "Haz una bechamel: mantequilla, harina, y la leche poco a poco removiendo 8 minutos.", "Cubre la coliflor con la bechamel y el queso.", "Gratina 10 minutos."]),
+  R("huevos_rotos", "Huevos rotos con patatas y pimientos", "cap", "n", 30, ["huevo"], { patata: 220, huevo: 2, pimiento: 60, aceite: 25 }, ["sal"],
+    ["Corta las patatas en rodajas y el pimiento en tiras.", "Fríelos a fuego medio hasta que estén tiernos y dorados.", "Fríe los huevos y ponlos encima.", "Rompe las yemas en la mesa."]),
+
+  R("pure_tortilla", "Puré de verduras y tortilla francesa", "lig", "n", 30, ["huevo"], { patata: 100, zanahoria: 80, calabacin: 80, puerro: 60, aceite: 15, huevo: 2 }, ["sal"],
+    ["Cuece las verduras troceadas con agua justa y sal 20 minutos.", "Tritúralas con un chorrito de aceite.", "Haz una tortilla francesa por persona.", "Sirve el puré con la tortilla."]),
+  R("crema_calabaza", "Crema de calabaza con huevo duro", "lig", "n", 30, ["huevo", "gluten"], { calabaza: 250, patata: 60, cebolla: 40, zanahoria: 40, aceite: 10, huevo: 1, pan: 30 }, ["sal", "pimienta"],
+    ["Pocha la cebolla en el aceite.", "Añade la calabaza, la patata y la zanahoria troceadas y cubre con agua.", "Cuece 20 minutos, tritura y salpimienta.", "Sirve con huevo duro picado y pan tostado en dados."]),
+  R("crema_calabacin", "Crema de calabacín", "lig", "n", 25, ["lactosa", "gluten"], { calabacin: 250, patata: 60, cebolla: 40, nata: 30, aceite: 8, pan: 30 }, ["sal"],
+    ["Pocha la cebolla.", "Añade el calabacín y la patata troceados y cubre con agua justa.", "Cuece 15 minutos, añade la nata y tritura.", "Sirve con pan tostado."]),
+  R("crema_puerros", "Crema de puerros y patata", "lig", "n", 30, ["lactosa"], { puerro: 150, patata: 120, cebolla: 30, nata: 25, aceite: 8, huevo: 1 }, ["sal", "pimienta"],
+    ["Pocha la cebolla y el puerro en rodajas 10 minutos.", "Añade la patata y cubre con agua.", "Cuece 20 minutos, añade la nata y tritura.", "Acompaña con un huevo cocido o escalfado."]),
+  R("sopa_fideos", "Sopa de fideos con huevo", "lig", "n", 20, ["pollo", "gluten", "huevo"], { fideos: 40, caldo: 300, huevo: 0.5, zanahoria: 30 }, ["sal"],
+    ["Calienta el caldo con la zanahoria en dados.", "Cuando hierva, echa los fideos y cuece lo que diga el paquete.", "Sirve con huevo duro picado."]),
+  R("ensalada_completa", "Ensalada completa con atún y huevo", "lig", "n", 15, ["pescado", "huevo"], { lechuga: 80, tomate: 100, zanahoria: 40, atun: 40, huevo: 1, cebolla: 20, aceite: 12 }, ["sal", "vinagre"],
+    ["Cuece los huevos 10 minutos.", "Trocea la lechuga, el tomate y la cebolla y ralla la zanahoria.", "Añade el atún y el huevo.", "Aliña con aceite, vinagre y sal."]),
+
+  R("pizza_atun", "Pizza casera de atún", "cap", "n", 60, ["pescado", "gluten", "lactosa"], { harina: 110, levadura: 0.25, tomate_frito: 50, queso_rallado: 50, atun: 30, cebolla: 25, aceite: 10 }, ["sal", "orégano"],
+    ["Mezcla la harina, la levadura, una pizca de sal, el aceite y agua tibia (60 % del peso de la harina). Amasa 5 minutos.", "Deja reposar tapada 40 minutos.", "Estírala, cubre con tomate, cebolla, atún, queso y orégano.", "Hornea a 230 °C unos 12 minutos."]),
+  R("pizza_verduras", "Pizza casera de verduras", "cap", "n", 60, ["gluten", "lactosa"], { harina: 110, levadura: 0.25, tomate_frito: 50, queso_rallado: 50, pimiento: 40, champinon: 50, cebolla: 25, aceite: 10 }, ["sal", "orégano"],
+    ["Haz la masa con harina, levadura, sal, aceite y agua tibia y déjala reposar 40 minutos.", "Estírala y cubre con tomate, verduras en láminas y queso.", "Hornea a 230 °C unos 12 minutos."]),
+  R("wraps_pollo", "Wraps de pollo", "cap", "n", 25, ["pollo", "gluten", "lactosa"], { tortillas: 2, pechuga: 100, pimiento: 50, cebolla: 40, lechuga: 30, yogur: 0.25, aceite: 8 }, ["sal", "comino", "limón"],
+    ["Corta el pollo, el pimiento y la cebolla en tiras y saltéalos con sal y comino.", "Mezcla el yogur con sal y unas gotas de limón para la salsa.", "Calienta las tortillas en la sartén.", "Rellena con el salteado, lechuga y salsa, y enrolla."]),
+  R("hamburguesas", "Hamburguesas caseras con patatas al horno", "cap", "cn", 40, ["vacuno", "gluten"], { picada_vacuno: 120, pan: 70, patata: 180, lechuga: 30, tomate: 50, cebolla: 20, aceite: 12 }, ["sal", "pimienta"],
+    ["Corta las patatas en gajos, alíñalas y hornéalas 30 minutos a 210 °C.", "Forma las hamburguesas con la carne salpimentada.", "Hazlas a la plancha 4 minutos por lado.", "Mételas en pan con lechuga, tomate y cebolla."])
+];
+const RID = Object.fromEntries(RECIPES.map(r => [r.id, r]));
+const CAT_NAME = { leg: "Legumbre", arr: "Arroz y pasta", car: "Carne", pes: "Pescado", hue: "Huevo y verdura", lig: "Cena ligera", cap: "Capricho de finde" };
+
+const BREAKFASTS = [
+  { id: "b_galletas", n: "Leche con cacao y galletas", tags: ["gluten", "lactosa"], i: { leche: 250, cacao: 15, galletas: 35 }, s: ["Calienta la leche y añade el cacao.", "Acompaña con 5 o 6 galletas."] },
+  { id: "b_tostadas", n: "Tostadas con tomate y aceite, café con leche", tags: ["gluten", "lactosa"], i: { pan: 60, tomate: 50, aceite: 8, leche: 200, cafe: 8 }, s: ["Tuesta el pan.", "Ralla el tomate y ponlo encima con aceite y sal.", "Para los niños, leche con cacao en lugar de café."] },
+  { id: "b_yogur", n: "Yogur con avena y plátano", tags: ["lactosa"], i: { yogur: 1, avena: 30, platano: 100 }, s: ["Pon el yogur en un bol.", "Añade la avena y el plátano en rodajas."] },
+  { id: "b_huevo", n: "Huevo revuelto con tomate y una naranja", tags: ["huevo"], i: { huevo: 1, tomate: 60, aceite: 5, naranja: 180 }, s: ["Haz un revuelto con el huevo y el tomate en dados.", "De postre, una naranja."] }
+];
+const BID = Object.fromEntries(BREAKFASTS.map(b => [b.id, b]));
+const FRUITS = ["naranja", "mandarina", "manzana", "platano"];
+
+// Plantilla semanal por día de la semana (0 = domingo)
+const TEMPLATE = {
+  c: { 1: "leg", 2: "arr", 3: "car", 4: "leg", 5: "pes", 6: "arr", 0: "car" },
+  n: { 1: "hue", 2: "lig", 3: "pes", 4: "lig", 5: "hue", 6: "cap", 0: "lig" }
+};
+const FALLBACK = { leg: ["hue", "arr"], arr: ["leg", "hue"], car: ["leg", "arr", "hue"], pes: ["hue", "leg", "arr"], hue: ["lig", "arr", "leg"], lig: ["hue", "arr"], cap: ["hue", "arr", "lig"] };
+
+const EXCL = [
+  { id: "cerdo", label: "Sin cerdo", tags: ["cerdo"] },
+  { id: "pescado", label: "Sin pescado", tags: ["pescado"] },
+  { id: "veg", label: "Vegetariano", tags: ["pollo", "cerdo", "vacuno", "pescado"] },
+  { id: "gluten", label: "Sin gluten", tags: ["gluten"] },
+  { id: "lactosa", label: "Sin lactosa", tags: ["lactosa"] },
+  { id: "huevo", label: "Sin huevo", tags: ["huevo"] }
+];
+const MONTHS = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+const WD = ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"];
+
+/* ============ UTILIDADES ============ */
+const $ = s => document.querySelector(s);
+const eur = new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR" });
+const money = v => eur.format(v);
+const nf = d => new Intl.NumberFormat("es-ES", { maximumFractionDigits: d });
+function rng32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function hash01(str) { let h = 2166136261; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967296; }
+function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+
+function price(ing, supId) {
+  const d = ING[ing], s = SUP[supId];
+  const idx = FRESH[d[1]] ? s.fresh : s.pack;
+  return Math.round(d[5] * idx * (0.94 + 0.12 * hash01(ing + "|" + supId)) * 100) / 100;
+}
+const unitPrice = (ing, supId) => price(ing, supId) / ING[ing][3];
+function itemName(ing, supId) {
+  const d = ING[ing];
+  if (d[7] !== "marca") return d[0];
+  const b = SUP[supId].brand;
+  return b === "marca propia" ? d[0] + " (marca propia)" : d[0] + " " + b;
+}
+function fmtQty(q, unit, ing) {
+  if (unit === "g") return q >= 1000 ? nf(2).format(q / 1000) + " kg" : nf(0).format(Math.round(q / 5) * 5 || Math.round(q)) + " g";
+  if (unit === "ml") return q >= 1000 ? nf(2).format(q / 1000) + " L" : nf(0).format(Math.round(q / 5) * 5 || Math.round(q)) + " ml";
+  const r = Math.round(q * 2) / 2;
+  const w = COUNT_WORD[ing] || ["ud", "ud"];
+  return nf(1).format(r) + " " + (r === 1 ? w[0] : w[1]);
+}
+
+function allowedTags(st) {
+  const out = new Set();
+  st.excl.forEach(id => { const e = EXCL.find(x => x.id === id); if (e) e.tags.forEach(t => out.add(t)); });
+  return out;
+}
+function isAllowed(r, st, banned) { return !r.tags.some(t => banned.has(t)) && !st.disliked.includes(r.id); }
+const factor = st => st.adults + 0.6 * st.kids;
+const people = st => st.adults + st.kids;
+function rCost(r, supId) { let c = 0; for (const k in r.i) c += r.i[k] * unitPrice(k, supId); return c; }
+function daysIn(y, m) { return new Date(y, m + 1, 0).getDate(); }
+function makeTrips(n) {
+  const t = [];
+  for (let s = 0; s < n; s += 7) t.push([s, Math.min(n, s + 7) - 1]);
+  if (t.length > 1 && t[t.length - 1][1] - t[t.length - 1][0] + 1 < 4) { const last = t.pop(); t[t.length - 1][1] = last[1]; }
+  return t;
+}
+const tripOf = (trips, d) => trips.findIndex(([a, b]) => d >= a && d <= b);
+function blockOf(ing, trip) {
+  const dur = ING[ing][6];
+  if (dur >= 28) return 0;
+  const bs = Math.max(1, Math.round(dur / 7));
+  return Math.floor(trip / bs) * bs;
+}
+const MAIN = ["pollo", "cerdo", "vacuno", "pescado", "legumbre", "huevo"];
+const mainOf = r => r.tags.filter(t => MAIN.includes(t));
+
+/* ============ GENERADOR ============ */
+function extrasFor(st, d) {
+  // Desayuno, fruta y pan del día: [ing, cantidad por ración]
+  const out = [];
+  if (st.fruit) out.push([FRUITS[d % FRUITS.length], 160]);
+  if (st.bread) out.push(["pan", 80]);
+  return out;
+}
+function breakfastList(st, banned) {
+  const ok = BREAKFASTS.filter(b => !b.tags.some(t => banned.has(t)));
+  const main = ok.filter(b => b.id !== "b_huevo");
+  return main.length >= 2 ? main : ok;
+}
+
+function generate(st, seed) {
+  const rnd = rng32(seed);
+  const n = daysIn(st.year, st.month);
+  const trips = makeTrips(n);
+  const f = factor(st);
+  const banned = allowedTags(st);
+  const pool = RECIPES.filter(r => isAllowed(r, st, banned));
+  if (!pool.some(r => r.slot.includes("c")) || !pool.some(r => r.slot.includes("n"))) return null;
+  const bList = breakfastList(st, banned);
+  const stock = {}, used = {}, last = {};
+  const consume = (ing, qty, trip) => {
+    const key = ing + "|" + blockOf(ing, trip);
+    let rem = stock[key] || 0, cost = 0;
+    if (qty > rem) { const packs = Math.ceil((qty - rem) / ING[ing][3] - 1e-9); rem += packs * ING[ing][3]; cost = packs * price(ing, st.sup); }
+    stock[key] = rem - qty; return cost;
+  };
+  const marginal = (r, trip) => {
+    let c = 0;
+    for (const k in r.i) {
+      const need = r.i[k] * f, rem = stock[k + "|" + blockOf(k, trip)] || 0;
+      if (need > rem) c += Math.ceil((need - rem) / ING[k][3] - 1e-9) * price(k, st.sup);
+    }
+    return c;
+  };
+  const days = [];
+  for (let d = 0; d < n; d++) {
+    const date = new Date(st.year, st.month, d + 1), wd = date.getDay(), trip = tripOf(trips, d);
+    const day = { c: null, n: null, b: null };
+    if (st.breakfast && bList.length) {
+      day.b = bList[d % bList.length].id;
+      const b = BID[day.b]; for (const k in b.i) consume(k, b.i[k] * f, trip);
+    }
+    extrasFor(st, d).forEach(([k, q]) => consume(k, q * f, trip));
+    for (const meal of ["c", "n"]) {
+      const cats = [TEMPLATE[meal][wd], ...FALLBACK[TEMPLATE[meal][wd]]];
+      const fits = r => r.slot.includes(meal);
+      let cands = [];
+      const tries = [
+        r => fits(r) && (last[r.id] === undefined || d - last[r.id] >= 6) && (used[r.id] || 0) < 3,
+        r => fits(r) && (last[r.id] === undefined || d - last[r.id] >= 3) && (used[r.id] || 0) < 4,
+        r => fits(r) && last[r.id] !== d
+      ];
+      outer: for (const ok of tries) {
+        for (const c of cats) { cands = pool.filter(r => r.cat === c && ok(r)); if (cands.length) break outer; }
+        cands = pool.filter(ok); if (cands.length) break;
+      }
+      if (!cands.length) cands = pool.filter(fits);
+      const other = meal === "n" && day.c ? mainOf(RID[day.c]) : [];
+      let best = null, bestS = Infinity;
+      cands.forEach(r => {
+        let s = (0.55 * rCost(r, st.sup) * f + 0.45 * marginal(r, trip)) * (0.85 + rnd() * 0.4);
+        if (mainOf(r).some(t => other.includes(t))) s *= 1.3;
+        if (s < bestS) { bestS = s; best = r; }
+      });
+      day[meal] = best.id;
+      for (const k in best.i) consume(k, best.i[k] * f, trip);
+      used[best.id] = (used[best.id] || 0) + 1; last[best.id] = d;
+    }
+    days.push(day);
+  }
+  return { seed, year: st.year, month: st.month, days };
+}
+
+/* ============ LISTA DE LA COMPRA ============ */
+function shopping(plan, st, supId) {
+  const n = plan.days.length, trips = makeTrips(n), f = factor(st);
+  const need = {}; // ing|tripCompra -> cantidad
+  const add = (ing, q, trip) => { const k = ing + "|" + blockOf(ing, trip); need[k] = (need[k] || 0) + q; };
+  plan.days.forEach((day, d) => {
+    const trip = tripOf(trips, d);
+    ["c", "n"].forEach(m => { const r = RID[day[m]]; if (r) for (const k in r.i) add(k, r.i[k] * f, trip); });
+    if (day.b && BID[day.b]) { const b = BID[day.b]; for (const k in b.i) add(k, b.i[k] * f, trip); }
+    extrasFor(st, d).forEach(([k, q]) => add(k, q * f, trip));
+  });
+  const out = trips.map(([a, b]) => ({ from: a, to: b, items: [], total: 0 }));
+  for (const key in need) {
+    const [ing, t] = key.split("|"), d = ING[ing], q = need[key];
+    const packs = Math.ceil(q / d[3] - 1e-9), p = price(ing, supId);
+    out[+t].items.push({ ing, need: q, packs, cost: packs * p, unitP: p });
+  }
+  if (!st.haveBasics) BASICOS.forEach(([name, p], i) => {
+    const s = SUP[supId], v = Math.round(p * s.pack * (0.94 + 0.12 * hash01(name + supId)) * 100) / 100;
+    out[0].items.push({ basic: name, packs: 1, cost: v, unitP: v });
+  });
+  const order = Object.keys(SECTIONS);
+  out.forEach(t => {
+    t.items.sort((x, y) => order.indexOf(x.basic ? "basicos" : ING[x.ing][1]) - order.indexOf(y.basic ? "basicos" : ING[y.ing][1]) || (x.basic ? 0 : ING[x.ing][0].localeCompare(ING[y.ing][0])));
+    t.total = t.items.reduce((s, i) => s + i.cost, 0);
+  });
+  return { trips: out, total: out.reduce((s, t) => s + t.total, 0) };
+}
+function itemLine(it, supId) {
+  if (it.basic) return { name: it.basic, buy: "1 bote", detail: "Solo si no lo tienes ya en casa" };
+  const d = ING[it.ing];
+  let buy;
+  if (d[7] === "peso") buy = fmtQty(it.packs * d[3], d[2], it.ing) + " a granel";
+  else buy = it.packs + " × " + (d[4] || fmtQty(d[3], d[2], it.ing));
+  const left = it.packs * d[3] - it.need;
+  let detail = "Necesitas " + fmtQty(it.need, d[2], it.ing);
+  if (d[7] === "peso") detail += " · " + money(it.unitP / d[3] * 1000) + "/kg";
+  else if (left / d[3] > 0.15 && d[6] >= 28) detail += " · te sobra " + fmtQty(left, d[2], it.ing) + " para el mes que viene";
+  else if (left / d[3] > 0.25) detail += " · sobra " + fmtQty(left, d[2], it.ing);
+  if (it.ing === "pan") detail += " · congela lo que no uses en el día";
+  if (it.ing === "merluza") detail += " · va al congelador";
+  return { name: itemName(it.ing, supId), buy, detail };
+}
+
+/* ============ ESTADO ============ */
+const KEY = "menuDelMes.v1";
+const now = new Date();
+const DEFAULTS = { sup: "mercadona", adults: 2, kids: 2, year: now.getFullYear(), month: now.getMonth(), breakfast: true, fruit: true, bread: false, haveBasics: true, excl: [], disliked: [] };
+let state, draft, shopTrip = 0, nearby = {};
+function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { } }
+function load() {
+  try { const s = JSON.parse(localStorage.getItem(KEY) || "null"); if (s && s.plan && s.settings && SUP[s.settings.sup]) return s; } catch (e) { }
+  return null;
+}
+function fresh(settings, seed, example) {
+  const plan = generate(settings, seed);
+  return plan ? { settings, plan, checks: {}, example: !!example } : null;
+}
+
+/* ============ VISTAS ============ */
+const VIEWS = ["menu", "compra", "resumen", "ajustes"];
+function route() {
+  let v = (location.hash || "").slice(1);
+  if (!VIEWS.includes(v)) v = "menu";
+  VIEWS.forEach(x => { $("#v-" + x).hidden = x !== v; });
+  document.querySelectorAll(".tabs a").forEach(a => { if (a.dataset.view === v) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
+  if (v === "ajustes") { draft = null; renderSettings(); } else render(v);
+  window.scrollTo(0, 0);
+}
+function go(v) { if (location.hash === "#" + v) route(); else location.hash = v; }
+
+function whoText(st) {
+  const k = st.kids ? ` y ${st.kids} ${st.kids === 1 ? "niño" : "niños"}` : "";
+  return `${SUP[st.sup].name} · ${st.adults} ${st.adults === 1 ? "adulto" : "adultos"}${k} · ${MONTHS[st.month]}`;
+}
+function exampleNote() {
+  if (!state.example) return "";
+  return `<div class="note"><p><b>Esto es un ejemplo</b> para 2 adultos y 2 niños que compran en Mercadona. Dime dónde compras y cuántos sois y te hago el tuyo.</p><button class="btn btn--go" data-go="ajustes">Hacer el mío</button></div>`;
+}
+function tag(v, small) { return `<span class="tag"><b>${money(v)}</b>${small ? `<small>${small}</small>` : ""}</span>`; }
+
+function render(v) {
+  const st = state.settings;
+  $("#who").textContent = whoText(st);
+  if (v === "menu") renderMenu(); if (v === "compra") renderShop(); if (v === "resumen") renderSummary();
+}
+
+function renderMenu() {
+  const st = state.settings, plan = state.plan, f = factor(st);
+  const shop = shopping(plan, st, st.sup), trips = makeTrips(plan.days.length);
+  const today = new Date(); const isThisMonth = today.getFullYear() === plan.year && today.getMonth() === plan.month;
+  let h = exampleNote();
+  h += `<div class="vhead"><div><h1>Menú de ${MONTHS[plan.month]}</h1><p>${plan.days.length} días · ${people(st)} ${people(st) === 1 ? "persona" : "personas"} · toca un plato para ver la receta o cambiarlo</p></div>
+    <div class="vhead__side">${tag(shop.total, "todo el mes")}<button class="btn" data-act="regen">Otro menú</button></div></div>`;
+  trips.forEach(([a, b], t) => {
+    h += `<section class="week"><div class="week__head"><h2>Semana ${t + 1} · ${a + 1}–${b + 1} ${MONTHS[plan.month].slice(0, 3)}</h2><a href="#compra" data-trip="${t}">Compra de esta semana: ${money(shop.trips[t].total)} →</a></div>`;
+    for (let d = a; d <= b; d++) {
+      const day = plan.days[d], date = new Date(plan.year, plan.month, d + 1);
+      const isToday = isThisMonth && today.getDate() === d + 1;
+      h += `<div class="day${isToday ? " day--today" : ""}"><div class="day__date"><span>${WD[date.getDay()]}</span><b>${d + 1}</b></div><div class="day__meals${day.b ? "" : " day__meals--nob"}">`;
+      if (day.b) h += `<button class="meal meal--b" data-day="${d}" data-meal="b"><span class="meal__t"><span class="meal__k">Desayuno</span><span class="meal__n">${esc(BID[day.b].n)}</span></span></button>`;
+      ["c", "n"].forEach(m => {
+        const r = RID[day[m]];
+        h += `<button class="meal" data-day="${d}" data-meal="${m}"><span class="meal__t"><span class="meal__k">${m === "c" ? "Comida" : "Cena"}</span><span class="meal__n">${esc(r.n)}</span></span>${tag(rCost(r, st.sup) * f)}</button>`;
+      });
+      h += `</div></div>`;
+    }
+    h += `</section>`;
+  });
+  h += `<p class="disclaimer">Los precios del menú son el coste de los ingredientes que usa cada plato para toda la familia. La lista de la compra redondea a paquetes enteros, así que el total del mes es algo mayor.</p>`;
+  $("#v-menu").innerHTML = h;
+}
+
+function renderShop() {
+  const st = state.settings, plan = state.plan, shop = shopping(plan, st, st.sup);
+  if (shopTrip >= shop.trips.length) shopTrip = 0;
+  const m3 = MONTHS[plan.month].slice(0, 3);
+  let h = exampleNote();
+  h += `<div class="vhead"><div><h1>Lista de la compra</h1><p>${SUP[st.sup].name} · marca blanca y producto a granel, que es lo más barato. Marca lo que ya llevas en el carro.</p></div><div class="vhead__side">${tag(shop.total, "todo el mes")}</div></div>`;
+  h += `<div class="trips" role="group" aria-label="Compras del mes">`;
+  shop.trips.forEach((t, i) => {
+    h += `<button class="trip" aria-pressed="${i === shopTrip}" data-shoptrip="${i}"><b>Compra ${i + 1}${i === 0 ? " · la grande" : ""}</b><span>${t.from + 1}–${t.to + 1} ${m3} · ${t.items.length} productos</span><i>${money(t.total)}</i></button>`;
+  });
+  h += `</div>`;
+  const t = shop.trips[shopTrip];
+  let done = 0, sec = "";
+  let rows = "";
+  t.items.forEach(it => {
+    const s = it.basic ? "basicos" : ING[it.ing][1];
+    if (s !== sec) { if (sec) rows += `</div>`; rows += `<div class="sec"><h3>${SECTIONS[s]}</h3>`; sec = s; }
+    const key = shopTrip + "|" + (it.ing || it.basic), on = !!state.checks[key]; if (on) done++;
+    const L = itemLine(it, st.sup);
+    rows += `<label class="item${on ? " is-done" : ""}"><input type="checkbox" data-check="${esc(key)}"${on ? " checked" : ""}><span><span class="item__n">${esc(L.name)}</span><span class="item__d">${esc(L.buy)} · ${esc(L.detail)}</span></span><span class="item__p">${money(it.cost)}${it.packs > 1 && ING[it.ing] && ING[it.ing][7] !== "peso" ? `<small>${money(it.unitP)} c/u</small>` : ""}</span></label>`;
+  });
+  if (sec) rows += `</div>`;
+  h += `<div class="shop"><div class="receipt"><div class="receipt__head"><b>${SUP[st.sup].name}</b><span>Compra ${shopTrip + 1} · del ${t.from + 1} al ${t.to + 1} de ${MONTHS[plan.month]}</span></div>${rows}
+    <div class="total"><span>TOTAL</span><span class="num">${money(t.total)}</span></div><p class="receipt__foot">Precios orientativos · pueden variar en tu tienda</p></div>
+    <aside class="aside"><div class="card"><h3>En el carro</h3><div class="progress"><i style="width:${t.items.length ? done / t.items.length * 100 : 0}%"></i></div><p class="num">${done} de ${t.items.length} productos</p>${done ? `<button class="btn btn--small" data-act="uncheck">Desmarcar todo</button>` : ""}</div>
+    <div class="card"><h3>Llévatela</h3><p>Pásala al móvil o compártela con quien vaya a comprar.</p><div class="btnrow"><button class="btn btn--go btn--small" data-act="copy">Copiar lista</button><a class="btn btn--small" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(listText(t, shopTrip))}">Enviar por WhatsApp</a></div><textarea class="copybox" id="copybox" readonly hidden></textarea></div>
+    <div class="card"><h3>Por qué cuesta esto</h3><p>${shopTrip === 0 ? "En la primera compra se lleva la despensa de todo el mes: legumbres, arroz, pasta, aceite, leche y congelados. Las siguientes son solo fresco." : "Solo fresco: fruta, verdura, carne y pescado para estos días, para que no se estropee nada."}</p></div></aside></div>`;
+  $("#v-compra").innerHTML = h;
+}
+function listText(t, i) {
+  const st = state.settings;
+  let s = `Lista de la compra ${i + 1} · ${SUP[st.sup].name} (${t.from + 1}-${t.to + 1} ${MONTHS[state.plan.month]})\n`, sec = "";
+  t.items.forEach(it => {
+    const sc = it.basic ? "basicos" : ING[it.ing][1];
+    if (sc !== sec) { s += `\n${SECTIONS[sc].toUpperCase()}\n`; sec = sc; }
+    const L = itemLine(it, st.sup);
+    s += `- ${L.name}: ${L.buy} (${money(it.cost)})\n`;
+  });
+  return s + `\nTOTAL: ${money(t.total)}`;
+}
+
+function renderSummary() {
+  const st = state.settings, plan = state.plan, shop = shopping(plan, st, st.sup);
+  const n = plan.days.length, p = people(st);
+  const all = SUPERS.map(s => ({ s, total: shopping(plan, st, s.id).total })).sort((a, b) => a.total - b.total);
+  const best = all[0], max = all[all.length - 1].total;
+  const meals = n * 2 * p;
+  let h = exampleNote();
+  h += `<div class="vhead"><div><h1>Gasto del mes</h1><p>${whoText(st)} · ${n} días</p></div></div>`;
+  h += `<div class="stats">
+    <div class="stat"><span>Compra de todo el mes</span><span class="tag tag--big"><b>${money(shop.total)}</b></span><span class="muted">${shop.trips.length} compras: ${shop.trips.map(t => money(t.total)).join(" + ")}</span></div>
+    <div class="stat"><span>Por persona y día</span><span class="tag tag--big"><b>${money(shop.total / n / p)}</b></span><span class="muted">Comida, cena${st.breakfast ? ", desayuno" : ""}${st.fruit ? " y fruta" : ""}</span></div>
+    <div class="stat"><span>Por plato principal</span><span class="tag tag--big"><b>${money(shop.total / meals)}</b></span><span class="muted">${meals} raciones de comida y cena en el mes</span></div></div>`;
+  h += `<div class="panel"><h2>¿Y en otro súper?</h2><p>El mismo menú con los precios orientativos de cada cadena. ${best.s.id === st.sup ? "Tu súper es el más barato para este menú." : `En ${best.s.name} te ahorrarías unos ${money(shop.total - best.total)} al mes.`}</p><div class="bars">`;
+  all.forEach(({ s, total }) => {
+    h += `<div class="bar${s.id === st.sup ? " is-me" : ""}${s.id === best.s.id && s.id !== st.sup ? " is-best" : ""}"><span>${s.id === st.sup ? `<b>${s.name}</b>` : s.name}</span><span class="bar__track"><span class="bar__fill" style="display:block;width:${total / max * 100}%"></span></span><span class="bar__v">${money(total)}</span></div>`;
+  });
+  h += `</div>${best.s.id !== st.sup ? `<div class="btnrow" style="margin-top:14px"><button class="btn btn--go" data-switch="${best.s.id}">Hacer la lista para ${best.s.name}</button></div>` : ""}</div>`;
+  h += `<div class="panel"><h2>Cómo se abarata el menú</h2><p>Lo que hace la app por ti al elegir los platos.</p><ul class="tips">
+    <li><b>Marca blanca y granel</b>Elige siempre la versión más barata de cada producto y compra la fruta y la verdura a peso.</li>
+    <li><b>Legumbres dos veces por semana</b>Lentejas, garbanzos y alubias secas cuestan unos céntimos por ración.</li>
+    <li><b>Aprovecha cada paquete</b>Si abre una bandeja de pollo o una bolsa de judías, busca otros platos esa semana que las terminen.</li>
+    <li><b>Despensa una vez al mes</b>Lo que no caduca se compra en la primera visita, y el fresco cada semana para no tirar nada.</li></ul></div>`;
+  h += `<p class="disclaimer">Precios orientativos de noviembre de 2026 para productos de marca blanca, calculados a partir de índices aproximados de cada cadena. Cambian según la tienda, la zona y las ofertas, así que tómalos como una estimación.</p>`;
+  $("#v-resumen").innerHTML = h;
+}
+
+function renderSettings() {
+  if (!draft) draft = JSON.parse(JSON.stringify(state.example ? { ...DEFAULTS, disliked: [] } : state.settings));
+  $("#who").textContent = whoText(state.settings);
+  const supers = [...SUPERS].sort((a, b) => (nearby[a.id] ?? 1e9) - (nearby[b.id] ?? 1e9));
+  const ym = [[now.getFullYear(), now.getMonth()], [now.getMonth() === 11 ? now.getFullYear() + 1 : now.getFullYear(), (now.getMonth() + 1) % 12]];
+  let h = `<div class="vhead"><div><h1>Tus datos</h1><p>Tres preguntas y te preparo el menú del mes con su lista de la compra.</p></div></div><form class="form" id="form">`;
+  h += `<div class="q"><div class="q__h"><h2><span>1</span>¿Dónde compras?</h2><button type="button" class="btn btn--small" data-act="geo">Buscar los más cercanos</button><p>Elige tu supermercado favorito o el que te pille más cerca. Los € indican lo caro que suele ser.</p></div>
+    <p class="geo" id="geo" ${nearbyMsg ? "" : "hidden"}>${esc(nearbyMsg)}</p>
+    <div class="supers" role="radiogroup" aria-label="Supermercado">`;
+  supers.forEach(s => {
+    const lvl = (s.fresh + s.pack) / 2, euros = lvl < 0.975 ? 1 : lvl < 1.025 ? 2 : 3;
+    const dist = nearby[s.id] !== undefined ? `<span class="dist">a ${nearby[s.id] < 1000 ? Math.round(nearby[s.id] / 10) * 10 + " m" : nf(1).format(nearby[s.id] / 1000) + " km"}</span>` : "";
+    h += `<button type="button" class="super" role="radio" aria-checked="${draft.sup === s.id}" data-sup="${s.id}"><b>${s.name}</b><span>${s.brand === "marca propia" ? "Marca propia" : "Marca blanca: " + s.brand}</span><span class="cost">${"€".repeat(euros)}<i>${"€".repeat(3 - euros)}</i></span>${dist}</button>`;
+  });
+  h += `</div></div>`;
+  h += `<div class="q"><div class="q__h"><h2><span>2</span>¿Cuántos sois?</h2><p>Los niños de 3 a 12 años cuentan como algo más de media ración.</p></div><div class="steppers">
+    ${stepper("adults", "Adultos", "13 años o más", draft.adults, 1, 12)}${stepper("kids", "Niños", "de 3 a 12 años", draft.kids, 0, 10)}</div></div>`;
+  h += `<div class="q"><div class="q__h"><h2><span>3</span>¿Cómo coméis?</h2><p>Comida y cena van siempre. Añade lo demás si quieres que entre en la lista.</p></div>
+    <div class="field"><label for="month">Mes</label><select id="month">${ym.map(([y, m]) => `<option value="${y}-${m}"${draft.year === y && draft.month === m ? " selected" : ""}>${MONTHS[m]} de ${y}</option>`).join("")}</select></div>
+    <div class="checks">
+      ${check("breakfast", "Desayunos", "Leche con galletas, tostadas o yogur con avena, rotando", draft.breakfast)}
+      ${check("fruit", "Una pieza de fruta al día", "Naranjas, mandarinas, manzanas y plátanos, que son de temporada y baratos", draft.fruit)}
+      ${check("bread", "Pan en las comidas", "Una barra cada 3 personas al día", draft.bread)}
+      ${check("haveBasics", "Ya tengo sal y especias", "Si no, las añado a la primera compra", draft.haveBasics)}
+    </div>
+    <div><p style="font-weight:600;font-size:14px;margin-bottom:8px">Lo que no coméis</p><div class="chips">${EXCL.map(e => `<button type="button" class="chip" aria-pressed="${draft.excl.includes(e.id)}" data-excl="${e.id}">${e.label}</button>`).join("")}</div></div>
+    ${draft.disliked.length ? `<div><p style="font-weight:600;font-size:14px;margin-bottom:8px">Platos que has quitado <span class="muted" style="font-weight:400">(toca para volver a incluirlos)</span></p><div class="dislikes">${draft.disliked.map(id => `<button type="button" data-undislike="${id}">${esc(RID[id] ? RID[id].n : id)} ✕</button>`).join("")}</div></div>` : ""}
+  </div>`;
+  h += `<div class="go"><button type="submit" class="btn btn--go btn--big">Crear mi menú del mes</button><span class="muted">Se guarda en este dispositivo.</span></div></form>`;
+  $("#v-ajustes").innerHTML = h;
+}
+let nearbyMsg = "";
+function stepper(id, label, sub, v, min, max) {
+  return `<div class="stepper"><label for="${id}"><b>${label}</b><span>${sub}</span></label><div class="stepper__ctl"><button type="button" aria-label="Quitar uno" data-step="${id}" data-d="-1" ${v <= min ? "disabled" : ""}>−</button><output id="${id}" aria-live="polite">${v}</output><button type="button" aria-label="Añadir uno" data-step="${id}" data-d="1" ${v >= max ? "disabled" : ""}>+</button></div></div>`;
+}
+function check(id, label, sub, on) { return `<label class="check"><input type="checkbox" id="${id}" data-opt="${id}"${on ? " checked" : ""}><span>${label}<small>${sub}</small></span></label>`; }
+
+/* ============ FICHA DE RECETA ============ */
+let sheetCtx = null;
+function openSheet(d, meal) {
+  const st = state.settings, f = factor(st), day = state.plan.days[d];
+  const date = new Date(state.plan.year, state.plan.month, d + 1);
+  const when = `${WD[date.getDay()]} ${d + 1} · ${meal === "c" ? "Comida" : meal === "n" ? "Cena" : "Desayuno"}`;
+  sheetCtx = { d, meal };
+  let h;
+  if (meal === "b") {
+    const b = BID[day.b];
+    h = `<div class="sheet__h"><div><p>${when}</p><h2 id="sheet-title">${esc(b.n)}</h2></div><button class="x" data-act="close" aria-label="Cerrar">✕</button></div>
+      <div><h3>Para ${people(st)}</h3><ul class="ings">${Object.keys(b.i).map(k => `<li><span>${ING[k][0]}</span><span>${fmtQty(b.i[k] * f, ING[k][2], k)}</span></li>`).join("")}</ul></div>
+      <div><h3>Cómo</h3><ol class="steps">${b.s.map(x => `<li>${esc(x)}</li>`).join("")}</ol></div>`;
+  } else {
+    const r = RID[day[meal]], cost = rCost(r, st.sup) * f;
+    const banned = allowedTags(st);
+    const alts = RECIPES.filter(x => x.id !== r.id && x.slot.includes(meal) && isAllowed(x, st, banned))
+      .map(x => ({ x, c: rCost(x, st.sup) * f, same: x.cat === r.cat }))
+      .sort((a, b) => (b.same - a.same) || a.c - b.c).slice(0, 6).sort((a, b) => a.c - b.c);
+    h = `<div class="sheet__h"><div><p>${when} · ${CAT_NAME[r.cat]} · ${r.t} min</p><h2 id="sheet-title">${esc(r.n)}</h2></div><button class="x" data-act="close" aria-label="Cerrar">✕</button></div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">${tag(cost, "para " + people(st))}${tag(cost / f, "por ración")}</div>
+      <div><h3>Ingredientes para ${people(st)}</h3><ul class="ings">${Object.keys(r.i).map(k => `<li><span>${ING[k][0]}</span><span>${fmtQty(r.i[k] * f, ING[k][2], k)}</span></li>`).join("")}</ul>
+      <p class="muted" style="font-size:13px;margin-top:8px">Además: ${r.b.join(", ")}.</p></div>
+      <div><h3>Cómo se hace</h3><ol class="steps">${r.s.map(x => `<li>${esc(x)}</li>`).join("")}</ol></div>
+      <div><h3>Cambiar por otro plato</h3><div class="alts">${alts.map(({ x, c }) => {
+        const dlt = c - cost;
+        return `<button class="alt" data-swap="${x.id}"><span>${esc(x.n)}<small>${CAT_NAME[x.cat]} · ${x.t} min</small></span><em class="${dlt < 0 ? "down" : "up"}">${dlt < 0 ? "−" : "+"}${money(Math.abs(dlt))}</em></button>`;
+      }).join("")}</div></div>
+      <div class="btnrow"><button class="btn btn--small" data-act="dislike">No nos gusta: quitarlo del mes</button></div>`;
+  }
+  $("#sheet").innerHTML = h;
+  $("#overlay").hidden = false;
+  document.body.style.overflow = "hidden";
+  const x = $("#sheet .x"); if (x) x.focus();
+}
+function closeSheet() { $("#overlay").hidden = true; document.body.style.overflow = ""; sheetCtx = null; }
+
+function bestReplacement(d, meal, avoid) {
+  const st = state.settings, banned = allowedTags(st), cur = RID[state.plan.days[d][meal]];
+  const near = new Set(); for (let k = Math.max(0, d - 3); k <= Math.min(state.plan.days.length - 1, d + 3); k++) { near.add(state.plan.days[k].c); near.add(state.plan.days[k].n); }
+  const c = RECIPES.filter(x => x.id !== avoid && x.slot.includes(meal) && isAllowed(x, st, banned));
+  const pref = c.filter(x => !near.has(x.id));
+  const list = (pref.length ? pref : c).sort((a, b) => ((b.cat === cur.cat) - (a.cat === cur.cat)) || rCost(a, st.sup) - rCost(b, st.sup));
+  return list[0];
+}
+
+/* ============ EVENTOS ============ */
+let toastT;
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => { t.hidden = true; }, 2600); }
+
+document.addEventListener("click", e => {
+  const el = e.target.closest("button, a"); if (!el) { if (e.target.id === "overlay") closeSheet(); return; }
+  const ds = el.dataset;
+  if (ds.go) { e.preventDefault(); go(ds.go); return; }
+  if (ds.trip !== undefined) { shopTrip = +ds.trip; return; }
+  if (ds.day !== undefined && ds.meal) { openSheet(+ds.day, ds.meal); return; }
+  if (ds.shoptrip !== undefined) { shopTrip = +ds.shoptrip; renderShop(); return; }
+  if (ds.swap && sheetCtx) {
+    state.plan.days[sheetCtx.d][sheetCtx.meal] = ds.swap; save(); closeSheet(); renderMenu();
+    toast("Plato cambiado. La lista de la compra ya está actualizada."); return;
+  }
+  if (ds.switch) {
+    state.settings.sup = ds.switch; state.checks = {}; const s = fresh(state.settings, state.plan.seed, state.example); if (s) state = s; save(); draft = null; render("resumen");
+    toast("Lista hecha para " + SUP[ds.switch].name + "."); return;
+  }
+  if (ds.sup) { draft.sup = ds.sup; renderSettings(); return; }
+  if (ds.step) { const k = ds.step, lim = k === "adults" ? [1, 12] : [0, 10]; draft[k] = Math.min(lim[1], Math.max(lim[0], draft[k] + +ds.d)); renderSettings(); return; }
+  if (ds.excl) {
+    const i = draft.excl.indexOf(ds.excl); if (i >= 0) draft.excl.splice(i, 1); else draft.excl.push(ds.excl); renderSettings(); return;
+  }
+  if (ds.undislike) { draft.disliked = draft.disliked.filter(x => x !== ds.undislike); renderSettings(); return; }
+  switch (ds.act) {
+    case "close": closeSheet(); break;
+    case "regen": {
+      const s = fresh(state.settings, Math.floor(Math.random() * 1e9), state.example); if (s) { state = s; save(); renderMenu(); toast("Menú nuevo. Mira la lista de la compra."); } break;
+    }
+    case "dislike": {
+      if (!sheetCtx) break;
+      const id = state.plan.days[sheetCtx.d][sheetCtx.meal];
+      state.settings.disliked.push(id); if (draft) draft.disliked = state.settings.disliked.slice();
+      state.plan.days.forEach((day, d) => ["c", "n"].forEach(m => { if (day[m] === id) { const r = bestReplacement(d, m, id); if (r) day[m] = r.id; } }));
+      save(); closeSheet(); renderMenu(); toast("Quitado del mes. Lo hemos cambiado por otro plato."); break;
+    }
+    case "uncheck": state.checks = {}; save(); renderShop(); break;
+    case "copy": {
+      const t = shopping(state.plan, state.settings, state.settings.sup).trips[shopTrip], txt = listText(t, shopTrip);
+      const box = $("#copybox");
+      const fallback = () => { box.hidden = false; box.value = txt; box.focus(); box.select(); toast("Selecciona el texto y cópialo."); };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(() => toast("Lista copiada."), fallback); else fallback();
+      break;
+    }
+    case "geo": findNearby(); break;
+  }
+});
+document.addEventListener("change", e => {
+  const t = e.target;
+  if (t.dataset.check) { if (t.checked) state.checks[t.dataset.check] = 1; else delete state.checks[t.dataset.check]; save(); renderShop(); }
+  if (t.dataset.opt && draft) draft[t.dataset.opt] = t.checked;
+  if (t.id === "month" && draft) { const [y, m] = t.value.split("-").map(Number); draft.year = y; draft.month = m; }
+});
+document.addEventListener("submit", e => {
+  if (e.target.id !== "form") return;
+  e.preventDefault();
+  const s = fresh(JSON.parse(JSON.stringify(draft)), Math.floor(Math.random() * 1e9), false);
+  if (!s) { toast("Con esas restricciones no quedan platos. Quita alguna."); return; }
+  state = s; draft = null; save(); shopTrip = 0; go("menu");
+  toast("Tu menú de " + MONTHS[state.plan.month] + " está listo.");
+});
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#overlay").hidden) closeSheet(); });
+$("#overlay").addEventListener("click", e => { if (e.target.id === "overlay") closeSheet(); });
+window.addEventListener("hashchange", route);
+
+/* ============ SUPERMERCADOS CERCANOS (OpenStreetMap) ============ */
+function setGeo(msg) { nearbyMsg = msg; const g = $("#geo"); if (g) { g.hidden = false; g.textContent = msg; } }
+function findNearby() {
+  if (!navigator.geolocation) { setGeo("Tu navegador no deja ver la ubicación. Elige tu súper de la lista."); return; }
+  setGeo("Buscando supermercados cerca de ti…");
+  navigator.geolocation.getCurrentPosition(async pos => {
+    const { latitude: lat, longitude: lon } = pos.coords;
+    const q = `[out:json][timeout:20];nwr["shop"="supermarket"](around:3000,${lat},${lon});out center 120;`;
+    try {
+      const res = await fetch("https://overpass-api.de/api/interpreter", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: "data=" + encodeURIComponent(q) });
+      const js = await res.json(); nearby = {};
+      js.elements.forEach(el => {
+        const tg = el.tags || {}, txt = ((tg.brand || "") + " " + (tg.name || "")).toLowerCase();
+        const la = el.lat ?? (el.center && el.center.lat), lo = el.lon ?? (el.center && el.center.lon); if (la == null) return;
+        const s = SUPERS.find(s => s.keys.some(k => new RegExp("(^|[^a-záéíóúñ])" + k + "($|[^a-záéíóúñ])").test(txt))); if (!s) return;
+        const R = 6371000, toR = Math.PI / 180, dLa = (la - lat) * toR, dLo = (lo - lon) * toR;
+        const a = Math.sin(dLa / 2) ** 2 + Math.cos(lat * toR) * Math.cos(la * toR) * Math.sin(dLo / 2) ** 2;
+        const dist = 2 * R * Math.asin(Math.sqrt(a));
+        if (nearby[s.id] === undefined || dist < nearby[s.id]) nearby[s.id] = dist;
+      });
+      const ids = Object.keys(nearby).sort((a, b) => nearby[a] - nearby[b]);
+      if (!ids.length) { nearbyMsg = "No he encontrado supermercados de estas cadenas a menos de 3 km. Elige uno de la lista."; renderSettings(); return; }
+      draft.sup = ids[0];
+      nearbyMsg = `El más cercano es ${SUP[ids[0]].name}. Ya lo he marcado; los demás están ordenados por distancia.`;
+      renderSettings();
+    } catch (err) { setGeo("No he podido buscar los supermercados ahora mismo. Elige el tuyo de la lista."); }
+  }, () => setGeo("Sin permiso para ver tu ubicación. Elige tu súper de la lista."), { timeout: 12000, maximumAge: 600000 });
+}
+
+/* ============ ARRANQUE ============ */
+state = load() || fresh(JSON.parse(JSON.stringify(DEFAULTS)), 20261101, true);
+route();
+</script>
+</body>
+</html>
