@@ -1,9 +1,10 @@
-# Mezcla de "La guerra que perdió Australia": voz al frente; ambiente y efectos sintetizados, sincronizados con story.ts.
+# Mezcla de "La guerra que perdió Australia" (SIN_VOZ=1: solo ambiente y efectos): voz al frente; ambiente y efectos sintetizados, sincronizados con story.ts.
 import numpy as np, wave, subprocess, os
+SIN_VOZ = os.environ.get("SIN_VOZ") == "1"
 F = 30; TOTAL = 1452
 w = wave.open("public/voz/voz.wav"); sr = w.getframerate()
 voz = np.frombuffer(w.readframes(w.getnframes()), dtype=np.int16).astype(np.float32) / 32768
-n = int((TOTAL / F + 0.3) * sr); y = np.zeros(n, np.float32); y[:min(n, len(voz))] += voz[:n]
+n = int((TOTAL / F + 0.3) * sr); y = np.zeros(n, np.float32); y[:min(n, len(voz))] += 0 if SIN_VOZ else voz[:n]
 t = np.arange(n) / sr; rng = np.random.default_rng(7)
 def lp(x, k): return np.convolve(x, np.ones(k) / k, mode="same")
 def put(i, s):
@@ -58,5 +59,5 @@ for f in (121, 412, 1005, 1249, 1283): hit(f)
 for j in range(3): L = int(0.25 * sr); k = np.arange(L) / sr; put(fs(1400) + j * int(0.3 * sr), np.sin(2 * np.pi * 80 * k) * np.sin(np.pi * k / 0.25) * 0.25)
 y = np.tanh(y * 1.2); y /= np.max(np.abs(y)) / 0.92
 o = wave.open("out/mezcla_raw.wav", "wb"); o.setnchannels(1); o.setsampwidth(2); o.setframerate(sr); o.writeframes((y * 32767).astype(np.int16).tobytes()); o.close()
-subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", "out/mezcla_raw.wav", "-af", "loudnorm=I=-14:TP=-1:LRA=11", "-ar", "48000", "-ac", "2", "out/mezcla.wav"], check=True)
+subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", "out/mezcla_raw.wav", "-af", "loudnorm=I=%d:TP=-1:LRA=11" % (-19 if SIN_VOZ else -14), "-ar", "48000", "-ac", "2", "out/mezcla_sin_voz.wav" if SIN_VOZ else "out/mezcla.wav"], check=True)
 os.remove("out/mezcla_raw.wav"); print("ok")
