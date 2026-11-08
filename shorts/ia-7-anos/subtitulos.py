@@ -88,6 +88,6 @@ if __name__ == "__main__":
     vid, aud, out = sys.argv[1:4]
     ff = subprocess.Popen(["ffmpeg", "-y", "-loglevel", "error", "-i", vid, "-f", "rawvideo", "-pix_fmt", "rgba", "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-",
         "-i", aud, "-filter_complex", "[0:v][1:v]overlay=0:0:format=auto[v]", "-map", "[v]", "-map", "2:a:0",
-        "-c:v", "libx264", "-preset", "slow", "-crf", "22", "-pix_fmt", "yuv420p", "-movflags", "+faststart", "-c:a", "aac", "-b:a", "160k", "-shortest", out], stdin=subprocess.PIPE)
+        "-c:v", "libx264", "-preset", "slow", "-crf", "22", "-pix_fmt", "yuv420p", "-movflags", "+faststart", "-c:a", "aac", "-ac", "2", "-ar", "48000", "-b:a", "192k", "-shortest", out], stdin=subprocess.PIPE)
     for f in range(N): ff.stdin.write(frame(f / FPS).tobytes())
     ff.stdin.close(); ff.wait(); print("ok", out)
