@@ -1,6 +1,6 @@
 # Mezcla: voz + cama sintetizada (drone grave que sube con el "ojo", impacto en cada AÑO, whoosh en cada cambio de toma).
 import numpy as np, wave, sys
-sr=22050; F=30; dur=686/F
+sr=wave.open("public/voz/voz.wav").getframerate(); F=30; dur=686/F
 REW=(640,676); WINK=632
 def rd(p):
     w=wave.open(p); a=np.frombuffer(w.readframes(w.getnframes()),dtype=np.int16).astype(np.float32)/32768; return a
@@ -34,3 +34,7 @@ i=int(WINK/F*sr); L=int(0.05*sr); kk=np.arange(L)/sr; y[i:i+L]+=np.sin(2*np.pi*1
 # normalización simple (~ -14 LUFS aprox. por pico/RMS) y limitador suave
 y=np.tanh(y*1.3); y/=np.max(np.abs(y))/0.92
 w=wave.open("out/mezcla.wav","wb"); w.setnchannels(1); w.setsampwidth(2); w.setframerate(sr); w.writeframes((y*32767).astype(np.int16).tobytes()); w.close()
+# volumen final: -14 LUFS integrados, pico real -1 dB
+import subprocess, os
+subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", "out/mezcla.wav", "-af", "loudnorm=I=-14:TP=-1:LRA=11", "-ar", str(sr), "out/mezcla_n.wav"], check=True)
+os.replace("out/mezcla_n.wav", "out/mezcla.wav")
