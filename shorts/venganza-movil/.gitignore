@@ -1,0 +1,4 @@
+node_modules
+out/stills
+out/*.log
+out/hoja.png
