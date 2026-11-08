@@ -2,3 +2,4 @@ node_modules
 out/*
 !out/short_emus.mp4
 __pycache__
+ph.wav
