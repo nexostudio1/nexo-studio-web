@@ -4,7 +4,7 @@
 import json, subprocess, sys
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
-FPS, N, W, H = 30, 606, 1080, 1920
+FPS, N, W, H = 30, 686, 1080, 1920
 WH = json.load(open("public/voz/palabras_whisper.json"))
 # (texto, primer índice whisper, último índice whisper, palabra clave)  ·  "|" = nueva página
 TOK = [
@@ -18,7 +18,9 @@ TOK = [
     ("Año", 43, 43, 0), ("7.", 44, 44, 0), "|", ("Nadie", 45, 45, 0), ("la", 46, 46, 0), ("apaga", 47, 47, 1), "|", ("porque", 48, 48, 0), ("nadie", 49, 49, 0), ("sabe", 50, 50, 0), "|",
     ("vivir", 51, 51, 0), ("sin", 52, 52, 1), ("ella", 53, 53, 1), "|",
     ("Por", 54, 54, 0), ("suerte,", 55, 55, 0), "|", ("aún", 56, 56, 0), ("hay", 57, 57, 0), ("tiempo", 58, 58, 1), "|",
-    ("Por", 59, 59, 0), ("desgracia,", 60, 60, 0), "|", ("nadie", 61, 61, 0), ("lo", 62, 62, 0), ("toma", 63, 63, 0), ("en", 64, 64, 1), ("serio", 65, 65, 1),
+    ("Por", 59, 59, 0), ("desgracia,", 60, 60, 0), "|", ("nadie", 61, 61, 0), ("lo", 62, 62, 0), ("toma", 63, 63, 0), ("en", 64, 64, 1), ("serio", 65, 65, 1), "|",
+    ("Ah…", 66, 66, 0), "|", ("y", 67, 67, 0), ("la", 68, 68, 0), ("IA", 69, 69, 1), "|", ("me", 70, 70, 0), ("pide", 71, 71, 0), "|",
+    ("que", 72, 72, 0), ("te", 73, 73, 0), ("diga", 74, 74, 0), ("algo:", 75, 75, 1),
 ]
 pages, cur = [], []
 for t in TOK:

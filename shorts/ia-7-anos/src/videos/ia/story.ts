@@ -1,8 +1,11 @@
-// Timeline of "Los 7 años" (20.2 s), timed to public/voz/voz.wav (see voz/segs.json).
+// Timeline of "Los 7 años" (22.9 s, loops: the last frame leads straight back into frame 0), timed to public/voz/voz.wav (see voz/segs.json).
 // Voice frames: "Olvida a los robots asesinos" 0-45 · "La IA no necesita balas: le bastan siete años" 49-152 ·
-// "Año uno" 156-216 · "Año tres" 220-337 · "Año cinco" 341-406 · "Año siete" 410-504 · "Por suerte... Por desgracia..." 508-604
+// "Año uno" 156-216 · "Año tres" 220-337 · "Año cinco" 341-406 · "Año siete" 410-504 · "Por suerte... Por desgracia..." 508-604 ·
+// "Ah... y la IA me pide que te diga algo:" 608-684 -> loops into "Olvida a los robots asesinos"
 export const FPS = 30;
-export const TOTAL = 606;
+export const TOTAL = 686;
+/** the comic rewind: everything snaps back to how the video started */
+export const REWIND = { wink: 628, a: 640, b: 676 };
 export type V3 = [number, number, number];
 
 export const clamp01 = (x: number) => Math.max(0, Math.min(1, x));
@@ -11,12 +14,18 @@ const smoother = (x: number) => { const u = clamp01(x); return u * u * u * (u * 
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
 /** 0 = calm teal dusk, 1 = the sky has gone red */
-export const takeover = (f: number) => smooth(f / 560);
+export const takeover = (f: number) => smooth(f / 560) * (1 - smooth((f - REWIND.a) / (REWIND.b - REWIND.a)));
 /** the eye in the sky: opens over the first second, then grows with the years */
 export const EYE = {
   x: 0, z: -520,
-  y: (f: number) => lerp(45, 130, smooth(f / 560)),
-  w: (f: number) => lerp(70, 560, smoother((f - 20) / 540)),
+  y: (f: number) => lerp(45, 130, smooth(f / 560) * (1 - smoother((f - REWIND.a) / (REWIND.b - REWIND.a)))),
+  w: (f: number) => lerp(70, 560, smoother((f - 20) / 540) * (1 - smoother((f - REWIND.a) / (REWIND.b - REWIND.a)))),
+  /** 0 = closed, 1 = open: opens at the start, winks at us, closes again for the loop */
+  open: (f: number) => {
+    const wink = Math.max(0, 1 - Math.abs(f - (REWIND.wink + 4)) / 4); // 8-frame wink
+    return smooth((f - 6) / 30) * (1 - 0.96 * smooth(wink * 1.6)) * (1 - smooth((f - (REWIND.b - 8)) / 10));
+  },
+  alpha: (f: number) => smooth((f - 4) / 20) * (1 - smooth((f - (REWIND.b - 2)) / 8)),
 };
 
 type Key = { f: number; pos: V3; look: V3; fov: number; glide?: boolean };
@@ -44,7 +53,13 @@ export const SHOTS: ShotDef[] = [
   { id: 4, a: 502, b: TOTAL, fog: [250, 1400], keys: [
     { f: 502, pos: [0, 3.2, 10], look: [0, 80, -500], fov: 46 }, // wide: the eye fills the sky
     { f: 566, pos: [0, 4.2, 14], look: [0, 90, -500], fov: 46, glide: true },
-    { f: TOTAL, pos: [0, 4.4, 14.6], look: [0, 92, -500], fov: 46 },
+    { f: 606, pos: [0, 4.4, 14.6], look: [0, 92, -500], fov: 46 },
+  ] },
+  { id: 5, a: 600, b: TOTAL, fog: [120, 900], keys: [ // the eye winks, the camera comes back down to the hero: frame 0
+    { f: 600, pos: [0, 4.37, 14.5], look: [0, 91.7, -500], fov: 46 },
+    { f: 636, pos: [0, 4.6, 15.2], look: [0, 94, -500], fov: 45 },
+    { f: 682, pos: [0.2, 1.7, 4.8], look: [0, 1.9, 0], fov: 40, glide: true },
+    { f: TOTAL, pos: [0.2, 1.7, 4.8], look: [0, 1.9, 0], fov: 40 },
   ] },
 ];
 export const XFADE = 6;
@@ -79,6 +94,7 @@ export const worldF = (f: number) => { const i = Math.max(0, Math.min(TOTAL + 1,
 export const dofAt = (id: number, f: number): { cInf: number; focus?: V3 } => {
   if (id === 1) return f < 18 ? { cInf: 14, focus: [0, 1.9, 0] } : { cInf: lerp(10, 0, smooth((f - 40) / 40)) };
   if (id === 2) return { cInf: lerp(8, 2, smooth((f - 146) / 150)) };
+  if (id === 5) return f < 646 ? { cInf: 0 } : { cInf: lerp(0, 14, smooth((f - 646) / 36)), focus: [0, 1.9, 0] };
   return { cInf: 0 };
 };
 

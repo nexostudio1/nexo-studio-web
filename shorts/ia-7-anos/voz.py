@@ -10,7 +10,9 @@ SLOTS = [
  (220, 339, [("Año tres:", 0.95, 0.7, 0.9, 0.12), ("tu empleo.", 0.95, 0.85, 1.0, 0.18), ("El FMI ve expuesto el cuarenta por ciento del mundo.", 0.84, 0.75, 0.95, 0)], None),
  (341, 408, [("Año cinco:", 0.95, 0.7, 0.9, 0.1), ("decide qué ves... y qué crees.", 0.88, 0.85, 1.05, 0)], None),
  (410, 506, [("Año siete.", 1.1, 0.7, 0.9, 0.2), ("Nadie la apaga...", 1.0, 0.85, 1.05, 0.12), ("porque nadie sabe vivir sin ella.", 0.92, 0.8, 1.0, 0)], "echo"),
- (508, 606, [("Por suerte, aún hay tiempo.", 0.9, 0.8, 1.0, 0.3), ("Por desgracia... nadie lo toma en serio.", 0.98, 0.85, 1.05, 0)], "low"),
+ (508, 604, [("Por suerte, aún hay tiempo.", 0.9, 0.8, 1.0, 0.3), ("Por desgracia... nadie lo toma en serio.", 0.98, 0.85, 1.05, 0)], "low"),
+ # remate en bucle: el narrador ya trabaja para la IA, y su "consejo" es la primera frase del vídeo
+ (608, 684, [("Ah...", 1.0, 0.9, 1.1, 0.12), ("y la IA me pide que te diga algo:", 0.9, 0.85, 1.1, 0)], None),
 ]
 sr = None
 def synth(text, ls, ns, nw, path):
@@ -22,7 +24,7 @@ def atempo(a, r, k):
     open("tmp_in.raw", "wb").write(a.astype(np.float32).tobytes())
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "f32le", "-ar", str(r), "-ac", "1", "-i", "tmp_in.raw", "-af", f"atempo={k:.4f}", "-f", "f32le", "tmp_out.raw"], check=True)
     return np.frombuffer(open("tmp_out.raw", "rb").read(), dtype=np.float32)
-total = 606 / FPS
+total = 686 / FPS
 out = None; info = []
 for (f0, f1, phrases, fx) in SLOTS:
     parts = []

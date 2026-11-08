@@ -10,7 +10,7 @@ import { NOINK } from "./ink";
 import { LIGHTS, LOOK, LightPreset, WorldLook } from "./lights";
 import { TONE, CHAR, twoTone, untone } from "./shade";
 import { cloudHD, rep, ctex } from "./paint";
-import { FPS, SHOTS, camAt, smooth, worldF, takeover, EYE } from "./story";
+import { FPS, SHOTS, camAt, smooth, worldF, takeover, EYE, REWIND } from "./story";
 
 const BASE: LightPreset = { ...LIGHTS.golden, el: 22, lit: [0.95, 1.05, 1.45], shade: [0.16, 0.18, 0.34], lift: [0.04, 0.06, 0.14],
   charTint: [0.85, 0.95, 1.1], fog: "#2f4a6a", sunCol: "#9fc4ff", sunI: 2.6, sky: "#6f8fc0", ground: "#2a2a44", hemiI: 0.55, actorShadow: false };
@@ -199,6 +199,7 @@ export class World {
   }
 
   private shotSun(id: number) {
+    if (id === 5) id = 1; // the loop shot shares the opening shot's light
     let v = this.sunCache.get(id);
     if (v) return v;
     const s = SHOTS[id - 1];
@@ -251,10 +252,10 @@ export class World {
     this.motes.uT.value = t; this.motes.uCam.value.copy(cam.position); this.motes.uRed.value = red;
     this.motes.uFade.value = 1 - smooth((c.pos[1] - 10) / 30);
     // the eye: opens, grows, breathes
-    const open = smooth((f - 6) / 30), size = EYE.w(f), br = 1 + 0.03 * Math.sin(t * 2.2);
+    const open = EYE.open(f), size = EYE.w(f), br = 1 + 0.03 * Math.sin(t * 2.2);
     this.eye.position.set(EYE.x, EYE.y(f), EYE.z); this.eye.quaternion.copy(cam.quaternion);
     this.eye.scale.set(size * br, size * br * Math.max(0.04, open), 1);
-    this.eyeMat.opacity = smooth((f - 4) / 20) * 0.98;
+    this.eyeMat.opacity = EYE.alpha(f) * 0.98;
 
     // ---- cast ----
     const right = V(0, 0, 0).setFromMatrixColumn(cam.matrixWorld, 0);
@@ -276,10 +277,11 @@ export class World {
       if (d < 60) blob(st, sunDir, x, 0, z);
     };
     // mood by year: calm -> worried -> eyes down on the glow -> blank
-    const mood = (i: number): Expr => f < 150 ? (i % 3 ? "neutral" : "smile") : f < 340 ? (i % 2 ? "nervous" : "shock") : "dazed";
+    const reset = f >= REWIND.a + 6; // memory wiped: back to the happy start
+    const mood = (i: number): Expr => f < 150 || reset ? (i % 3 ? "neutral" : "smile") : f < 340 ? (i % 2 ? "nervous" : "shock") : "dazed";
     // the hero stands in front, looking at us, then at the sky
-    place("hero", HERO, 0, 0, { mode: "stand", expr: f < 60 ? "smile" : f < 150 ? "shock" : "dazed", facing: 0, look: f > 70 ? 0 : 0 }, 1);
-    const stroll = f < 340;
+    place("hero", HERO, 0, 0, { mode: "stand", expr: f < 60 || reset ? "smile" : f < 150 ? "shock" : f >= REWIND.wink && f < REWIND.a + 6 ? "nervous" : "dazed", facing: 0, look: f > 70 ? 0 : 0 }, 1);
+    const stroll = f < 340 || reset;
     for (const s of NEAR) {
       const ph = Math.floor(((((t * 1.0 + s.i * 0.37) % 1) + 1) % 1) * 8) / 8;
       place(`n${s.v}`, person(s.v), s.x, s.z + (stroll ? Math.sin(t * 0.5 + s.i) * 0.15 : 0),
