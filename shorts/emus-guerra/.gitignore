@@ -4,3 +4,6 @@ out/*
 !out/short_emus_movil.mp4
 __pycache__
 ph.wav
+!out/short_emus_tiktok.mp4
+!out/short_emus_tiktok_movil.mp4
+!out/tiktok_mapa.json

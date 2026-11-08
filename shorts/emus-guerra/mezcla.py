@@ -1,15 +1,21 @@
 # Mezcla de "La guerra que perdió Australia" (SIN_VOZ=1: solo ambiente y efectos): voz al frente; ambiente y efectos sintetizados, sincronizados con story.ts.
 import numpy as np, wave, subprocess, os
 SIN_VOZ = os.environ.get("SIN_VOZ") == "1"
+TIKTOK = os.environ.get("TIKTOK") == "1"  # montaje TikTok: tiempos de out/tiktok_mapa.json y voz de ElevenLabs
+import json
 F = 30; TOTAL = 1452
-w = wave.open("public/voz/voz.wav"); sr = w.getframerate()
+w = wave.open("public/voz/voz_tiktok.wav" if TIKTOK else "public/voz/voz.wav"); sr = w.getframerate()
 voz = np.frombuffer(w.readframes(w.getnframes()), dtype=np.int16).astype(np.float32) / 32768
-n = int((TOTAL / F + 0.3) * sr); y = np.zeros(n, np.float32); y[:min(n, len(voz))] += 0 if SIN_VOZ else voz[:n]
+MAPA = json.load(open("out/tiktok_mapa.json")) if TIKTOK else None
+n = int((MAPA["n_out"] / F if TIKTOK else TOTAL / F + 0.3) * sr); y = np.zeros(n, np.float32); y[:min(n, len(voz))] += 0 if SIN_VOZ else voz[:n]
 t = np.arange(n) / sr; rng = np.random.default_rng(7)
 def lp(x, k): return np.convolve(x, np.ones(k) / k, mode="same")
 def put(i, s):
     i = int(i); m = max(0, min(len(s), n - i)); y[i:i + m] += s[:m]
-fs = lambda f: int(f / F * sr)
+def fs(f):  # cuadro del render -> muestra de salida
+    if not TIKTOK: return int(f / F * sr)
+    A = MAPA["anchors"]
+    return int(np.interp(f, [a[1] for a in A], [a[0] for a in A]) * sr)
 # --- mismo reloj del mundo que story.ts (cámara lenta en "se atasca") ---
 def sm(x): x = np.clip(x, 0, 1); return x * x * (3 - 2 * x)
 S = dict(in0=758, in1=768, out0=800, out1=812, rate=0.22)
@@ -57,7 +63,10 @@ def hit(f, amp=0.4):
 for f in (121, 412, 1005, 1249, 1283): hit(f)
 # el emú del final: un "bum" grave de emú (tamborileo de garganta)
 for j in range(3): L = int(0.25 * sr); k = np.arange(L) / sr; put(fs(1400) + j * int(0.3 * sr), np.sin(2 * np.pi * 80 * k) * np.sin(np.pi * k / 0.25) * 0.25)
+if TIKTOK:  # gancho: golpe grave al abrir y whoosh en el corte a la primera toma
+    L = int(1.0 * sr); k = np.arange(L) / sr; put(0, np.sin(2 * np.pi * 48 * np.exp(-k * 1.5) * k) * np.exp(-k * 3) * 0.55)
+    c = int(MAPA["cold"] * sr); L = int(0.5 * sr); k = np.linspace(0, 1, L); put(c - L // 2, lp(rng.standard_normal(L), 20) * np.sin(np.pi * k) ** 2 * 0.3)
 y = np.tanh(y * 1.2); y /= np.max(np.abs(y)) / 0.92
 o = wave.open("out/mezcla_raw.wav", "wb"); o.setnchannels(1); o.setsampwidth(2); o.setframerate(sr); o.writeframes((y * 32767).astype(np.int16).tobytes()); o.close()
-subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", "out/mezcla_raw.wav", "-af", "loudnorm=I=%d:TP=-1:LRA=11" % (-19 if SIN_VOZ else -14), "-ar", "48000", "-ac", "2", "out/mezcla_sin_voz.wav" if SIN_VOZ else "out/mezcla.wav"], check=True)
+subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", "out/mezcla_raw.wav", "-af", "loudnorm=I=%d:TP=-1:LRA=11" % (-19 if SIN_VOZ else -14), "-ar", "48000", "-ac", "2", "out/mezcla_tiktok.wav" if TIKTOK else "out/mezcla_sin_voz.wav" if SIN_VOZ else "out/mezcla.wav"], check=True)
 os.remove("out/mezcla_raw.wav"); print("ok")
