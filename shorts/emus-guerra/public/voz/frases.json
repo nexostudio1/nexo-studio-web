@@ -1,0 +1,65 @@
+[
+ {
+  "text": "¿Sabías que Australia le declaró la guerra a unos pájaros... y perdió?",
+  "s": 0.0,
+  "e": 4.094,
+  "f0": 0,
+  "f1": 123
+ },
+ {
+  "text": "Mil novecientos treinta y dos, oeste de Australia. Veinte mil emús se están comiendo el trigo de los granjeros.",
+  "s": 4.194,
+  "e": 9.753,
+  "f0": 126,
+  "f1": 293
+ },
+ {
+  "text": "El gobierno manda al mayor Meredith con dos soldados, dos ametralladoras... y diez mil balas.",
+  "s": 9.853,
+  "e": 14.729,
+  "f0": 296,
+  "f1": 442
+ },
+ {
+  "text": "Primer día: ven cincuenta emús. Disparan... y los emús salen corriendo, cada uno para un lado.",
+  "s": 14.829,
+  "e": 20.508,
+  "f0": 445,
+  "f1": 615
+ },
+ {
+  "text": "Segundo intento: mil emús se acercan a beber a una presa. Esta vez sí. Abren fuego... y la ametralladora se atasca.",
+  "s": 20.608,
+  "e": 27.075,
+  "f0": 618,
+  "f1": 812
+ },
+ {
+  "text": "Por suerte, no hubo ni un soldado herido. Por desgracia, tampoco muchos emús.",
+  "s": 27.175,
+  "e": 31.859,
+  "f0": 815,
+  "f1": 956
+ },
+ {
+  "text": "Fíjate: un emú corre a unos cincuenta kilómetros por hora, más rápido que un coche por tu barrio.",
+  "s": 31.959,
+  "e": 37.35,
+  "f0": 959,
+  "f1": 1121
+ },
+ {
+  "text": "Meredith dijo que aguantaban las balas como si fueran tanques. Al final gastó casi diez mil balas: diez por cada emú.",
+  "s": 37.45,
+  "e": 44.005,
+  "f0": 1124,
+  "f1": 1320
+ },
+ {
+  "text": "Y el trigo... se lo siguieron comiendo ellos. ¿Tú en qué bando habrías estado?",
+  "s": 44.105,
+  "e": 48.243,
+  "f0": 1323,
+  "f1": 1447
+ }
+]
