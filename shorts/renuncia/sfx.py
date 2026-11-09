@@ -117,8 +117,10 @@ v = np.interp(np.arange(int(len(v) * SR / vs)) / SR, np.arange(len(v)) / vs, v)
 voice = np.zeros(N); voice[: min(N, len(v))] = v[:N]
 # la música baja mientras habla la voz
 act = lp((np.abs(voice) > 0.02).astype(float), 0.0005); duck = 1 - 0.6 * np.clip(act * 3, 0, 1)
-mix = voice * 1.0 + fx * 0.55 + amb + mus * duck * 0.6
+import sys
+VOICE = 0.0 if '--sin-voz' in sys.argv else 1.0
+mix = voice * VOICE + fx * 0.55 + amb + mus * duck * 0.6
 mix = np.tanh(mix * 1.2) / 1.2
 st = np.stack([mix, mix], 1)
-w = wave.open('out/mezcla.wav', 'wb'); w.setnchannels(2); w.setsampwidth(2); w.setframerate(SR); w.writeframes((np.clip(st, -1, 1) * 32767).astype(np.int16).tobytes()); w.close()
+w = wave.open('out/mezcla_sin_voz.wav' if VOICE == 0 else 'out/mezcla.wav', 'wb'); w.setnchannels(2); w.setsampwidth(2); w.setframerate(SR); w.writeframes((np.clip(st, -1, 1) * 32767).astype(np.int16).tobytes()); w.close()
 print('ok', round(N / SR, 2))
