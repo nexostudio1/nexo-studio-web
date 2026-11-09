@@ -57,6 +57,8 @@ def step_frames(pts, stride=0.95, ke=0.75):
 # cortes de plano
 for f in [122, 185, 323, 400, 430, 527, 711, 825, 864, 1004, 1076]: put(fx, f - 6, whoosh(0.4, 0.2))
 put_raw(fx, G0 - 6, whoosh(0.4, 0.2)); put(fx, 769 - 6, whoosh(0.4, 0.2))
+# gancho: golpe con el título + clic al seleccionar «NADIE»
+put(fx, 0, thud(50, 0.7, 0.9)); put(fx, 0, whoosh(0.35, 0.18)); put(fx, 10.5, click(0.3) * 0.9)
 # gancho: pasos de Tanaka y la oficina escondiéndose
 for k in range(13): put(fx, 1 + k * 0.5 * 1.15 * 122 / 7.2, click(0.22) * 0.6)
 for f in [20, 59, 98]: put(fx, f, pop(380, 0.22)); put(fx, f + 1, whoosh(0.2, 0.12))

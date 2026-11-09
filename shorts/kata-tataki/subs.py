@@ -47,5 +47,23 @@ for a, b, c in ev:
     box = f"m 0 0 l {x2 - x1:.0f} 0 l {x2 - x1:.0f} {y2 - y1:.0f} l 0 {y2 - y1:.0f}"
     rows.append(f"Dialogue: 0,{ts(a)},{ts(b)},Box,,0,0,0,,{{\\pos({x1:.0f},{y1:.0f})\\clip({x1:.0f},{y1:.0f},{x1 + 1:.0f},{y2:.0f})\\t({s0},{s1},\\clip({x1:.0f},{y1:.0f},{x2:.0f},{y2:.0f}))\\p1}}{box}")
     rows.append(f"Dialogue: 2,{ts(a)},{ts(b)},Ptr,,0,0,0,,{{\\move({x1:.0f},{y2 - 14:.0f},{x2:.0f},{y2 - 14:.0f},{s0},{s1})\\p1}}{ARROW}")
+# ---- gancho: título grande arriba desde el primer cuadro, «NADIE» seleccionado con el ratón ----
+HOOK_END = 3.4
+def hook_line(text, y, size, t_in, key=None):
+    K = min(size / 96, 980 / width(text))
+    fad = r'\fad(0,250)'
+    pop = rf'\fscx{118*K:.0f}\fscy{118*K:.0f}\t(0,110,\fscx{100*K:.0f}\fscy{100*K:.0f})'
+    rows.append(f"Dialogue: 3,{ts(t_in)},{ts(HOOK_END)},Cap,,0,0,0,,{{\\pos(540,{y}){fad}{pop}\\bord{8*K*1.2:.0f}}}{text}")
+    if not key: return
+    W = width(text) * K; left = 540 - W / 2; i = text.index(key)
+    x1 = left + width(text[:i]) * K - 12; x2 = left + (width(text[:i + len(key)]) - SP) * K + 12
+    y1, y2 = y - 62 * K, y + 58 * K
+    a = t_in + 0.35; s0, s1 = 0, 260
+    box = f"m 0 0 l {x2 - x1:.0f} 0 l {x2 - x1:.0f} {y2 - y1:.0f} l 0 {y2 - y1:.0f}"
+    rows.append(f"Dialogue: 2,{ts(a)},{ts(HOOK_END)},Box,,0,0,0,,{{\\pos({x1:.0f},{y1:.0f}){fad}\\clip({x1:.0f},{y1:.0f},{x1 + 1:.0f},{y2:.0f})\\t({s0},{s1},\\clip({x1:.0f},{y1:.0f},{x2:.0f},{y2:.0f}))\\p1}}{box}")
+    rows.append(f"Dialogue: 4,{ts(a)},{ts(HOOK_END)},Ptr,,0,0,0,,{{\\move({x1:.0f},{y2 - 14:.0f},{x2:.0f},{y2 - 14:.0f},{s0},{s1}){fad}\\p1}}{ARROW}")
+hook_line('EN JAPÓN', 300, 84, 0.0)
+hook_line('NADIE QUIERE', 430, 140, 0.0, 'NADIE')
+hook_line('ESTE TRABAJO', 580, 140, 0.0)
 open('out/subs.ass', 'w').write(hdr + '\n'.join(rows) + '\n')
 print(len(ev), 'trozos,', sum(1 for r in rows if ',Box,' in r), 'seleccionados')
