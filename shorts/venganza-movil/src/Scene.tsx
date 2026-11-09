@@ -459,7 +459,7 @@ const Room: React.FC<{f: number}> = ({f}) => {
 };
 
 // ---------- postproceso ----------
-const PROF: {msaa?: number; sm?: number; nopost?: boolean} = getInputProps() as any;
+const PROF: {msaa?: number; sm?: number; nopost?: boolean; q?: number} = getInputProps() as any;
 const GRADE_NIGHT: GradeParams = {
   ky: [0, 0.085, 0.25, 0.54, 0.81, 0.94, 1],
   sat: [1.05, 1.15, 1.08],
@@ -473,7 +473,7 @@ const Post: React.FC<{f: number; focus: THREE.Vector3; dof: number}> = ({f, focu
     const b = new BloomEffect({blendFunction: BlendFunction.ADD, intensity: 0.7, luminanceThreshold: 0.95, luminanceSmoothing: 0.25, mipmapBlur: true, radius: 0.65});
     return {
       ink: new InkPass(scene, camera as THREE.PerspectiveCamera, {widthNear: 4.4, widthFar: 2.6, distNear: 3, distFar: 30}),
-      lens: new LensBlur({maxCoC: 24, nearScale: 1.2}),
+      lens: new LensBlur({maxCoC: 24, nearScale: 1.2, q: PROF.q ?? 0.5}),
       bloom: b,
       tone: new ToneMappingEffect({mode: ToneMappingMode.NEUTRAL}),
       grade: new GradeEffect(GRADE_NIGHT, 1),
@@ -484,20 +484,23 @@ const Post: React.FC<{f: number; focus: THREE.Vector3; dof: number}> = ({f, focu
   cam.getWorldDirection(fwd);
   fx.lens.focus = Math.max(0.3, focus.clone().sub(cam.position).dot(fwd));
   fx.lens.cInf = dof;
-  return (
-    <EffectComposer multisampling={PROF.msaa ?? 4}>
-      <primitive object={fx.ink} dispose={null} />
-      <primitive object={fx.lens.pre} dispose={null} />
-      <primitive object={fx.lens.main} dispose={null} />
-      <primitive object={fx.bloom} dispose={null} />
-      <primitive object={fx.tone} dispose={null} />
-      <primitive object={fx.grade} dispose={null} />
-    </EffectComposer>
-  );
+  // children estables: EffectComposer reconstruye (y recompila) todos los pases si cambian
+  const kids = useMemo(() => [
+    <primitive key="ink" object={fx.ink} dispose={null} />,
+    <primitive key="lp" object={fx.lens.pre} dispose={null} />,
+    <primitive key="lm" object={fx.lens.main} dispose={null} />,
+    <primitive key="bl" object={fx.bloom} dispose={null} />,
+    <primitive key="tn" object={fx.tone} dispose={null} />,
+    <primitive key="gr" object={fx.grade} dispose={null} />,
+  ], [fx]);
+  return <EffectComposer multisampling={PROF.msaa ?? 2}>{kids}</EffectComposer>;
 };
 
 const World: React.FC = () => {
   const f = useCurrentFrame();
+  // frameloop="never": un solo render por cuadro, después de todos los useLayoutEffect de los hijos
+  const advance = useThree((st) => st.advance);
+  useLayoutEffect(() => { advance(f * (1000 / 30)); });
   const ph = phoneAt(f);
   const c = camAt(f);
   const focus = c.focus === 'owner' ? new THREE.Vector3(16.2, 4.6, -1.0) : new THREE.Vector3(ph.pos[0], ph.pos[1] + 0.8 * ph.sq, ph.pos[2]);
@@ -544,7 +547,7 @@ export const Scene: React.FC = () => {
   const f = useCurrentFrame();
   return (
     <AbsoluteFill style={{backgroundColor: '#161c4a'}}>
-      <ThreeCanvas width={1080} height={1920} shadows gl={{antialias: false, stencil: false, toneMappingExposure: 1.0}} camera={{fov: 50, position: [0, 2, 8], near: 0.05, far: 120}}>
+      <ThreeCanvas frameloop="never" width={1080} height={1920} shadows gl={{antialias: false, stencil: false, toneMappingExposure: 1.0}} camera={{fov: 50, position: [0, 2, 8], near: 0.05, far: 120}}>
         <World />
       </ThreeCanvas>
       <SpeedLines f={f} />
