@@ -145,6 +145,27 @@ function walker(g, x, y, s, t, moving = 1) {
   g.beginPath(); g.arc(0, -190, 22, 0, TAU); g.fill();
   g.restore();
 }
+function bust(g, x, y, sc, o = {}) {
+  g.save(); g.translate(x, y); g.scale(sc * (o.flip ? -1 : 1), sc);
+  const body = o.body || '#16263c', skin = o.skin || '#8a6f5c', hair = o.hair || '#0a0d12', k = o.kind || 'short';
+  g.fillStyle = body; g.beginPath(); g.moveTo(-200, 340); g.quadraticCurveTo(-185, 110, -70, 88); g.lineTo(70, 88); g.quadraticCurveTo(185, 110, 200, 340); g.closePath(); g.fill();
+  g.fillStyle = 'rgba(0,0,0,.25)'; g.beginPath(); g.moveTo(-40, 90); g.lineTo(0, 150); g.lineTo(40, 90); g.fill();
+  g.fillStyle = skin; g.fillRect(-28, 36, 56, 74);
+  if (k === 'hood') { g.fillStyle = body; g.beginPath(); g.ellipse(0, -30, 108, 128, 0, 0, TAU); g.fill(); }
+  if (k === 'long') { g.fillStyle = hair; g.beginPath(); g.moveTo(-92, -70); g.quadraticCurveTo(-125, 120, -95, 200); g.lineTo(95, 200); g.quadraticCurveTo(125, 120, 92, -70); g.fill(); }
+  g.fillStyle = skin; g.beginPath(); g.ellipse(0, -30, 74, 92, 0, 0, TAU); g.fill();
+  g.fillStyle = hair;
+  if (k === 'short' || k === 'long') { g.beginPath(); g.ellipse(0, -58, 80, 70, 0, Math.PI, 0); g.fill(); }
+  if (k === 'cap') { g.beginPath(); g.ellipse(0, -64, 80, 62, 0, Math.PI, 0); g.fill(); rrect(g, -20, -78, 140, 22, 10); g.fill(); }
+  if (k === 'police') { g.fillStyle = '#0d1f3a'; rrect(g, -90, -128, 180, 66, 16); g.fill(); rrect(g, -96, -74, 192, 18, 8); g.fill(); g.fillStyle = C.amber; g.beginPath(); g.arc(0, -98, 13, 0, TAU); g.fill(); }
+  if (k === 'hood') { g.strokeStyle = 'rgba(0,0,0,.45)'; g.lineWidth = 16; g.beginPath(); g.ellipse(0, -30, 80, 98, 0, Math.PI * .95, Math.PI * 2.05); g.stroke(); }
+  if (o.lit !== 0) { // luz del móvil desde abajo
+    g.save(); g.beginPath(); g.ellipse(0, -30, 74, 92, 0, 0, TAU); g.moveTo(-200, 340); g.quadraticCurveTo(-185, 110, -70, 88); g.lineTo(70, 88); g.quadraticCurveTo(185, 110, 200, 340); g.closePath(); g.clip();
+    const gr = g.createLinearGradient(0, 200, 0, -110); gr.addColorStop(0, `rgba(110,170,240,${.55 * (o.lit ?? 1)})`); gr.addColorStop(1, 'rgba(110,170,240,0)'); g.fillStyle = gr; g.fillRect(-200, -130, 400, 480); g.restore();
+  }
+  if (o.phone) { glow(g, 0, 190, 230, 'rgba(90,150,230,.5)'); g.fillStyle = '#07090c'; rrect(g, -40, 150, 80, 135, 14); g.fill(); g.strokeStyle = 'rgba(140,190,250,.8)'; g.lineWidth = 4; g.stroke(); g.fillStyle = skin; [-48, 48].forEach(hx => { g.beginPath(); g.ellipse(hx, 235, 24, 34, 0, 0, TAU); g.fill(); }); }
+  g.restore();
+}
 function house(g, x, base, w, h, o = {}) {
   g.fillStyle = o.color || '#05080d';
   g.fillRect(x, base - h, w, h);
@@ -179,6 +200,7 @@ function sceneMovil(g, lt) {
   backdrop(g, '#12233c', '#03050a', 540, 1000);
   glow(g, 540, 1050, 760, 'rgba(70,120,190,.28)');
   drawPhone(g, { cx: 540, cy: 1230, w: 640, rot: -.035 + Math.sin(lt * .7) * .01, t: lt });
+  g.fillStyle = '#8a6f5c'; [[250, 1790, .5, 0], [800, 1700 + Math.sin(lt * 9) * 14, -.45, 1]].forEach(([x, y, r]) => { g.save(); g.translate(x, y); g.rotate(r); g.shadowColor = 'rgba(0,0,0,.6)'; g.shadowBlur = 30; rrect(g, -52, -150, 104, 420, 52); g.fill(); g.restore(); });
   g.restore();
 }
 // 2 · El chalet, de noche
@@ -232,6 +254,7 @@ function sceneMapa(g, lt) {
     g.fillStyle = C.cream; g.font = '64px Anton'; g.textAlign = d > 0 ? 'right' : 'left'; g.textBaseline = 'middle'; g.fillText(n, p[0] + (d > 0 ? 40 : -40) * (d > 0 ? 1 : 1) * (d > 0 ? 1 : 1) - (d > 0 ? 0 : 0) + (d > 0 ? 80 : 0) - (d > 0 ? 40 : 0), p[1] - 78);
     g.fillStyle = 'rgba(190,205,225,.8)'; g.font = '400 30px Inter'; g.fillText(sub, d > 0 ? p[0] + 80 : p[0] - 40, p[1] - 30);
   });
+  bust(g, 905, 730, .5, { kind: 'hood', phone: true, body: '#1a2230' }); bust(g, 120, 690, .5, { kind: 'cap', phone: true, body: '#23364f', flip: true });
   // cada mensaje viaja por el arco
   const pings = TL.sfx.filter(s => s.type === 'ping' && s.t > 20.2 && s.t < 27.4).map(s => s.t - 20.2);
   pings.forEach((pt, i) => {
@@ -266,6 +289,7 @@ function sceneMes(g, lt) {
   house(g, 415, 1260, 250, 300, { color: '#020305', roof: .36, chim: true, win: [[.12, .2, .22, .24, 0], [.66, .2, .22, .24, 0], [.12, .6, .22, .24, 0], [.66, .6, .22, .24, 0]] });
   // bruma tenue saliendo de la casa
   if (split > 0) { g.strokeStyle = `rgba(150,170,150,${.22 * split})`; g.lineWidth = 5; g.lineCap = 'round'; for (let i = 0; i < 7; i++) { const x0 = 440 + i * 32; g.beginPath(); for (let y = 0; y < 260; y += 12) { const yy = 950 - y - ((lt * 60 + i * 37) % 80); g.lineTo(x0 + Math.sin(y * .04 + lt * 2 + i) * 22, yy); } g.stroke(); } }
+  if (split > 0) { g.save(); g.globalAlpha = split; walker(g, 200, 1345, 1.15, 0, 0); walker(g, 285, 1350, 1.05, 0, 0); walker(g, 900, 1350, 1.1, 0, 0); g.restore(); }
   g.fillStyle = `rgba(3,5,10,${.72 * (1 - split)})`; g.fillRect(-400, -400, 1900, 2800);
   // calendario de taco
   const cs = lerp(1, .5, ease(split)), cy = lerp(720, 420, ease(split));
@@ -306,7 +330,8 @@ function sceneHuida(g, lt) {
     camera(g, lerp(1.05, 1.3, ease(clamp(t2 / 3.5))), 540 + shake, 980, .02);
     backdrop(g, '#0a121e', '#020306', 540, 980);
     glow(g, 540, 1000, 800, 'rgba(70,120,190,.32)');
-    drawPhone(g, { cx: 540, cy: 1040, w: 600, rot: .16, t: 20, allRead: true });
+    bust(g, 540, 800, 1.9, { kind: 'cap', body: '#23364f', lit: 1.3 });
+    drawPhone(g, { cx: 540, cy: 1330, w: 400, rot: .06, t: 20, allRead: true });
     g.restore();
   }
 }
@@ -325,6 +350,7 @@ function sceneTercero(g, lt) {
   drawPhone(g, { cx: B[0], cy: B[1], w: 270, rot: .08, t: got ? 20 : 0, msgs: got ? [{ t: 0, side: 'in', img: 0 }, { t: 0, side: 'in', img: 1 }, { t: 0, side: 'in', img: 2 }] : [], name: '—' });
   g.fillStyle = C.cream; g.font = '46px Anton'; g.textAlign = 'center'; g.textBaseline = 'middle';
   g.fillText('EL AMIGO', A[0], A[1] - 310); g.fillStyle = C.amber; g.fillText('UN TERCERO', B[0], B[1] - 310);
+  bust(g, 250, 960, .55, { kind: 'cap', body: '#23364f' }); if (lt > 1.5) bust(g, 850, 1150, .5, { kind: 'long', body: '#3a2a22', hair: '#15100c' });
   // miniaturas viajando
   const fly = (from, to, t0, n) => { for (let i = 0; i < n; i++) { const p = clamp((lt - t0 - i * .16) / .6); if (p <= 0 || p >= 1) continue; const e = ease(p), x = lerp(from[0], to[0], e), y = lerp(from[1], to[1], e) - Math.sin(e * Math.PI) * 120; glow(g, x, y, 100, 'rgba(120,190,255,.6)'); g.save(); rrect(g, x - 44, y - 44, 88, 88, 14); g.clip(); g.drawImage(TEX.blur[i % 3], x - 44, y - 44, 88, 88); g.restore(); g.strokeStyle = C.cream; g.lineWidth = 3; rrect(g, x - 44, y - 44, 88, 88, 14); g.stroke(); } };
   fly(A, B, 1.0, 3); fly(B, P, 3.5, 3);
@@ -386,6 +412,9 @@ function sceneCondena(g, lt) {
   let ang = -.9; hits.forEach(h => { const d = lt - h; if (d > -.3 && d < 0) ang = lerp(-.9, .12, Math.pow((d + .3) / .3, 3)); else if (d >= 0 && d < .5) ang = lerp(.12, -.9, ease(d / .5)); });
   g.rotate(ang); g.fillStyle = '#2b1b10'; rrect(g, 0, -16, 520, 32, 14); g.fill(); g.fillStyle = '#3d2716'; rrect(g, 440, -110, 150, 220, 26); g.fill(); g.fillStyle = C.amber; g.fillRect(440, -70, 150, 12); g.fillRect(440, 58, 150, 12);
   g.restore();
+  { const a = ss(2.0, 2.5, lt); g.save(); g.globalAlpha = a; g.fillStyle = '#0a0c10'; rrect(g, 610, 860, 330, 420, 14); g.fill();
+    g.save(); rrect(g, 610, 860, 330, 420, 14); g.clip(); glow(g, 775, 900, 300, 'rgba(120,150,190,.25)'); bust(g, 775, 1050, .7, { kind: 'short', body: '#3a2f22', lit: 0 }); g.restore();
+    g.fillStyle = '#1b1f26'; for (let x = 630; x < 940; x += 58) { g.fillRect(x, 860, 16, 420); } g.strokeStyle = '#2a303a'; g.lineWidth = 12; rrect(g, 610, 860, 330, 420, 14); g.stroke(); g.restore(); }
   g.fillStyle = '#2b1b10'; rrect(g, 560, 1300, 330, 60, 18); g.fill(); g.fillStyle = '#1c110a'; rrect(g, 520, 1350, 410, 40, 14); g.fill();
   g.restore();
   stampText(g, 'TRIBUNAL SUPREMO · MAYO 2020', 90, 200, lt - 2.6, 42);
@@ -397,7 +426,8 @@ function sceneFinal(g, lt) {
   g.save(); camera(g, lerp(1.0, 1.12, lt / 4), 540 + shake, 1000);
   backdrop(g, '#0f1f36', '#020306', 540, 1100);
   glow(g, 540, 1150, 800, 'rgba(70,120,190,.3)');
-  drawPhone(g, { cx: 540, cy: 1420, w: 620, t: 20 + lt, allRead: true, typing: true, msgs: CHAT.slice(6) });
+  bust(g, 540, 930, 1.35, { kind: 'cap', body: '#23364f', lit: 1.3 });
+  drawPhone(g, { cx: 540, cy: 1520, w: 520, t: 20 + lt, allRead: true, typing: true, msgs: CHAT.slice(6) });
   g.restore();
 }
 const SCENES = { movil: sceneMovil, chalet: sceneChalet, mapa: sceneMapa, mes: sceneMes, huida: sceneHuida, tercero: sceneTercero, jurado: sceneJurado, condena: sceneCondena, final: sceneFinal };
