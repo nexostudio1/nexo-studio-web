@@ -1,3 +1,4 @@
+import {getInputProps} from 'remotion';
 import React, {useEffect, useLayoutEffect, useMemo} from 'react';
 import {AbsoluteFill, useCurrentFrame} from 'remotion';
 import {ThreeCanvas} from '@remotion/three';
@@ -458,6 +459,7 @@ const Room: React.FC<{f: number}> = ({f}) => {
 };
 
 // ---------- postproceso ----------
+const PROF: {msaa?: number; sm?: number; nopost?: boolean} = getInputProps() as any;
 const GRADE_NIGHT: GradeParams = {
   ky: [0, 0.085, 0.25, 0.54, 0.81, 0.94, 1],
   sat: [1.05, 1.15, 1.08],
@@ -483,7 +485,7 @@ const Post: React.FC<{f: number; focus: THREE.Vector3; dof: number}> = ({f, focu
   fx.lens.focus = Math.max(0.3, focus.clone().sub(cam.position).dot(fwd));
   fx.lens.cInf = dof;
   return (
-    <EffectComposer multisampling={4}>
+    <EffectComposer multisampling={PROF.msaa ?? 4}>
       <primitive object={fx.ink} dispose={null} />
       <primitive object={fx.lens.pre} dispose={null} />
       <primitive object={fx.lens.main} dispose={null} />
@@ -507,7 +509,7 @@ const World: React.FC = () => {
       <hemisphereLight args={['#7f8fe0', '#3a2440', 1.0]} />
       <directionalLight position={[-5, 9, 12]} color="#8a9cf0" intensity={0.9} />
       <directionalLight position={[6.5, 10, -7.5]} color="#a8c2ff" intensity={2.3} castShadow
-        shadow-mapSize={[4096, 4096]} shadow-camera-left={-20} shadow-camera-right={20}
+        shadow-mapSize={[PROF.sm ?? 4096, PROF.sm ?? 4096]} shadow-camera-left={-20} shadow-camera-right={20}
         shadow-camera-top={14} shadow-camera-bottom={-14} shadow-camera-near={1} shadow-camera-far={45}
         shadow-bias={-0.0005} shadow-normalBias={0.03} />
       <pointLight position={[12, 7.6, -3.5]} color="#ffbe7a" intensity={22} distance={14} decay={2} />
@@ -516,7 +518,7 @@ const World: React.FC = () => {
       <Motes f={f} />
       <Sprites f={f} />
       <PhoneMesh ph={ph} f={f} />
-      <Post f={f} focus={focus} dof={c.dof} />
+      {PROF.nopost ? null : <Post f={f} focus={focus} dof={c.dof} />}
     </>
   );
 };
