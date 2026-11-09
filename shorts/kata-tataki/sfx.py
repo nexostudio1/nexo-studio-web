@@ -43,11 +43,22 @@ def kaching(g=0.3):
     for k, fr in enumerate([2093, 2637, 3136, 4186]): x += np.sin(2 * np.pi * fr * t) * np.exp(-t * (5 + k)) * (1 - k * 0.15)
     i = int(0.06 * SR); x[:i] += bp(noise(0.06), 3000, 9000) * 0.5
     return x * g
+# pasos: mismo camino que walkPath en anim.ts (cada tramo acelera y frena; un paso cada 0.475 m)
+def step_frames(pts, stride=0.95, ke=0.75):
+    import math
+    out, dist, nxt = [], 0.0, 0.0
+    for (fa, a), (fb, b) in zip(pts, pts[1:]):
+        ln = math.hypot(b[0] - a[0], b[1] - a[1])
+        for f in np.arange(fa, fb, 0.25):
+            t = (f - fa) / (fb - fa); e = t - ke * math.sin(2 * math.pi * t) / (2 * math.pi)
+            if ln > 0 and dist + ln * e >= nxt: out.append(f); nxt += stride / 2
+        dist += ln
+    return out
 # cortes de plano
 for f in [122, 185, 323, 400, 430, 527, 711, 825, 864, 1004, 1076]: put(fx, f - 6, whoosh(0.4, 0.2))
 put_raw(fx, G0 - 6, whoosh(0.4, 0.2)); put(fx, 769 - 6, whoosh(0.4, 0.2))
 # gancho: pasos de Tanaka y la oficina escondiéndose
-for k in range(16): put(fx, 4 + k * 8, click(0.22) * 0.6)
+for k in range(13): put(fx, 1 + k * 0.5 * 1.15 * 122 / 7.2, click(0.22) * 0.6)
 for f in [20, 59, 98]: put(fx, f, pop(380, 0.22)); put(fx, f + 1, whoosh(0.2, 0.12))
 # jefe: bocadillo + sello NULO
 put(fx, 126, pop(700, 0.25)); put(fx, 158, thud(60, 0.7, 1.0)); put(fx, 158, bp(noise(0.15), 1500, 7000) * np.exp(-t_(0.15) * 25) * 0.4)
@@ -67,7 +78,9 @@ put(fx, 1052, thud(70, 0.5, 0.6))
 # caja de cartón
 put(fx, 660, bp(noise(0.35), 300, 3000) * env(int(0.35 * SR), 0.02, 0.2) * 0.3)
 # pasos de vuelta
-for k in range(8): put(fx, 626 + k * 9, click(0.18) * 0.5)
+for f in step_frames([(527, (0.1, 1.15)), (572, (1.5, 1.15)), (590, (1.5, -0.42)), (624, (1.5, -0.42)), (642, (1.5, 1.15)), (711, (-1.6, 1.15))]): put(fx, f, click(0.18) * 0.5)
+for f in step_frames([(660, (3.2, -0.2)), (672, (3.2, 0.9)), (711, (5.2, 1.15))]): put(fx, f + 1, click(0.16) * 0.35)
+for f in step_frames([(1008, (0.4, -3.55)), (1040, (-1.72, -3.55))]): put(fx, f, click(0.18) * 0.4)
 # monedas
 put(fx, 716, kaching()); put(fx, 1180, kaching(0.34)); put(fx, 1186, kaching(0.2))
 # comedor: grillos y matojo
@@ -86,7 +99,7 @@ for k in range(40):
     f = G0 + k * 2.2 + (k % 3)
     if f > 820: break
     put_raw(fx, f, (noise(0.025) * np.exp(-t_(0.025) * 220)) * 0.1 * (1 - (f - G0) / 60) * (0.6 + (k % 4) * 0.15))
-for f in list(range(G0 + 4, 868, 11)) + list(range(886, G0 + GD, 11)): put_raw(fx, f, click(0.22) * 0.55)
+for f in step_frames([(G0, (-3.6, 1.2)), (868, (0.4, 1.2)), (884, (0.4, 1.2)), (G0 + GD, (1.7, 1.2))])[1:]: put_raw(fx, f, click(0.22) * 0.55)
 t = t_(0.25); put_raw(fx, 872, np.sin(2 * np.pi * (260 - 180 * t / 0.25) * t) * np.exp(-t * 14) * 0.35)  # glup
 put_raw(fx, 878, bp(noise(0.2), 400, 2000) * np.exp(-t_(0.2) * 20) * 0.12)  # alguien carraspea
 # ambientes

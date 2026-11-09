@@ -445,6 +445,10 @@ export type FrontOpts = {
   arm?: ArmPose; t?: number;
   /** dibujar de espaldas (pelo en toda la cabeza, sin cara) */
   back?: boolean;
+  /** transición de brazos: pose anterior, su t, y avance 0..1 hacia `arm` */
+  armFrom?: ArmPose | null; armFromT?: number; armBlend?: number;
+  /** segundos de reloj para el reposo (respiración, peso, cabeza); amplitud del paso 0..1 */
+  idle?: number; gait?: number;
 };
 export type ArmPose = "ear" | "cell" | "phone" | "paper" | "tear" | "slam" | "up" | "write" | "read" | "type"
   | "tap" | "box" | "point" | "gavel" | "eat" | "flag" | "cross";
@@ -456,14 +460,20 @@ const footStroke = (p: Pen, a: P2, b: P2, w: number, col: string) => {
 
 export const bodyFront = (p: Pen, o: Outfit, opts: FrontOpts) => {
   const { phase = 0, expr = "neutral", mode = "march", look = 0, blink = false, lift = 60, prop = null, tilt = 0, headTilt = 0, wave,
-    light = DEF_LIGHT, facing = 0, seed = 1, arm, t: at = 0, back = false } = opts;
+    light = DEF_LIGHT, facing = 0, seed = 1, arm, t: at = 0, back = false, armFrom, armFromT = 0, armBlend = 1, idle, gait = 1 } = opts;
+  // reposo: respiración (~3.6 s), cambio de peso (~5.3 s) y cabeza (~4.1 s), con fase propia por personaje
+  const walking = mode === "march" || mode === "stroll";
+  const still = idle === undefined ? 0 : walking ? Math.max(0, 1 - gait * 1.5) : 1;
+  const breathe = idle === undefined ? 0 : Math.sin((Math.PI * 2 * idle) / 3.6 + seed * 1.7);
+  const idleSway = still * (mode === "sit" ? 0.5 : 0.9) * (idle === undefined ? 0 : Math.sin((Math.PI * 2 * idle) / 5.3 + seed * 2.3));
+  const idleHead = idle === undefined ? 0 : 1.8 * Math.sin((Math.PI * 2 * idle) / 4.1 + seed * 0.9) + 0.8 * Math.sin((Math.PI * 2 * idle) / 2.3 + seed * 3.1);
   const Bd = BUILD[o.build ?? "adult"], skin = o.flush ? mix(o.skin ?? SKIN, "#ff6a55", o.flush * 0.6) : (o.skin ?? SKIN), two = Math.PI * 2, lid = lidOf(blink);
   const H = headBlob(seed, Bd.a, facing), W = 2 * H.a, HH = 2 * H.b, u = W / 100;
   const tall = (1 + Bd.torso + Bd.legs) * HH, sole = 975;
   // body bob 5 % (march) / 3 % (stroll) of the height, lowest at contact (phase 0 and 0.5)
-  const bob = mode === "march" ? 0.025 * tall * Math.cos(2 * two * phase) : mode === "stroll" ? 0.015 * tall * Math.cos(2 * two * phase) : 0;
+  const bob = gait * (mode === "march" ? 0.025 * tall * Math.cos(2 * two * phase) : mode === "stroll" ? 0.015 * tall * Math.cos(2 * two * phase) : 0);
   const torsoBot = mode === "sit" ? sole - 0.2 * HH : sole - Bd.legs * HH + bob;
-  const chin = torsoBot - Bd.torso * HH, hc = chin - H.b, crown = hc - H.b, hipY = torsoBot - 0.12 * HH;
+  const chin = torsoBot - Bd.torso * HH - breathe * 0.018 * HH, hc = chin - H.b, crown = hc - H.b, hipY = torsoBot - 0.12 * HH;
   const thick = thickAngle(light), ow = 5 * u;
   const legCol = mix(o.pants, INK, 0.55), armCol = mix(o.jacket, INK, 0.5), footCol = o.boots;
   const legW = 5.8 * u, footW = 7.5 * u;
@@ -491,7 +501,7 @@ export const bodyFront = (p: Pen, o: Outfit, opts: FrontOpts) => {
       footStroke(p, [fx - side * 3 * u, fy], [fx + side * 12 * u, fy + u], footW, footCol);
     }
   } else {
-    const L = mode === "march" ? lift * 1.25 : mode === "stroll" ? lift * 0.55 : 0;
+    const L = gait * (mode === "march" ? lift * 1.25 : mode === "stroll" ? lift * 0.55 : 0);
     for (const [side, ph] of [[-1, 0], [1, 0.5]] as const) {
       const up = Math.max(0, Math.sin(two * (phase + ph))) * L;
       const hx = 300 + side * 15 * u, fx = 300 + side * 22 * u, fy = sole - 4 * u - up;
@@ -501,8 +511,8 @@ export const bodyFront = (p: Pen, o: Outfit, opts: FrontOpts) => {
     }
   }
   // ---- upper body: rotates about the hips (tilt + a small weight-shift sway on every step) ----
-  const sway = mode === "march" ? 1.6 * Math.sin(two * phase) : mode === "stroll" ? 1.0 * Math.sin(two * phase) : 0;
-  const A = tilt + sway;
+  const sway = gait * (mode === "march" ? 1.6 * Math.sin(two * phase) : mode === "stroll" ? 1.0 * Math.sin(two * phase) : 0);
+  const A = tilt + sway + idleSway;
   p.rot = A ? [rad(A), 300, hipY] : null;
   const dress = !!o.dress && mode !== "sit" && mode !== "fall";
   const T: Blob = { a: ((Bd.tw / 2) * W) / 1.06, b: 0.5 * (torsoBot - (chin - 0.25 * HH)), nTop: 2.2, nBot: 2.6, egg: o.build === "stout" ? 0.17 : 0.12,
@@ -514,89 +524,90 @@ export const bodyFront = (p: Pen, o: Outfit, opts: FrontOpts) => {
     const hx = ex + side * 3 * u - side * 6 * u * Math.max(0, fwd) + side * 4 * u * Math.max(0, -fwd);
     return [S, [ex, S[1] + 0.48 * HH], [hx, chin + 1.04 * HH - Math.abs(fwd) * 9 * u]];
   };
-  const sw = mode === "march" || mode === "stroll" ? Math.sin(two * phase) : 0;
+  const sw = mode === "march" || mode === "stroll" ? gait * Math.sin(two * phase) : 0;
   // rifle at the order: butt by the right hip, held by the hanging right hand, muzzle past the crown
   const R0: P2 = [300 + 47 * u, torsoBot + 0.12 * HH], R1: P2 = [300 + 64 * u, crown - 0.32 * HH];
   const rifle = !!o.rifle && (mode === "march" || mode === "stand" || mode === "stroll");
   type Arm = { pts: [P2, P2, P2]; front: boolean };
+  const toC = (q: P2): P2 => p.P(q[0], q[1]);
+  const buildArms = (armP: ArmPose | undefined, atP: number) => {
   const arms: Arm[] = [];
   const held: { kind: string; at: P2; k: number }[] = [];
-  const toC = (q: P2): P2 => p.P(q[0], q[1]);
-  if (arm) {
+  if (armP) {
     const SL = sh(-1), SR = sh(1), A2 = (S: P2, E: P2, Hd: P2, front: boolean) => arms.push({ pts: [S, E, Hd], front });
     const hangL = () => A2(SL, [tcx - (1.1 * T.a + 6 * u), SL[1] + 0.42 * HH], [tcx - (1.15 * T.a + 6 * u), chin + 0.95 * HH], false);
-    if (arm === "ear" || arm === "cell") {
+    if (armP === "ear" || armP === "cell") {
       hangL();
       const Hd: P2 = [300 + 0.98 * H.a, hc + 0.12 * HH];
       A2(SR, [tcx + 1.2 * T.a + 12 * u, SR[1] + 0.32 * HH], Hd, true);
-      held.push({ kind: arm === "ear" ? "receiver" : "cell", at: toC(Hd), k: 0 });
-    } else if (arm === "phone") {
+      held.push({ kind: armP === "ear" ? "receiver" : "cell", at: toC(Hd), k: 0 });
+    } else if (armP === "phone") {
       hangL();
       const Hd: P2 = [tcx + 0.25 * T.a, chin + 0.42 * HH];
       A2(SR, [tcx + 1.15 * T.a + 6 * u, SR[1] + 0.48 * HH], Hd, true);
       held.push({ kind: "phoneUp", at: toC(Hd), k: 0 });
-    } else if (arm === "paper" || arm === "tear" || arm === "read") {
-      const sp = arm === "tear" ? clamp(at, 0, 1) : 0, y = chin + 0.42 * HH;
-      const dx = arm === "read" ? 0.42 : 0.38 + sp * 0.55;
-      const HL: P2 = [tcx - dx * T.a - (arm === "read" ? 0 : 6 * u), y - sp * 0.25 * HH], HR: P2 = [tcx + dx * T.a + 6 * u, y - sp * 0.25 * HH];
+    } else if (armP === "paper" || armP === "tear" || armP === "read") {
+      const sp = armP === "tear" ? clamp(atP, 0, 1) : 0, y = chin + 0.42 * HH;
+      const dx = armP === "read" ? 0.42 : 0.38 + sp * 0.55;
+      const HL: P2 = [tcx - dx * T.a - (armP === "read" ? 0 : 6 * u), y - sp * 0.25 * HH], HR: P2 = [tcx + dx * T.a + 6 * u, y - sp * 0.25 * HH];
       A2(SL, [tcx - (1.1 * T.a + 6 * u), SL[1] + 0.45 * HH], HL, true);
       A2(SR, [tcx + 1.1 * T.a + 6 * u, SR[1] + 0.45 * HH], HR, true);
-      held.push({ kind: arm === "tear" ? "tear" : arm === "read" ? "script" : "letter", at: toC([(HL[0] + HR[0]) / 2, y - sp * 0.25 * HH]), k: sp });
+      held.push({ kind: armP === "tear" ? "tear" : armP === "read" ? "script" : "letter", at: toC([(HL[0] + HR[0]) / 2, y - sp * 0.25 * HH]), k: sp });
       held.push({ kind: "_L", at: toC(HL), k: 0 }, { kind: "_R", at: toC(HR), k: 0 });
-    } else if (arm === "slam") {
+    } else if (armP === "slam") {
       hangL();
-      const k = clamp(at, 0, 1), e = k * k;
+      const k = clamp(atP, 0, 1), e = k * k;
       const Hd = lerp2([tcx + 1.05 * T.a + 18 * u, SR[1] - 0.62 * HH], [tcx + 0.75 * T.a, torsoBot + 0.02 * HH], e);
       const E = lerp2([tcx + 1.35 * T.a + 16 * u, SR[1] - 0.05 * HH], [tcx + 1.3 * T.a + 10 * u, SR[1] + 0.42 * HH], e);
       A2(SR, E, Hd, true);
       held.push({ kind: "fist", at: toC(Hd), k: 0 });
-    } else if (arm === "up") {
-      for (const sd of [-1, 1]) { const S = sh(sd); A2(S, [tcx + sd * (1.1 * T.a + 16 * u), S[1] - 0.3 * HH], [tcx + sd * (1.25 * T.a + 26 * u + 4 * u * Math.sin(at * 12 + sd)), S[1] - 0.78 * HH], false); }
-    } else if (arm === "write" || arm === "type") {
+    } else if (armP === "up") {
+      for (const sd of [-1, 1]) { const S = sh(sd); A2(S, [tcx + sd * (1.1 * T.a + 16 * u), S[1] - 0.3 * HH], [tcx + sd * (1.25 * T.a + 26 * u + 4 * u * Math.sin(atP * 12 + sd)), S[1] - 0.78 * HH], false); }
+    } else if (armP === "write" || armP === "type") {
       for (const sd of [-1, 1]) {
-        const S = sh(sd), wig = arm === "type" ? Math.sin(at * 40 + sd * 2) * 3 * u : sd > 0 ? Math.sin(at * 30) * 6 * u : 0;
+        const S = sh(sd), wig = armP === "type" ? Math.sin(atP * 40 + sd * 2) * 3 * u : sd > 0 ? Math.sin(atP * 30) * 6 * u : 0;
         A2(S, [tcx + sd * (1.1 * T.a + 8 * u), S[1] + 0.42 * HH], [tcx + sd * 0.5 * T.a + wig, torsoBot + 0.04 * HH - Math.abs(wig) * 0.5], true);
       }
-      if (arm === "write") held.push({ kind: "pen", at: toC(arms[arms.length - 1].pts[2]), k: 0 });
-    } else if (arm === "tap") {
+      if (armP === "write") held.push({ kind: "pen", at: toC(arms[arms.length - 1].pts[2]), k: 0 });
+    } else if (armP === "tap") {
       // mano izquierda (en pantalla) con el móvil delante; la derecha se estira a dar golpecitos (t: 0..1, golpe en 0.5)
       const HL: P2 = [tcx - 0.2 * T.a, chin + 0.42 * HH];
       A2(SL, [tcx - (1.15 * T.a + 6 * u), SL[1] + 0.48 * HH], HL, true);
       held.push({ kind: "phoneUp", at: toC(HL), k: 0 });
-      const bob = Math.sin(clamp(at, 0, 1) * Math.PI) * 0.1 * HH;
+      const bob = Math.sin(clamp(atP, 0, 1) * Math.PI) * 0.1 * HH;
       const Hd: P2 = [tcx + 1.3 * T.a + 92 * u, SR[1] + 0.82 * HH + bob];
       A2(SR, [tcx + 1.25 * T.a + 40 * u, SR[1] + 0.38 * HH + bob * 0.4], Hd, true);
       held.push({ kind: "fist", at: toC(Hd), k: 0 });
-    } else if (arm === "box") {
+    } else if (armP === "box") {
       const y = torsoBot - 0.05 * HH;
       const HL: P2 = [tcx - 0.95 * T.a, y], HR: P2 = [tcx + 0.95 * T.a, y];
       A2(SL, [tcx - (1.15 * T.a + 6 * u), SL[1] + 0.4 * HH], HL, true);
       A2(SR, [tcx + 1.15 * T.a + 6 * u, SR[1] + 0.4 * HH], HR, true);
       held.push({ kind: "box", at: toC([tcx, y]), k: T.a });
       held.push({ kind: "_L", at: toC(HL), k: 0 }, { kind: "_R", at: toC(HR), k: 0 });
-    } else if (arm === "point") {
+    } else if (armP === "point") {
       hangL();
       const Hd: P2 = [tcx + 1.3 * T.a + 80 * u, SR[1] - 0.05 * HH];
       A2(SR, [tcx + 1.2 * T.a + 38 * u, SR[1] - 0.02 * HH], Hd, true);
       held.push({ kind: "finger", at: toC(Hd), k: 0 });
-    } else if (arm === "gavel") {
+    } else if (armP === "gavel") {
       hangL();
-      const k = clamp(at, 0, 1), e = k * k;
+      const k = clamp(atP, 0, 1), e = k * k;
       const Hd = lerp2([tcx + 1.05 * T.a + 22 * u, SR[1] - 0.55 * HH], [tcx + 0.95 * T.a + 10 * u, torsoBot - 0.05 * HH], e);
       A2(SR, lerp2([tcx + 1.4 * T.a + 18 * u, SR[1] - 0.05 * HH], [tcx + 1.35 * T.a + 12 * u, SR[1] + 0.38 * HH], e), Hd, true);
       held.push({ kind: "gavel", at: toC(Hd), k: e });
-    } else if (arm === "eat") {
+    } else if (armP === "eat") {
       hangL();
-      const k = (Math.sin(at * 9) + 1) / 2;
+      const k = (Math.sin(atP * 9) + 1) / 2;
       const Hd = lerp2([tcx + 0.5 * T.a, torsoBot - 0.05 * HH], [300 + 0.05 * H.a, hc + 0.3 * HH], k);
       A2(SR, [tcx + 1.2 * T.a + 8 * u, SR[1] + 0.35 * HH], Hd, true);
       held.push({ kind: "sticks", at: toC(Hd), k: 0 });
-    } else if (arm === "flag") {
+    } else if (armP === "flag") {
       hangL();
       const Hd: P2 = [tcx + 1.2 * T.a + 20 * u, SR[1] - 0.72 * HH];
       A2(SR, [tcx + 1.15 * T.a + 16 * u, SR[1] - 0.3 * HH], Hd, false);
-      held.push({ kind: "flag", at: toC(Hd), k: at });
-    } else if (arm === "cross") {
+      held.push({ kind: "flag", at: toC(Hd), k: atP });
+    } else if (armP === "cross") {
       const y = chin + 0.45 * HH;
       A2(SL, [tcx - (1.1 * T.a + 6 * u), SL[1] + 0.42 * HH], [tcx + 0.55 * T.a, y], true);
       A2(SR, [tcx + 1.1 * T.a + 6 * u, SR[1] + 0.42 * HH], [tcx - 0.55 * T.a, y + 0.06 * HH], true);
@@ -620,6 +631,25 @@ export const bodyFront = (p: Pen, o: Outfit, opts: FrontOpts) => {
       const Hd = lerp2([tcx + 1.15 * T.a + 14 * u, S[1] - 0.55 * HH], [tcx + 1.45 * T.a + 22 * u, S[1] + 0.35 * HH], k);
       arms.push({ pts: [S, E, Hd], front: true });
     } else arms.push({ pts: hang(1, sw), front: false });
+  }
+  return { arms, held };
+  };
+  let { arms, held } = buildArms(arm, at);
+  if (armFrom !== undefined && armBlend < 1) {
+    const A0 = buildArms(armFrom ?? undefined, armFromT), e = armBlend * armBlend * (3 - 2 * armBlend);
+    if (A0.arms.length === arms.length) {
+      const B = arms;
+      arms = B.map((b, i) => ({ front: e < 0.5 ? A0.arms[i].front : b.front,
+        pts: b.pts.map((q, j) => lerp2(A0.arms[i].pts[j], q, e)) as [P2, P2, P2] }));
+      // los objetos en la mano siguen a la mano más cercana del juego que se dibuja
+      const src = e < 0.5 ? A0 : { arms: B, held };
+      held = src.held.map((h) => {
+        let bi = 0, bd = 1e9;
+        src.arms.forEach((a, i) => { const c = toC(a.pts[2]), d = Math.hypot(c[0] - h.at[0], c[1] - h.at[1]); if (d < bd) { bd = d; bi = i; } });
+        const c0 = toC(src.arms[bi].pts[2]), c1 = toC(arms[bi].pts[2]);
+        return { ...h, at: [h.at[0] + c1[0] - c0[0], h.at[1] + c1[1] - c0[1]] as P2 };
+      });
+    }
   }
   const drawArm = (a: Arm) => { p.stroke(curve(a.pts[0], a.pts[1], a.pts[2]), 5.2 * u, armCol); p.dot(a.pts[2][0], a.pts[2][1], 5.5 * u); };
   // behind the body: rifle, sword, arms
@@ -701,7 +731,7 @@ export const bodyFront = (p: Pen, o: Outfit, opts: FrontOpts) => {
     p.dot(hx, hy, 5.5 * u);
   }
   // ---- head: rotates with the body, plus its own tilt about the chin ----
-  const Ah = A + headTilt, [cpx, cpy] = rotAbout([300, chin], rad(A), [300, hipY]);
+  const Ah = A + headTilt + idleHead, [cpx, cpy] = rotAbout([300, chin], rad(A), [300, hipY]);
   p.rot = Ah ? [rad(Ah), 300, chin, cpx - 300, cpy - chin] : null;
   hatBehind(p, o, H, 300, hc, light, thick, ow, false);
   const hp = blobPts(300, hc, H);

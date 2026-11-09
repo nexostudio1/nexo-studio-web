@@ -131,6 +131,10 @@ export type Pose = {
   phase?: number; facing?: -1 | 0 | 1; flip?: boolean; tilt?: number; headTilt?: number; blink?: number; shadesDrop?: number;
   /** dirección hacia la que mira el personaje en el mundo (x, z): si la cámara está detrás se dibuja de espaldas */
   faceDir?: [number, number]; squash?: number;
+  /** amplitud del paso 0..1 (arranca y frena con suavidad) */
+  gait?: number;
+  /** transición de brazos (la rellena posesAt) */
+  armFrom?: string | null; armFromT?: number; armBlend?: number;
 };
 const blinkAt = (f: number, seed: number) => {
   let t = seed * 13, k = 0;
@@ -140,13 +144,24 @@ const blinkAt = (f: number, seed: number) => {
 /** golpecitos: t de 0 a 1 en cada toque */
 const taps = (f: number, starts: number[], d = 10) => { for (const s of starts) if (f >= s && f < s + d) return (f - s) / d; return 0; };
 const pop = (f: number, at: number) => { const d = f - at; return d < 0 || d > 10 ? 0 : Math.sin((d / 10) * Math.PI) * Math.exp(-d / 6); };
-const walkPath = (f: number, pts: [number, V3][]): {p: V3; moving: boolean; dir: number} => {
-  if (f <= pts[0][0]) return {p: pts[0][1], moving: false, dir: 0};
+/** camino por puntos: cada tramo acelera y frena (velocidad 25 % en las esquinas, nunca un arranque en seco).
+ *  phase = distancia recorrida / 0.95 m (un ciclo = dos pasos), así los pies no patinan; gait = cuánto se mueven las piernas. */
+const STRIDE = 0.95, KE = 0.75;
+const ease = (t: number) => t - (KE * Math.sin(2 * Math.PI * t)) / (2 * Math.PI);
+const easeV = (t: number) => 1 - KE * Math.cos(2 * Math.PI * t);
+const walkPath = (f: number, pts: [number, V3][]): {p: V3; moving: boolean; dir: number; phase: number; gait: number} => {
+  let dist = 0;
+  if (f <= pts[0][0]) return {p: pts[0][1], moving: false, dir: 0, phase: 0, gait: 0};
   for (let i = 0; i < pts.length - 1; i++) {
-    const [fa, a] = pts[i], [fb, b] = pts[i + 1];
-    if (f < fb) { const t = (f - fa) / (fb - fa); const moving = a[0] !== b[0] || a[2] !== b[2]; return {p: lerp3(a, b, t), moving, dir: Math.sign(b[0] - a[0])}; }
+    const [fa, a] = pts[i], [fb, b] = pts[i + 1], len = Math.hypot(b[0] - a[0], b[2] - a[2]);
+    if (f < fb) {
+      const t = (f - fa) / (fb - fa), e = ease(t), v = len > 0 ? (len * easeV(t) * 30) / (fb - fa) : 0;
+      const gait = clamp(v / 0.7);
+      return {p: lerp3(a, b, e), moving: gait > 0.04, dir: Math.sign(b[0] - a[0]), phase: (dist + len * e) / STRIDE, gait};
+    }
+    dist += len;
   }
-  return {p: pts[pts.length - 1][1], moving: false, dir: 0};
+  return {p: pts[pts.length - 1][1], moving: false, dir: 0, phase: dist / STRIDE, gait: 0};
 };
 
 const posesAt0 = (f: number): Pose[] => {
@@ -156,7 +171,7 @@ const posesAt0 = (f: number): Pose[] => {
   if (s.loc === 'co') {
     if (f < 122) {
       const tp = WALK1(f);
-      P({id: 'tanaka', who: 'tanaka', pos: tp, mode: 'stroll', phase: f / 16, facing: 1, expr: 'smile', arm: 'phone'});
+      P({id: 'tanaka', who: 'tanaka', pos: tp, mode: 'stroll', phase: (tp[0] + 3.6) / 1.15, facing: 1, expr: 'smile', arm: 'phone'});
       for (const [id, x] of [['c1', -2.3], ['c2', 0], ['c3', 2.3]] as [Who, number][]) {
         const near = clamp(1 - (Math.abs(tp[0] - x) - 0.3) / 0.9), duck = sm(near);
         worker(id, x, {pos: [x, SEAT - 0.5 * duck, -0.55], expr: duck > 0.25 ? 'nervous' : 'neutral', arm: duck > 0.25 ? undefined : 'type', look: (tp[0] - x) * 0.4});
@@ -177,13 +192,13 @@ const posesAt0 = (f: number): Pose[] => {
     } else if (f < 711) {
       const w = walkPath(f, [[527, [0.1, 0, 1.15]], [572, [1.5, 0, 1.15]], [590, [1.5, 0, -0.42]], [624, [1.5, 0, -0.42]], [642, [1.5, 0, 1.15]], [711, [-1.6, 0, 1.15]]]);
       const tt = taps(f, [596, 608]);
-      P({id: 'tanaka', who: 'tanaka', pos: w.p, mode: w.moving ? 'stroll' : 'stand', phase: f / 16, facing: (w.dir || 0) as -1 | 0 | 1, expr: 'smile',
+      P({id: 'tanaka', who: 'tanaka', pos: w.p, mode: w.moving ? 'stroll' : 'stand', phase: w.phase, gait: w.gait, facing: (w.moving ? w.dir : 0) as -1 | 0 | 1, expr: 'smile',
         arm: f >= 592 && f < 622 ? 'tap' : 'phone', t: tt});
       worker('c2', 0);
       if (f < 660) worker('c3', 2.3, {expr: f < 602 ? 'neutral' : f < 640 ? 'shock' : 'pained', arm: f < 602 ? 'type' : undefined, squash: pop(f, 602), look: f >= 602 && f < 640 ? -0.6 : 0});
       else {
         const c = walkPath(f, [[660, [3.2, 0, -0.2]], [672, [3.2, 0, 0.9]], [711, [5.2, 0, 1.15]]]);
-        P({id: 'c3', who: 'c3', pos: c.p, mode: 'stroll', phase: f / 18, facing: 1, expr: 'nervous', arm: 'box'});
+        P({id: 'c3', who: 'c3', pos: c.p, mode: c.moving ? 'stroll' : 'stand', phase: c.phase, gait: c.gait, facing: c.moving ? 1 : 0, expr: 'nervous', arm: 'box'});
       }
     } else if (f < 769) {
       P({id: 'tanaka', who: 'tanaka', pos: [TDESK[0], SEAT, -3.75], mode: 'sit', expr: 'grin', arm: 'phone', tilt: -7 + Math.sin(f * 0.15) * 1.5});
@@ -195,7 +210,7 @@ const posesAt0 = (f: number): Pose[] => {
       // 12 · el jefe le toca el hombro a Tanaka
       const b = walkPath(f, [[1008, [0.4, 0, -3.55]], [1040, [-1.72, 0, -3.55]]]);
       const tt = taps(f, [1046, 1058]);
-      P({id: 'boss', who: 'boss', pos: b.p, mode: b.moving ? 'stroll' : 'stand', phase: f / 18, facing: b.moving ? -1 : 0, expr: 'smile', arm: f >= 1042 ? 'tap' : undefined, t: tt, flip: true});
+      P({id: 'boss', who: 'boss', pos: b.p, mode: b.moving ? 'stroll' : 'stand', phase: b.phase, gait: b.gait, facing: b.moving ? -1 : 0, expr: 'smile', arm: f >= 1042 ? 'tap' : undefined, t: tt, flip: true});
       P({id: 'tanaka', who: 'tanaka', pos: [TDESK[0], SEAT, -3.75], mode: 'sit', expr: f < 1050 ? 'grin' : 'shock', arm: f < 1050 ? 'phone' : undefined,
         shadesDrop: ramp(f, 1050, 1058), squash: pop(f, 1050), look: f >= 1050 ? 0.7 : 0});
     }
@@ -234,18 +249,20 @@ export const inGauntlet = (f: number) => f >= G0 && f < G1;
 export const mapF = (f: number) => (f < G0 ? f : f >= G1 ? f - GD : 300);
 const GSHOT: Shot = {a: G0, b: G1, loc: 'co', dof: 8, keys: [], focus: [0, 1.2, 1.1]};
 // Tanaka avanza por el pasillo hacia la cámara (que está al fondo, en +x); se para un momento en 868–884
-const gx = (f: number) => (f < 868 ? lerp(-3.6, 0.4, lin(f, G0, 868)) : f < 884 ? 0.4 : lerp(0.4, 2.3, lin(f, 884, G1)));
+const GPATH: [number, V3][] = [[G0, [-3.6, 0, 1.2]], [868, [0.4, 0, 1.2]], [884, [0.4, 0, 1.2]], [G1, [1.7, 0, 1.2]]];
+const gwalk = (f: number) => walkPath(f, GPATH);
+const gx = (f: number) => gwalk(f).p[0];
 export const camAt = (f: number): Cam => {
   if (!inGauntlet(f)) return camAt0(mapF(f));
   const t = lin(f, G0, G1);
   return {pos: [5.4 - t * 0.5, 1.45, 1.75], look: [-1.2 + t * 1.6, 1.05, 0.45], fov: 50 - t * 4, roll: 0, shot: GSHOT};
 };
 export const focusAt = (f: number): V3 => (inGauntlet(f) ? [gx(f), 1.3, 1.15] : focusAt0(mapF(f)));
-export const posesAt = (f: number): Pose[] => {
+const posesRaw = (f: number): Pose[] => {
   if (!inGauntlet(f)) return posesAt0(mapF(f));
-  const x = gx(f), out: Pose[] = [];
+  const w = gwalk(f), x = w.p[0], out: Pose[] = [];
   const stop = f >= 868 && f < 884; // se para un segundo: todos lo miran
-  out.push({id: 'tanaka', who: 'tanaka', pos: [x, 0, 1.2], mode: stop ? 'stand' : 'stroll', phase: (f - G0) / 18, facing: 0,
+  out.push({id: 'tanaka', who: 'tanaka', pos: [x, 0, 1.2], mode: w.moving ? 'stroll' : 'stand', phase: w.phase, gait: w.gait, facing: 0,
     expr: f < 800 ? 'neutral' : 'nervous', look: stop ? 0.7 : 0, blink: 0});
   for (const [id, wx] of [['c1', -2.3], ['c2', 0], ['c3', 2.3]] as [Who, number][]) {
     // desde la cámara (al fondo del pasillo) Tanaka queda a su izquierda en pantalla
@@ -254,4 +271,34 @@ export const posesAt = (f: number): Pose[] => {
   }
   out.push({id: 'c4', who: 'c4', pos: [-1.2, 0, -1.7], mode: 'stand', expr: 'stern', arm: 'cross', look: -0.8, blink: 0});
   return out;
+};
+
+/** misma toma (para no mezclar poses a través de un corte) */
+const shotKey = (f: number) => (inGauntlet(f) ? GSHOT : shotAt(mapF(f)));
+/** Suaviza lo que en el guion cambia de golpe:
+ *  - mirada, inclinación de cabeza y cuerpo: media ponderada de los últimos 7 cuadros (cabeza que gira, no que salta);
+ *  - brazos: si la pose cambió hace menos de 8 cuadros, se interpola desde la anterior. */
+const SMOOTH = 7, ARMF = 8;
+export const posesAt = (f: number): Pose[] => {
+  const now = posesRaw(f), key = shotKey(f);
+  const past: Pose[][] = [];
+  for (let k = 1; k <= Math.max(SMOOTH, ARMF); k++) past.push(f - k >= 0 && shotKey(f - k) === key ? posesRaw(f - k) : []);
+  return now.map((ps) => {
+    const hist = past.map((list) => list.find((q) => q.id === ps.id));
+    let wsum = 1, look = ps.look ?? 0, ht = ps.headTilt ?? 0, tl = ps.tilt ?? 0;
+    for (let k = 0; k < SMOOTH; k++) {
+      const q = hist[k]; if (!q) break;
+      const w = 1 - (k + 1) / (SMOOTH + 1);
+      look += w * (q.look ?? 0); ht += w * (q.headTilt ?? 0); tl += w * (q.tilt ?? 0); wsum += w;
+    }
+    const out: Pose = {...ps, look: look / wsum, headTilt: ht / wsum, tilt: tl / wsum};
+    for (let k = 0; k < ARMF; k++) {
+      const q = hist[k]; if (!q) break;
+      if ((q.arm ?? null) !== (ps.arm ?? null) || q.mode !== ps.mode) {
+        if (q.mode === ps.mode || (q.mode !== 'sit' && ps.mode !== 'sit')) { out.armFrom = q.arm ?? null; out.armFromT = q.t ?? 0; out.armBlend = (k + 1) / (ARMF + 1); }
+        break;
+      }
+    }
+    return out;
+  });
 };

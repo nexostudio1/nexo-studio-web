@@ -291,7 +291,9 @@ const CharCard: React.FC<{ps: Pose; cam: V3}> = ({ps, cam}) => {
   const o: Outfit = back ? {...base, buttons: 'none', tie: undefined, vest: undefined} : {...base, shadesDrop: ps.shadesDrop ?? 0};
   bodyFront(new Pen(g), o, {mode: ps.mode === 'stroll' ? 'stroll' : ps.mode, phase: ps.phase ?? 0, facing: ps.facing ?? 0, expr: ps.expr as Expr,
     arm: ps.arm as ArmPose | undefined, t: ps.t, look: ps.look ?? 0, blink: ps.blink ?? 0, tilt: ps.tilt ?? 0, headTilt: ps.headTilt ?? 0,
-    seed: SEED[ps.who] ?? 1, light: (-125 * Math.PI) / 180, back});
+    seed: SEED[ps.who] ?? 1, light: (-125 * Math.PI) / 180, back,
+    gait: ps.gait ?? 1, idle: useCurrentFrame() / 30,
+    armFrom: ps.armFrom === undefined ? undefined : (ps.armFrom as ArmPose | null), armFromT: ps.armFromT, armBlend: ps.armBlend});
   tex.needsUpdate = true;
   const yaw = Math.atan2(cam[0] - ps.pos[0], cam[2] - ps.pos[2]);
   const q = ps.squash ?? 0, sx = 1 + 0.12 * q, sy = 1 - 0.1 * q;
