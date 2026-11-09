@@ -1,0 +1,8 @@
+node_modules
+out/stills
+out/*.log
+out/hoja.png
+out/rev
+out/s2
+out/hoja2.png
+out/video.mp4

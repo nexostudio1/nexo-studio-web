@@ -1,0 +1,4 @@
+node_modules
+out/*
+!out/voz.wav
+!out/sfx.wav
