@@ -1,14 +1,16 @@
 # Efectos y música originales sintetizados con numpy + mezcla con la voz -> out/mezcla.wav
 import numpy as np, wave, json
 SR = 44100; FPS = 30
-T = json.load(open('tiempos.json')); DUR = 1228 / FPS
+T = json.load(open('tiempos.json')); DUR = 1364 / FPS
 N = int(DUR * SR) + 1
 fx = np.zeros(N); amb = np.zeros(N); mus = np.zeros(N)
 R = np.random.default_rng(7)
 t_ = lambda d: np.arange(int(d * SR)) / SR
-def put(buf, f, x, g=1.0):
+def put_raw(buf, f, x, g=1.0):
     i = int(f / FPS * SR); j = min(N, i + len(x))
     if j > i: buf[i:j] += x[: j - i] * g
+G0, GD = 769, 136
+def put(buf, f, x, g=1.0): put_raw(buf, f if f < G0 else f + GD, x, g)
 def env(n, a=0.005, r=0.05):
     e = np.ones(n); na, nr = int(a * SR), int(r * SR)
     if na: e[:na] = np.linspace(0, 1, na)
@@ -42,7 +44,8 @@ def kaching(g=0.3):
     i = int(0.06 * SR); x[:i] += bp(noise(0.06), 3000, 9000) * 0.5
     return x * g
 # cortes de plano
-for f in [122, 185, 323, 400, 430, 527, 711, 769, 825, 864, 1004, 1076]: put(fx, f - 6, whoosh(0.4, 0.2))
+for f in [122, 185, 323, 400, 430, 527, 711, 825, 864, 1004, 1076]: put(fx, f - 6, whoosh(0.4, 0.2))
+put_raw(fx, G0 - 6, whoosh(0.4, 0.2)); put(fx, 769 - 6, whoosh(0.4, 0.2))
 # gancho: pasos de Tanaka y la oficina escondiéndose
 for k in range(16): put(fx, 4 + k * 8, click(0.22) * 0.6)
 for f in [20, 59, 98]: put(fx, f, pop(380, 0.22)); put(fx, f + 1, whoosh(0.2, 0.12))
@@ -78,12 +81,22 @@ while f < 1004:
 put(fx, 984, whoosh(0.3, 0.25)); put(fx, 986, ding(660, 0.12))
 f = 1080.0
 while f < 1170: put(fx, f, knock(1800 if int(f) % 2 else 1500, 0.11)); f += 15
+# el pasillo: tecleo que se va cortando, pasos lentos, silencio y «glup»
+for k in range(40):
+    f = G0 + k * 2.2 + (k % 3)
+    if f > 820: break
+    put_raw(fx, f, (noise(0.025) * np.exp(-t_(0.025) * 220)) * 0.1 * (1 - (f - G0) / 60) * (0.6 + (k % 4) * 0.15))
+for f in list(range(G0 + 4, 868, 11)) + list(range(886, G0 + GD, 11)): put_raw(fx, f, click(0.22) * 0.55)
+t = t_(0.25); put_raw(fx, 872, np.sin(2 * np.pi * (260 - 180 * t / 0.25) * t) * np.exp(-t * 14) * 0.35)  # glup
+put_raw(fx, 878, bp(noise(0.2), 400, 2000) * np.exp(-t_(0.2) * 20) * 0.12)  # alguien carraspea
 # ambientes
 def bed(f0, f1, kind):
+    f0 = f0 if f0 < G0 else f0 + GD; f1 = f1 if f1 <= G0 else f1 + GD
     i, j = int(f0 / FPS * SR), int(f1 / FPS * SR); n = j - i
     x = lp(noise(n / SR), 0.02) * 0.6 if kind == 'office' else lp(noise(n / SR), 0.006) * 0.25
     x *= env(n, 0.05, 0.05); amb[i:j] += x * 0.08
-for s0, s1, k in [(0, 864, 'office'), (864, 1004, 'room'), (1004, 1076, 'office'), (1076, 1228, 'room')]: bed(s0, s1, k)
+for s0, s1, k in [(0, 769, 'office'), (825, 864, 'office'), (864, 1004, 'room'), (1004, 1076, 'office'), (1076, 1228, 'room')]: bed(s0, s1, k)
+bed_i = int((G0 + GD) / FPS * SR); amb[int(G0 / FPS * SR):bed_i] += lp(noise(GD / FPS), 0.004)[: bed_i - int(G0 / FPS * SR)] * 0.012
 # música: marimba con ritmo (original), 112 bpm; calla en el comedor y en la sala, vuelve al final
 BPM = 112; beat = 60 / BPM
 def mar(fr, d=0.45, g=0.1):
@@ -99,8 +112,7 @@ def music(f0, f1, gain=1.0):
         if k % 4 == 0: put(mus, tt * FPS, mar(mid(ch[0] - 24), 0.7, 0.11 * gain))
         if k % 2 == 1: put(mus, tt * FPS, bp(noise(0.03), 5000, 12000) * np.exp(-t_(0.03) * 120) * 0.05 * gain)
         k += 1; tt += beat / 2
-music(0, 769); music(825, 864); music(1004, 1076); music(1165, 1228, 1.1)
-put(mus, 1004, mar(mid(48), 0.5, 0.0))
+pass  # sin música: solo efectos
 import sys
 w = wave.open('out/voz.wav'); v = np.frombuffer(w.readframes(w.getnframes()), np.int16).astype(float) / 32768; vs = w.getframerate()
 v = np.interp(np.arange(int(len(v) * SR / vs)) / SR, np.arange(len(v)) / vs, v)

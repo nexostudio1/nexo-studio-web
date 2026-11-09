@@ -6,7 +6,7 @@ import {EffectComposer} from '@react-three/postprocessing';
 import {BlendFunction, BloomEffect, ToneMappingEffect, ToneMappingMode} from 'postprocessing';
 import * as THREE from 'three';
 import {RoundedBoxGeometry} from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
-import {CO, BR, CT, EX, TDESK, SEAT, camAt, focusAt, posesAt, Pose, ramp, shotAt, V3, EVENTS} from './anim';
+import {CO, BR, CT, EX, TDESK, SEAT, camAt, focusAt, posesAt, Pose, ramp, shotAt, V3, EVENTS, mapF} from './anim';
 import {InkPass, noInkFallback, NOINK} from './ink';
 import {LensBlur} from './lensblur';
 import {GradeEffect, GradeParams, GRADE_DAY2} from './grade';
@@ -377,16 +377,16 @@ const Post: React.FC<{focus: V3; dof: number; grey: boolean; cpos: V3; clook: V3
 };
 
 const World: React.FC = () => {
-  const f = useCurrentFrame();
-  const c = camAt(f), s = c.shot;
+  const fr = useCurrentFrame(), f = mapF(fr); // f: cuadro de la historia sin el plano del pasillo
+  const c = camAt(fr), s = c.shot;
   const tx = useMemo(makeTx, []);
   const advance = useThree((st) => st.advance);
-  useLayoutEffect(() => { advance(f * (1000 / 30)); }); // frameloop="never": un render por cuadro
+  useLayoutEffect(() => { advance(fr * (1000 / 30)); }); // frameloop="never": un render por cuadro
   const cx = {co: CO, br: BR, ct: CT, ex: EX}[s.loc];
   return (
     <>
       <color attach="background" args={['#bcd6f2']} />
-      <CamRig f={f} />
+      <CamRig f={fr} />
       <ambientLight color="#ffffff" intensity={s.loc === 'ex' ? 0.95 : 1.15} />
       <hemisphereLight args={['#e8f1ff', '#9a8f86', 0.9]} />
       <directionalLight position={[cx + 4, 8, s.loc === 'co' ? -12 : 6]} target-position={[cx, 0, -1]} color="#fff2dc" intensity={s.loc === 'ex' ? 0.9 : 1.6} castShadow
@@ -397,9 +397,9 @@ const World: React.FC = () => {
       {s.loc === 'br' && <BreakRoom f={f} tx={tx} />}
       {s.loc === 'ct' && <Court tx={tx} />}
       {s.loc === 'ex' && <ExRoom f={f} tx={tx} />}
-      {posesAt(f).map((p) => <CharCard key={p.id} ps={p} cam={c.pos} />)}
+      {posesAt(fr).map((p) => <CharCard key={p.id} ps={p} cam={c.pos} />)}
       <Effects f={f} tx={tx} />
-      <Post focus={focusAt(f)} dof={s.dof} grey={s.loc === 'ex' && f < 1160} cpos={c.pos} clook={c.look} />
+      <Post focus={focusAt(fr)} dof={s.dof} grey={s.loc === 'ex' && f < 1160} cpos={c.pos} clook={c.look} />
     </>
   );
 };
@@ -427,7 +427,7 @@ const NameCard: React.FC<{f: number}> = ({f}) => {
 };
 
 export const Scene: React.FC = () => {
-  const f = useCurrentFrame();
+  const f = mapF(useCurrentFrame());
   const flash = f >= 158 && f < 162 ? (162 - f) / 4 * 0.5 : 0;
   return (
     <AbsoluteFill style={{backgroundColor: '#bcd6f2'}}>

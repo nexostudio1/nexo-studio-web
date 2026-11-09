@@ -1,12 +1,12 @@
 # Subtítulos blancos; las palabras clave se «seleccionan» con el ratón (recuadro azul que crece + puntero) -> out/subs.ass
 import json, re
 from PIL import ImageFont
-T = json.load(open('tiempos.json')); L = open('subs_trozos.txt').read().strip().split('\n')
+T = json.load(open('tiempos2.json')); L = open('subs_trozos.txt').read().strip().split('\n')
 FONT = ImageFont.truetype('/usr/share/fonts/opentype/inter/Inter-Black.otf', 79.3)  # calibrado contra libass a 96
 SP = 3
 def width(s): return FONT.getlength(s) + SP * len(s) if s else 0
 KEYS = ['echar a la gente', 'sin despedirla', 'casi imposible', 'los jueces', 'Tanaka', '“kata-tataki”', 'golpecito', 'mirar el móvil', '“voluntariamente”',
-        'buen sueldo', 'come solo', 'expulsión', 'nada que hacer', 'se rinda', 'el móvil', 'pagando']
+        'buen trabajo', 'compañeros', 'el siguiente', 'come solo', 'expulsión', 'nada que hacer', 'se rinda', 'el móvil', 'pagando']
 def ts(s): return f"{int(s//3600)}:{int(s%3600//60):02d}:{s%60:05.2f}"
 ev = []
 for seg, line in zip(T['segs'], L):

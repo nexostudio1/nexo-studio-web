@@ -9,7 +9,7 @@
 // 1009 «Un día, alguien le toca el hombro a Tanaka.»
 // 1076 «Ahora pasa ocho horas mirando la pared…» 1165 «bueno, el móvil. Y le siguen pagando.»
 export const FPS = 30;
-export const DUR = 1228;
+export const DUR = 1364; // 1228 + 136 del plano nuevo («el pasillo»)
 export type V3 = [number, number, number];
 export const clamp = (x: number, a = 0, b = 1) => Math.max(a, Math.min(b, x));
 export const sm = (x: number) => { const t = clamp(x); return t * t * t * (t * (t * 6 - 15) + 10); };
@@ -100,11 +100,11 @@ export const SHOTS: Shot[] = [
     {f: 1228, pos: X(0.45, 1.16, -1.55), look: X(0, 1.15, -0.75), fov: 42}]},
 ];
 export const shotAt = (f: number) => SHOTS.find((s) => f >= s.a && f < s.b) ?? SHOTS[SHOTS.length - 1];
-export const focusAt = (f: number): V3 => { const s = shotAt(f); return typeof s.focus === 'function' ? s.focus(f) : s.focus; };
+const focusAt0 = (f: number): V3 => { const s = shotAt(f); return typeof s.focus === 'function' ? s.focus(f) : s.focus; };
 
 const SHAKES: [number, number][] = [[158, 1.4], [262, 1.0], [272, 0.8], [496, 0.4], [508, 0.4], [604, 0.4], [1052, 1.2], [1180, 0.6]];
 export type Cam = {pos: V3; look: V3; fov: number; roll: number; shot: Shot};
-export const camAt = (f: number): Cam => {
+const camAt0 = (f: number): Cam => {
   const s = shotAt(f), k = s.keys;
   let i = 0;
   while (i < k.length - 2 && f >= k[i + 1].f) i++;
@@ -149,7 +149,7 @@ const walkPath = (f: number, pts: [number, V3][]): {p: V3; moving: boolean; dir:
   return {p: pts[pts.length - 1][1], moving: false, dir: 0};
 };
 
-export const posesAt = (f: number): Pose[] => {
+const posesAt0 = (f: number): Pose[] => {
   const s = shotAt(f), out: Pose[] = [];
   const P = (p: Pose) => out.push({...p, blink: p.blink ?? blinkAt(f, p.id.length * 7 + p.id.charCodeAt(0))});
   const worker = (id: Who, x: number, extra: Partial<Pose> = {}) => P({id, who: id, pos: [x, SEAT, -0.55], mode: 'sit', expr: 'neutral', arm: 'type', t: f / 30 + x, ...extra});
@@ -225,3 +225,33 @@ export const posesAt = (f: number): Pose[] => {
 
 // teléfono/momentos con sonido (para la mezcla)
 export const EVENTS = {stamp: 158, gavel: [262, 274], taps: [492, 504, 600, 612, 838, 850, 1050, 1062], bubble: 126, name: 403, coins: [716, 1180], flag: 984};
+
+// ---------- plano nuevo: el pasillo de la vergüenza (769–905) ----------
+// «Pero cada mañana tiene que pasar por delante de sus compañeros… y todos saben quién será el siguiente.»
+export const G0 = 769, G1 = 905, GD = G1 - G0;
+export const inGauntlet = (f: number) => f >= G0 && f < G1;
+/** cuadro de la historia original (sin el plano nuevo); en el pasillo devuelve un cuadro neutro de oficina */
+export const mapF = (f: number) => (f < G0 ? f : f >= G1 ? f - GD : 300);
+const GSHOT: Shot = {a: G0, b: G1, loc: 'co', dof: 8, keys: [], focus: [0, 1.2, 1.1]};
+// Tanaka avanza por el pasillo hacia la cámara (que está al fondo, en +x); se para un momento en 868–884
+const gx = (f: number) => (f < 868 ? lerp(-3.6, 0.4, lin(f, G0, 868)) : f < 884 ? 0.4 : lerp(0.4, 2.3, lin(f, 884, G1)));
+export const camAt = (f: number): Cam => {
+  if (!inGauntlet(f)) return camAt0(mapF(f));
+  const t = lin(f, G0, G1);
+  return {pos: [5.4 - t * 0.5, 1.45, 1.75], look: [-1.2 + t * 1.6, 1.05, 0.45], fov: 50 - t * 4, roll: 0, shot: GSHOT};
+};
+export const focusAt = (f: number): V3 => (inGauntlet(f) ? [gx(f), 1.3, 1.15] : focusAt0(mapF(f)));
+export const posesAt = (f: number): Pose[] => {
+  if (!inGauntlet(f)) return posesAt0(mapF(f));
+  const x = gx(f), out: Pose[] = [];
+  const stop = f >= 868 && f < 884; // se para un segundo: todos lo miran
+  out.push({id: 'tanaka', who: 'tanaka', pos: [x, 0, 1.2], mode: stop ? 'stand' : 'stroll', phase: (f - G0) / 18, facing: 0,
+    expr: f < 800 ? 'neutral' : 'nervous', look: stop ? 0.7 : 0, blink: 0});
+  for (const [id, wx] of [['c1', -2.3], ['c2', 0], ['c3', 2.3]] as [Who, number][]) {
+    // desde la cámara (al fondo del pasillo) Tanaka queda a su izquierda en pantalla
+    const lk = -clamp(0.5 + Math.abs(x - wx) * 0.3, 0, 1);
+    out.push({id, who: id, pos: [wx, SEAT, -0.55], mode: 'sit', expr: 'stern', look: lk, headTilt: -4, blink: 0});
+  }
+  out.push({id: 'c4', who: 'c4', pos: [-1.2, 0, -1.7], mode: 'stand', expr: 'stern', arm: 'cross', look: -0.8, blink: 0});
+  return out;
+};
