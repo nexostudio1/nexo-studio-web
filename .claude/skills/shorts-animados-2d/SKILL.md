@@ -43,6 +43,49 @@ Se cambia three.js por dibujo 2D (SVG o Canvas2D) dentro de Remotion. Sigue 1080
   - La cámara nunca se queda quieta: zoom lento 1.00→1.06 en cada pausa. Meta: cámara en movimiento en más del 80 % de los cuadros.
 - **Voz y subtítulos:** igual que en 3D (una voz pareja, 3.2–3.8 palabras/s, sin subtítulos en la versión principal).
 
+## Los cinco pilares del look (obligatorios en cada short)
+### 1. Sombras dinámicas (pies, ropa y fondo)
+- **Debajo de los pies:** elipse de contacto (opacidad .35, desenfoque 6 px). Al saltar se achica y se aclara según la altura; al caer se aplasta.
+- **Sobre la ropa:** sombras de forma recortadas con `clipPath` dentro de cada pieza: la cabeza proyecta sombra en el cuello y el pecho,
+  el brazo sobre el torso, el sombrero sobre la frente. Su dirección y color salen de la luz de la escena (`lights2d.ts`) y se mueven con la pose.
+- **Detrás de los personajes:** sombra proyectada en el suelo y en la pared del fondo: la silueta aplastada (`flat`) y torcida (`skew`) hacia el lado
+  contrario a la luz; cuanto más cerca de la pared, más nítida. Si pasa una luz móvil (faro, relámpago), la sombra gira con ella.
+- Todas las sombras de una escena comparten una sola dirección (`shadowDir`).
+
+### 2. Iluminación cinematográfica según la historia
+Plantilla: `plantillas/lights2d.ts` (`MOODS`). Elige el tono por escena y cámbialo con un fundido cuando cambie la emoción.
+| Historia | Tono | Luz |
+|---|---|---|
+| Alegría, comedia, infancia, día | `calido` | #FFD08A, sombras violeta |
+| Final feliz, nostalgia | `atardecer` | sol bajo a contraluz, #FFB36B |
+| Misterio, tristeza, soledad, tecnología | `azul` | #8FB8FF, sombras azul marino |
+| Peligro, enojo, batalla, terror, tensión | `rojo` | #FF4A3D desde atrás/costado, sombras ciruela |
+| Secretos, suspenso | `noche` | #6C8CFF, mucho contraste |
+Capas de luz sobre el dibujo (de abajo a arriba): color base → sombra tintada (multiply) → luz principal (screen o overlay suave, solo lado iluminado)
+→ luz de borde fina (rim) → viñeta ligera → destello opcional. Un contraste rojo/azul entre dos lados se ve cinematográfico en discusiones y persecuciones.
+Nunca sombras negras o grises.
+
+### 3. Fondos con profundidad
+Mínimo 5 capas, cada una con su velocidad de parallax y desenfoque (`LAYERS`/`BLUR` en `plantillas/camera2d.ts`):
+cielo (0.1) · fondo lejano (0.25, desenfoque 6 px, con neblina del color del horizonte) · plano medio (0.55) · suelo y personajes (1.0) ·
+primer plano (1.5, desenfoque 12 px: hojas, postes, humo). Las capas lejanas más claras y con menos contraste (perspectiva atmosférica).
+Partículas (polvo, brasas, nieve, luciérnagas) en dos capas con velocidades distintas.
+
+### 4. Cámara animada
+Plantilla: `plantillas/camera2d.ts` (`camAt`, `follow`, `shake`).
+- **Zoom:** acercamiento lento en cada pausa (1.00 → 1.06) y golpe de zoom (1.0 → 1.15 en 4 cuadros) en el dato fuerte.
+- **Seguimiento:** `follow` con retraso (lag 8): la cámara llega un poco tarde al personaje que camina o corre.
+- **Vibración:** `shake` en impactos, golpes y gritos: cambia de signo cada cuadro y se apaga en 7.
+- **Cambios de plano:** cortes solo en saltos grandes (general → primer plano → detalle); el resto, deslizamientos de 18–40 cuadros. Alterna plano general,
+  medio y primer plano; en diálogo, plano/contraplano. Fundido de 6 cuadros solo si cambia el lugar o el tiempo.
+- La cámara nunca queda quieta más de 12 cuadros.
+
+### 5. Formato vertical 9:16 (Shorts, TikTok, Reels)
+- Composición Remotion 1080x1920, 30 fps, duración ≤ 59 s (idealmente 20–45 s). Exporta H.264, CRF 16, AAC; opcional 1440x2560 con `--scale 1.3333`.
+- Zona segura: deja libre ~150 px arriba y ~380 px abajo y ~120 px a los lados, donde las apps ponen su interfaz. Los personajes y cualquier cifra en el 60 % central.
+- Encuadra pensando en vertical: personajes apilados en profundidad (uno delante y otro detrás), planos de cara y torso, composición alta, no panorámicas.
+- Gancho en el primer segundo y bucle final → primer plano.
+
 ## Sincronización labial (la parte nueva)
 Plantilla probada: `plantillas/lipsync.ts` (español, de grafemas a visemas, sin dependencias).
 1. Saca `palabras.json` con tiempos por palabra (`[{word,start,end}]`, en segundos) y corrígelo a mano.
