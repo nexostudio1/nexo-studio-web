@@ -1,4 +1,4 @@
-# Shorts
+# Shorts (carpeta shorts/)
 
 - Cuando el usuario pida «el guion» de un short, entrégalo siempre **para ElevenLabs** y encajado con el vídeo
   tal como está: el mismo texto que los subtítulos, en los mismos trozos, con un bloque listo para pegar
