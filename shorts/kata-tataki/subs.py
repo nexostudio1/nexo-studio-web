@@ -1,7 +1,8 @@
 # Subtítulos blancos; las palabras clave se «seleccionan» con el ratón (recuadro azul que crece + puntero) -> out/subs.ass
 import json, re
 from PIL import ImageFont
-T = json.load(open('tiempos2.json')); L = open('subs_trozos.txt').read().strip().split('\n')
+import os, sys
+T = json.load(open(os.environ.get('TIEMPOS', 'tiempos2.json'))); L = open('subs_trozos.txt').read().strip().split('\n')
 FONT = ImageFont.truetype('/usr/share/fonts/opentype/inter/Inter-Black.otf', 79.3)  # calibrado contra libass a 96
 SP = 3
 def width(s): return FONT.getlength(s) + SP * len(s) if s else 0
@@ -65,5 +66,5 @@ def hook_line(text, y, size, t_in, key=None):
 hook_line('EN JAPÓN', 300, 84, 0.0)
 hook_line('NADIE QUIERE', 430, 140, 0.0, 'NADIE')
 hook_line('ESTE TRABAJO', 580, 140, 0.0)
-open('out/subs.ass', 'w').write(hdr + '\n'.join(rows) + '\n')
+open(os.environ.get('SUBS_OUT', 'out/subs.ass'), 'w').write(hdr + '\n'.join(rows) + '\n')
 print(len(ev), 'trozos,', sum(1 for r in rows if ',Box,' in r), 'seleccionados')
