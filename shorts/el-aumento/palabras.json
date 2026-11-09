@@ -1,0 +1,328 @@
+{
+ "total": 22.986374,
+ "lineas": [
+  {
+   "quien": "tono",
+   "texto": "Jefe, llevo cinco años aquí. Necesito un aumento.",
+   "start": 0.35,
+   "end": 4.278708,
+   "words": [
+    {
+     "word": "Jefe",
+     "start": 0.39,
+     "end": 0.755583
+    },
+    {
+     "word": "llevo",
+     "start": 1.015,
+     "end": 1.239041
+    },
+    {
+     "word": "cinco",
+     "start": 1.250834,
+     "end": 1.616417
+    },
+    {
+     "word": "años",
+     "start": 1.628209,
+     "end": 1.911209
+    },
+    {
+     "word": "aquí",
+     "start": 1.9230420000000001,
+     "end": 2.229625
+    },
+    {
+     "word": "Necesito",
+     "start": 3.0404590000000002,
+     "end": 3.630084
+    },
+    {
+     "word": "un",
+     "start": 3.641875,
+     "end": 3.771583
+    },
+    {
+     "word": "aumento",
+     "start": 3.783417,
+     "end": 4.278708
+    }
+   ],
+   "wav": "tmp/l0.wav",
+   "trim": 0.057166,
+   "len": 4.0087079999999995
+  },
+  {
+   "quien": "ramirez",
+   "texto": "Claro, Toño. Te lo mereces.",
+   "start": 4.498708,
+   "end": 7.682207999999999,
+   "words": [
+    {
+     "word": "Claro",
+     "start": 4.538708,
+     "end": 4.9909989999999995
+    },
+    {
+     "word": "Toño",
+     "start": 5.319958,
+     "end": 5.758540999999999
+    },
+    {
+     "word": "Te",
+     "start": 6.709083,
+     "end": 6.832457999999999
+    },
+    {
+     "word": "lo",
+     "start": 6.846166,
+     "end": 6.955831999999999
+    },
+    {
+     "word": "mereces",
+     "start": 6.9695,
+     "end": 7.682207999999999
+    }
+   ],
+   "wav": "tmp/l1.wav",
+   "trim": 0.064833,
+   "len": 3.2635
+  },
+  {
+   "quien": "ramirez",
+   "texto": "A partir de hoy, te aumento... las tareas.",
+   "start": 7.902208,
+   "end": 11.122041,
+   "words": [
+    {
+     "word": "A",
+     "start": 7.942208,
+     "end": 8.092958
+    },
+    {
+     "word": "partir",
+     "start": 8.106666,
+     "end": 8.558957
+    },
+    {
+     "word": "de",
+     "start": 8.572666,
+     "end": 8.696041
+    },
+    {
+     "word": "hoy",
+     "start": 8.70975,
+     "end": 9.011291
+    },
+    {
+     "word": "te",
+     "start": 9.340208,
+     "end": 9.422457999999999
+    },
+    {
+     "word": "aumento",
+     "start": 9.436166,
+     "end": 9.984416
+    },
+    {
+     "word": "las",
+     "start": 10.299666,
+     "end": 10.464124
+    },
+    {
+     "word": "tareas",
+     "start": 10.477833,
+     "end": 11.122041
+    }
+   ],
+   "wav": "tmp/l2.wav",
+   "trim": 0.064833,
+   "len": 3.299833
+  },
+  {
+   "quien": "tono",
+   "texto": "¿Y el sueldo?",
+   "start": 11.342041,
+   "end": 12.148583,
+   "words": [
+    {
+     "word": "Y",
+     "start": 11.382041,
+     "end": 11.547124
+    },
+    {
+     "word": "el",
+     "start": 11.558916,
+     "end": 11.665040999999999
+    },
+    {
+     "word": "sueldo",
+     "start": 11.676874999999999,
+     "end": 12.148583
+    }
+   ],
+   "wav": "tmp/l3.wav",
+   "trim": 0.057166,
+   "len": 0.8865419999999999
+  },
+  {
+   "quien": "ramirez",
+   "texto": "El sueldo es una actitud.",
+   "start": 12.368583000000001,
+   "end": 14.012207,
+   "words": [
+    {
+     "word": "El",
+     "start": 12.408583,
+     "end": 12.627874
+    },
+    {
+     "word": "sueldo",
+     "start": 12.641583,
+     "end": 13.039041000000001
+    },
+    {
+     "word": "es",
+     "start": 13.052750000000001,
+     "end": 13.203500000000002
+    },
+    {
+     "word": "una",
+     "start": 13.21725,
+     "end": 13.381708000000001
+    },
+    {
+     "word": "actitud",
+     "start": 13.395416,
+     "end": 14.012207
+    }
+   ],
+   "wav": "tmp/l4.wav",
+   "trim": 0.064833,
+   "len": 1.723624
+  },
+  {
+   "quien": "tono",
+   "texto": "Entonces renuncio.",
+   "start": 14.232207,
+   "end": 15.404291,
+   "words": [
+    {
+     "word": "Entonces",
+     "start": 14.272207,
+     "end": 14.873623
+    },
+    {
+     "word": "renuncio",
+     "start": 14.885416,
+     "end": 15.404291
+    }
+   ],
+   "wav": "tmp/l5.wav",
+   "trim": 0.057166,
+   "len": 1.252084
+  },
+  {
+   "quien": "ramirez",
+   "texto": "Perfecto. Antes de irte, entrena a los tres que te van a reemplazar.",
+   "start": 15.624291000000001,
+   "end": 21.192666000000003,
+   "words": [
+    {
+     "word": "Perfecto",
+     "start": 15.664291,
+     "end": 16.363291
+    },
+    {
+     "word": "Antes",
+     "start": 17.313833000000002,
+     "end": 17.738708000000003
+    },
+    {
+     "word": "de",
+     "start": 17.752458,
+     "end": 17.862124
+    },
+    {
+     "word": "irte",
+     "start": 17.875791,
+     "end": 18.286957
+    },
+    {
+     "word": "entrena",
+     "start": 18.615916000000002,
+     "end": 19.205291000000003
+    },
+    {
+     "word": "a",
+     "start": 19.218999,
+     "end": 19.260124
+    },
+    {
+     "word": "los",
+     "start": 19.273833,
+     "end": 19.506833
+    },
+    {
+     "word": "tres",
+     "start": 19.520541,
+     "end": 19.822082
+    },
+    {
+     "word": "que",
+     "start": 19.835791,
+     "end": 19.986541000000003
+    },
+    {
+     "word": "te",
+     "start": 20.000249,
+     "end": 20.123624
+    },
+    {
+     "word": "van",
+     "start": 20.137291,
+     "end": 20.356582000000003
+    },
+    {
+     "word": "a",
+     "start": 20.370333000000002,
+     "end": 20.425166
+    },
+    {
+     "word": "reemplazar",
+     "start": 20.438833000000002,
+     "end": 21.192666000000003
+    }
+   ],
+   "wav": "tmp/l6.wav",
+   "trim": 0.064833,
+   "len": 5.648375
+  },
+  {
+   "quien": "tono",
+   "texto": "¿A los tres?",
+   "start": 21.412666,
+   "end": 22.266374000000003,
+   "words": [
+    {
+     "word": "A",
+     "start": 21.452666000000004,
+     "end": 21.570582
+    },
+    {
+     "word": "los",
+     "start": 21.582375000000003,
+     "end": 21.794625000000003
+    },
+    {
+     "word": "tres",
+     "start": 21.806458000000003,
+     "end": 22.266374000000003
+    }
+   ],
+   "wav": "tmp/l7.wav",
+   "trim": 0.057166,
+   "len": 0.9337079999999999
+  }
+ ]
+}
