@@ -124,11 +124,33 @@ for e in TL['sfx']:
 # ---- reverb y mezcla ----
 x = tt_(2.6); e = np.exp(-x * 2.4)
 IR = np.stack([lp(rng.standard_normal(len(x)) * e, 6000) for _ in range(2)], 1) / np.sqrt(np.sum(e ** 2))
+
+# ---- voz (ElevenLabs) colocada frase a frase al empezar cada escena ----
+voice = np.zeros(N)
+vpath = os.path.join(DIR, TL.get('voice', {}).get('file', 'build/voz.wav'))
+if 'voice' in TL and os.path.exists(vpath):
+    vsr, v = wavfile.read(vpath); v = v.astype(float) / 32768
+    if v.ndim > 1: v = v.mean(1)
+    assert vsr == SR
+    for a0, a1, at in TL['voice']['segments']:
+        seg = v[int(max(0, a0 - .04) * SR): int((a1 + .1) * SR)].copy()
+        f = int(.01 * SR); seg[:f] *= np.linspace(0, 1, f); seg[-f:] *= np.linspace(1, 0, f)
+        i = int(at * SR); voice[i:i + len(seg)] += seg[: N - i]
+    voice = hp(voice, 80)
+    # duck: música -8 dB y efectos -3 dB mientras habla
+    act = (np.abs(voice) > .02).astype(float)
+    k = int(.25 * SR); act = np.convolve(act, np.ones(k) / k, 'same') > 0
+    sm = np.convolve(act.astype(float), np.ones(int(.12 * SR)) / int(.12 * SR), 'same')
+    music *= (1 - sm * (1 - 10 ** (-8 / 20)))[:, None]
+    sfx *= (1 - sm * (1 - 10 ** (-3 / 20)))[:, None]
+    dry *= (1 - sm * (1 - 10 ** (-5 / 20)))[:, None]
 win = music + sfx * .7 + dry * .3
 wet = np.stack([fftconvolve(win[:, c], IR[:, c])[:N] for c in range(2)], 1)
 mix = music * .8 + sfx + dry + wet * .4
+mix = np.tanh(mix * 1.6) / 1.6 * (.38 if voice.any() else 1)
+vr = np.stack([voice, voice], 1)
+mix = mix + vr * (.45 / max(1e-9, np.abs(voice).max()))
 mix[-int(.3 * SR):] *= np.linspace(1, 0, int(.3 * SR))[:, None] ** 2
-mix = np.tanh(mix * 1.6) / 1.6
 mix /= np.abs(mix).max() / .89
 os.makedirs(os.path.join(DIR, 'build'), exist_ok=True)
 wavfile.write(os.path.join(DIR, 'build', 'audio.wav'), SR, (mix * 32767).astype(np.int16))

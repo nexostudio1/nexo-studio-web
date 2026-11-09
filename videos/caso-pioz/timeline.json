@@ -1,66 +1,550 @@
 {
-  "fps": 30,
-  "duration": 62,
-  "width": 1080,
-  "height": 1920,
-  "scenes": [
-    { "id": "movil",     "start": 0,    "end": 8.5 },
-    { "id": "chalet",    "start": 8.1,  "end": 20.6 },
-    { "id": "mapa",      "start": 20.2, "end": 27.5 },
-    { "id": "mes",       "start": 27.1, "end": 33.6 },
-    { "id": "huida",     "start": 33.2, "end": 39.8 },
-    { "id": "tercero",   "start": 39.4, "end": 46.4 },
-    { "id": "jurado",    "start": 46.0, "end": 52.8 },
-    { "id": "condena",   "start": 52.4, "end": 58.4 },
-    { "id": "final",     "start": 58.0, "end": 62 }
-  ],
-  "caps": [
-    { "t0": 0.15, "t1": 2.55, "text": "Confesó su crimen por chat", "hl": ["crimen", "chat"], "style": "hook" },
-    { "t0": 2.6,  "t1": 4.6,  "text": "EN DIRECTO", "style": "live" },
-    { "t0": 4.8,  "t1": 8.0,  "text": "Y su mejor amigo lo leyó todo sin avisar a nadie", "hl": ["todo", "nadie"] },
-    { "t0": 8.3,  "t1": 11.2, "text": "Pioz, Guadalajara. Agosto de 2016", "hl": ["Pioz,"] },
-    { "t0": 11.3, "t1": 14.4, "text": "Un joven de 19 años entra en casa de sus tíos", "hl": ["19", "años"] },
-    { "t0": 14.6, "t1": 18.2, "text": "Esa noche mata a cuatro personas de su familia", "hl": ["cuatro"] },
-    { "t0": 18.3, "t1": 20.2, "text": "Dos eran niños", "hl": [] },
-    { "t0": 20.4, "t1": 23.6, "text": "Mientras tanto escribe a su amigo en Brasil", "hl": ["Brasil"] },
-    { "t0": 23.7, "t1": 27.0, "text": "Fotos. Detalles. Durante horas.", "hl": ["horas."] },
-    { "t0": 27.2, "t1": 30.0, "text": "Pasa un mes y nadie sabe nada", "hl": ["un", "mes"] },
-    { "t0": 30.1, "t1": 33.2, "text": "Hasta que los vecinos notan el olor", "hl": ["olor"] },
-    { "t0": 33.4, "t1": 36.2, "text": "Él ya ha huido a Brasil", "hl": ["huido"] },
-    { "t0": 36.3, "t1": 39.4, "text": "Pero el chat seguía en un móvil", "hl": ["chat"] },
-    { "t0": 39.6, "t1": 42.6, "text": "Las imágenes llegan a un tercero", "hl": ["tercero"] },
-    { "t0": 42.7, "t1": 46.0, "text": "Y él las entrega a la policía", "hl": ["policía"] },
-    { "t0": 46.2, "t1": 49.0, "text": "El asesino se entrega dos meses después", "hl": ["se", "entrega"] },
-    { "t0": 49.1, "t1": 52.4, "text": "Y el chat acaba ante un jurado", "hl": ["jurado"] },
-    { "t0": 52.6, "t1": 58.0, "text": "3 prisiones permanentes revisables", "hl": ["3"], "style": "verdict" },
-    { "t0": 58.3, "t1": 62,   "text": "¿Y el amigo que lo leyó todo?", "hl": ["amigo"], "style": "end" }
-  ],
-  "sfx": [
-    { "t": 0.0,  "type": "buzz" }, { "t": 0.15, "type": "boom" },
-    { "t": 0.9,  "type": "ping" }, { "t": 1.5, "type": "ping" }, { "t": 2.1, "type": "ping" },
-    { "t": 2.6,  "type": "hit" },
-    { "t": 3.3,  "type": "ping" }, { "t": 3.8, "type": "ping" }, { "t": 4.3, "type": "ping" },
-    { "t": 5.2,  "type": "ping" }, { "t": 6.0, "type": "ping" }, { "t": 6.8, "type": "ping" }, { "t": 7.4, "type": "ping" },
-    { "t": 8.1,  "type": "whoosh" }, { "t": 8.3, "type": "boom" },
-    { "t": 13.6, "type": "door" },
-    { "t": 15.0, "type": "thud" }, { "t": 15.9, "type": "thud" }, { "t": 16.8, "type": "thud" }, { "t": 17.7, "type": "thud" },
-    { "t": 18.3, "type": "hit" },
-    { "t": 20.2, "type": "whoosh" },
-    { "t": 20.9, "type": "ping" }, { "t": 21.6, "type": "ping" }, { "t": 22.2, "type": "ping" }, { "t": 22.7, "type": "ping" },
-    { "t": 23.1, "type": "ping" }, { "t": 23.7, "type": "ping" }, { "t": 24.1, "type": "ping" }, { "t": 24.5, "type": "ping" },
-    { "t": 24.9, "type": "ping" }, { "t": 25.3, "type": "ping" }, { "t": 25.7, "type": "ping" }, { "t": 26.1, "type": "ping" }, { "t": 26.5, "type": "ping" },
-    { "t": 27.1, "type": "whoosh" }, { "t": 27.2, "type": "boom" },
-    { "t": 30.1, "type": "hit" },
-    { "t": 33.2, "type": "whoosh" }, { "t": 33.4, "type": "jet" },
-    { "t": 36.3, "type": "buzz" }, { "t": 36.4, "type": "boom" },
-    { "t": 39.4, "type": "whoosh" },
-    { "t": 40.4, "type": "send" }, { "t": 42.9, "type": "send" },
-    { "t": 42.7, "type": "hit" }, { "t": 43.6, "type": "siren" },
-    { "t": 46.0, "type": "whoosh" }, { "t": 46.2, "type": "boom" },
-    { "t": 49.1, "type": "hit" },
-    { "t": 51.0, "type": "riser" },
-    { "t": 52.6, "type": "gavel" }, { "t": 53.5, "type": "gavel" }, { "t": 54.4, "type": "gavel" },
-    { "t": 56.6, "type": "riser" },
-    { "t": 58.0, "type": "cut" }, { "t": 58.3, "type": "buzz" }, { "t": 59.6, "type": "endhit" }
+ "fps": 30,
+ "duration": 62,
+ "width": 1080,
+ "height": 1920,
+ "scenes": [
+  {
+   "id": "movil",
+   "start": 0,
+   "end": 8.5
+  },
+  {
+   "id": "chalet",
+   "start": 8.1,
+   "end": 20.6
+  },
+  {
+   "id": "mapa",
+   "start": 20.2,
+   "end": 27.5
+  },
+  {
+   "id": "mes",
+   "start": 27.1,
+   "end": 33.6
+  },
+  {
+   "id": "huida",
+   "start": 33.2,
+   "end": 39.8
+  },
+  {
+   "id": "tercero",
+   "start": 39.4,
+   "end": 46.4
+  },
+  {
+   "id": "jurado",
+   "start": 46.0,
+   "end": 52.8
+  },
+  {
+   "id": "condena",
+   "start": 52.4,
+   "end": 58.4
+  },
+  {
+   "id": "final",
+   "start": 58.0,
+   "end": 62
+  }
+ ],
+ "caps": [
+  {
+   "t0": 0.15,
+   "t1": 2.55,
+   "text": "Confesó su crimen por chat",
+   "hl": [
+    "crimen",
+    "chat"
+   ],
+   "style": "hook"
+  },
+  {
+   "t0": 2.6,
+   "t1": 4.6,
+   "text": "EN DIRECTO",
+   "style": "live"
+  },
+  {
+   "t0": 4.8,
+   "t1": 8.0,
+   "text": "Y su mejor amigo lo leyó todo sin avisar a nadie",
+   "hl": [
+    "todo",
+    "nadie"
+   ]
+  },
+  {
+   "t0": 8.3,
+   "t1": 11.2,
+   "text": "Pioz, Guadalajara. Agosto de 2016",
+   "hl": [
+    "Pioz,"
+   ]
+  },
+  {
+   "t0": 11.3,
+   "t1": 14.4,
+   "text": "Un joven de 19 años entra en casa de sus tíos",
+   "hl": [
+    "19",
+    "años"
+   ]
+  },
+  {
+   "t0": 14.6,
+   "t1": 18.2,
+   "text": "Esa noche mata a cuatro personas de su familia",
+   "hl": [
+    "cuatro"
+   ]
+  },
+  {
+   "t0": 18.3,
+   "t1": 20.2,
+   "text": "Dos eran niños",
+   "hl": []
+  },
+  {
+   "t0": 20.4,
+   "t1": 23.6,
+   "text": "Mientras tanto escribe a su amigo en Brasil",
+   "hl": [
+    "Brasil"
+   ]
+  },
+  {
+   "t0": 23.7,
+   "t1": 27.0,
+   "text": "Fotos. Detalles. Durante horas.",
+   "hl": [
+    "horas."
+   ]
+  },
+  {
+   "t0": 27.2,
+   "t1": 30.0,
+   "text": "Pasa un mes y nadie sabe nada",
+   "hl": [
+    "un",
+    "mes"
+   ]
+  },
+  {
+   "t0": 30.1,
+   "t1": 33.2,
+   "text": "Hasta que los vecinos notan el olor",
+   "hl": [
+    "olor"
+   ]
+  },
+  {
+   "t0": 33.4,
+   "t1": 36.2,
+   "text": "Él ya ha huido a Brasil",
+   "hl": [
+    "huido"
+   ]
+  },
+  {
+   "t0": 36.3,
+   "t1": 39.4,
+   "text": "Pero el chat seguía en un móvil",
+   "hl": [
+    "chat"
+   ]
+  },
+  {
+   "t0": 39.6,
+   "t1": 42.6,
+   "text": "Las imágenes llegan a un tercero",
+   "hl": [
+    "tercero"
+   ]
+  },
+  {
+   "t0": 42.7,
+   "t1": 46.0,
+   "text": "Y él las entrega a la policía",
+   "hl": [
+    "policía"
+   ]
+  },
+  {
+   "t0": 46.2,
+   "t1": 49.0,
+   "text": "El asesino se entrega dos meses después",
+   "hl": [
+    "se",
+    "entrega"
+   ]
+  },
+  {
+   "t0": 49.1,
+   "t1": 52.4,
+   "text": "Y el chat acaba ante un jurado",
+   "hl": [
+    "jurado"
+   ]
+  },
+  {
+   "t0": 52.6,
+   "t1": 58.0,
+   "text": "3 prisiones permanentes revisables",
+   "hl": [
+    "3"
+   ],
+   "style": "verdict"
+  },
+  {
+   "t0": 58.3,
+   "t1": 62,
+   "text": "¿Y el amigo que lo leyó todo?",
+   "hl": [
+    "amigo"
+   ],
+   "style": "end"
+  }
+ ],
+ "sfx": [
+  {
+   "t": 0.0,
+   "type": "buzz"
+  },
+  {
+   "t": 0.15,
+   "type": "boom"
+  },
+  {
+   "t": 0.9,
+   "type": "ping"
+  },
+  {
+   "t": 1.5,
+   "type": "ping"
+  },
+  {
+   "t": 2.1,
+   "type": "ping"
+  },
+  {
+   "t": 2.6,
+   "type": "hit"
+  },
+  {
+   "t": 3.3,
+   "type": "ping"
+  },
+  {
+   "t": 3.8,
+   "type": "ping"
+  },
+  {
+   "t": 4.3,
+   "type": "ping"
+  },
+  {
+   "t": 5.2,
+   "type": "ping"
+  },
+  {
+   "t": 6.0,
+   "type": "ping"
+  },
+  {
+   "t": 6.8,
+   "type": "ping"
+  },
+  {
+   "t": 7.4,
+   "type": "ping"
+  },
+  {
+   "t": 8.1,
+   "type": "whoosh"
+  },
+  {
+   "t": 8.3,
+   "type": "boom"
+  },
+  {
+   "t": 13.6,
+   "type": "door"
+  },
+  {
+   "t": 15.0,
+   "type": "thud"
+  },
+  {
+   "t": 15.9,
+   "type": "thud"
+  },
+  {
+   "t": 16.8,
+   "type": "thud"
+  },
+  {
+   "t": 17.7,
+   "type": "thud"
+  },
+  {
+   "t": 18.3,
+   "type": "hit"
+  },
+  {
+   "t": 20.2,
+   "type": "whoosh"
+  },
+  {
+   "t": 20.9,
+   "type": "ping"
+  },
+  {
+   "t": 21.6,
+   "type": "ping"
+  },
+  {
+   "t": 22.2,
+   "type": "ping"
+  },
+  {
+   "t": 22.7,
+   "type": "ping"
+  },
+  {
+   "t": 23.1,
+   "type": "ping"
+  },
+  {
+   "t": 23.7,
+   "type": "ping"
+  },
+  {
+   "t": 24.1,
+   "type": "ping"
+  },
+  {
+   "t": 24.5,
+   "type": "ping"
+  },
+  {
+   "t": 24.9,
+   "type": "ping"
+  },
+  {
+   "t": 25.3,
+   "type": "ping"
+  },
+  {
+   "t": 25.7,
+   "type": "ping"
+  },
+  {
+   "t": 26.1,
+   "type": "ping"
+  },
+  {
+   "t": 26.5,
+   "type": "ping"
+  },
+  {
+   "t": 27.1,
+   "type": "whoosh"
+  },
+  {
+   "t": 27.2,
+   "type": "boom"
+  },
+  {
+   "t": 30.1,
+   "type": "hit"
+  },
+  {
+   "t": 33.2,
+   "type": "whoosh"
+  },
+  {
+   "t": 33.4,
+   "type": "jet"
+  },
+  {
+   "t": 36.3,
+   "type": "buzz"
+  },
+  {
+   "t": 36.4,
+   "type": "boom"
+  },
+  {
+   "t": 39.4,
+   "type": "whoosh"
+  },
+  {
+   "t": 40.4,
+   "type": "send"
+  },
+  {
+   "t": 42.9,
+   "type": "send"
+  },
+  {
+   "t": 42.7,
+   "type": "hit"
+  },
+  {
+   "t": 43.6,
+   "type": "siren"
+  },
+  {
+   "t": 46.0,
+   "type": "whoosh"
+  },
+  {
+   "t": 46.2,
+   "type": "boom"
+  },
+  {
+   "t": 49.1,
+   "type": "hit"
+  },
+  {
+   "t": 51.0,
+   "type": "riser"
+  },
+  {
+   "t": 52.6,
+   "type": "gavel"
+  },
+  {
+   "t": 53.5,
+   "type": "gavel"
+  },
+  {
+   "t": 54.4,
+   "type": "gavel"
+  },
+  {
+   "t": 56.6,
+   "type": "riser"
+  },
+  {
+   "t": 58.0,
+   "type": "cut"
+  },
+  {
+   "t": 58.3,
+   "type": "buzz"
+  },
+  {
+   "t": 59.6,
+   "type": "endhit"
+  }
+ ],
+ "voice": {
+  "file": "build/voz.wav",
+  "segments": [
+   [
+    0.0,
+    1.289,
+    0.2
+   ],
+   [
+    2.02,
+    2.58,
+    2.6
+   ],
+   [
+    3.48,
+    5.93,
+    4.8
+   ],
+   [
+    7.09,
+    10.12,
+    8.3
+   ],
+   [
+    10.95,
+    13.76,
+    11.45
+   ],
+   [
+    14.58,
+    16.99,
+    14.6
+   ],
+   [
+    17.83,
+    18.65,
+    18.3
+   ],
+   [
+    19.59,
+    21.31,
+    20.4
+   ],
+   [
+    21.89,
+    24.24,
+    23.7
+   ],
+   [
+    25.21,
+    26.97,
+    27.2
+   ],
+   [
+    27.66,
+    29.26,
+    30.1
+   ],
+   [
+    30.16,
+    31.34,
+    33.4
+   ],
+   [
+    32.03,
+    33.38,
+    36.3
+   ],
+   [
+    34.32,
+    35.5,
+    39.6
+   ],
+   [
+    36.29,
+    37.48,
+    42.7
+   ],
+   [
+    38.54,
+    39.96,
+    46.2
+   ],
+   [
+    40.59,
+    42.28,
+    49.1
+   ],
+   [
+    43.55,
+    46.57,
+    54.75
+   ],
+   [
+    48.18,
+    49.24,
+    58.3
+   ],
+   [
+    50.01,
+    50.46,
+    59.65
+   ]
   ]
+ }
 }
