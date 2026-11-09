@@ -1,0 +1,33 @@
+{
+  "fps": 30,
+  "duration": 75,
+  "width": 1080,
+  "height": 1920,
+  "scenes": [
+    { "id": "taller",     "start": 0,  "end": 14.6 },
+    { "id": "caja",       "start": 14,  "end": 25.6 },
+    { "id": "nota",       "start": 25,  "end": 33.6 },
+    { "id": "mecanismo",  "start": 33,  "end": 42.6 },
+    { "id": "libreta",    "start": 42,  "end": 50.6 },
+    { "id": "lupa",       "start": 50,  "end": 57.6 },
+    { "id": "siluetas",   "start": 57,  "end": 66.6 },
+    { "id": "final",      "start": 66,  "end": 75 }
+  ],
+  "texts": [
+    { "text": "3:17",                       "start": 0.35, "end": 6.2,  "style": "huge",   "y": 0.30, "sfx": "boom" },
+    { "text": "Caso cerrado",               "start": 8.6,  "end": 13.6, "style": "stamp",  "y": 0.70, "sfx": "stamp" },
+    { "text": "20 años después",            "start": 15.0, "end": 19.8, "style": "type",   "y": 0.18, "sfx": "type" },
+    { "text": "No fue el corazón",          "start": 28.2, "end": 32.8, "style": "type",   "y": 0.78, "sfx": "type" },
+    { "text": "Las agujas fueron forzadas", "start": 35.4, "end": 41.6, "style": "type",   "y": 0.80, "sfx": "boomtype" },
+    { "text": "R.M.",                       "start": 45.4, "end": 49.8, "style": "big",    "y": 0.80, "sfx": "boom" },
+    { "text": "La coartada era falsa",      "start": 60.4, "end": 65.8, "style": "type",   "y": 0.80, "sfx": "boomtype" },
+    { "text": "¿Parte 2?",                  "start": 70.6, "end": 75.0, "style": "huge2",  "y": 0.80, "sfx": "end" }
+  ],
+  "events": {
+    "noteWrite": 26.0,
+    "notebookCircle": 46.6,
+    "arguingTickStart": 57.0,
+    "arguingStopAt317": 63.2,
+    "clockRestart": 68.2
+  }
+}
