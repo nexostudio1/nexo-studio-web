@@ -1,0 +1,573 @@
+{
+ "total": 31.75658,
+ "lineas": [
+  {
+   "quien": "narr",
+   "texto": "En mil novecientos noventa, el tres por ciento de los hombres en Estados Unidos no tenía ni un amigo cercano. En dos mil veintiuno: el quince.",
+   "start": 0.35,
+   "end": 8.238708,
+   "words": [
+    {
+     "word": "En",
+     "start": 0.39,
+     "end": 0.540875
+    },
+    {
+     "word": "mil",
+     "start": 0.5516669999999999,
+     "end": 0.702542
+    },
+    {
+     "word": "novecientos",
+     "start": 0.713292,
+     "end": 1.209
+    },
+    {
+     "word": "noventa",
+     "start": 1.21975,
+     "end": 1.6292499999999999
+    },
+    {
+     "word": "el",
+     "start": 1.8878750000000002,
+     "end": 2.03875
+    },
+    {
+     "word": "tres",
+     "start": 2.0495,
+     "end": 2.275791
+    },
+    {
+     "word": "por",
+     "start": 2.286583,
+     "end": 2.426666
+    },
+    {
+     "word": "ciento",
+     "start": 2.437417,
+     "end": 2.728375
+    },
+    {
+     "word": "de",
+     "start": 2.739167,
+     "end": 2.825375
+    },
+    {
+     "word": "los",
+     "start": 2.836125,
+     "end": 2.99775
+    },
+    {
+     "word": "hombres",
+     "start": 3.0085420000000003,
+     "end": 3.277958
+    },
+    {
+     "word": "en",
+     "start": 3.288708,
+     "end": 3.364124
+    },
+    {
+     "word": "Estados",
+     "start": 3.374917,
+     "end": 3.762833
+    },
+    {
+     "word": "Unidos",
+     "start": 3.773625,
+     "end": 4.14
+    },
+    {
+     "word": "no",
+     "start": 4.150792,
+     "end": 4.312417
+    },
+    {
+     "word": "tenía",
+     "start": 4.323207999999999,
+     "end": 4.6464989999999995
+    },
+    {
+     "word": "ni",
+     "start": 4.6572499999999994,
+     "end": 4.8081249999999995
+    },
+    {
+     "word": "un",
+     "start": 4.818917,
+     "end": 4.948207999999999
+    },
+    {
+     "word": "amigo",
+     "start": 4.959,
+     "end": 5.2499579999999995
+    },
+    {
+     "word": "cercano",
+     "start": 5.260707999999999,
+     "end": 5.745623999999999
+    },
+    {
+     "word": "En",
+     "start": 6.48225,
+     "end": 6.6438749999999995
+    },
+    {
+     "word": "dos",
+     "start": 6.654667,
+     "end": 6.827083
+    },
+    {
+     "word": "mil",
+     "start": 6.8378749999999995,
+     "end": 6.967166
+    },
+    {
+     "word": "veintiuno",
+     "start": 6.977957999999999,
+     "end": 7.462873999999999
+    },
+    {
+     "word": "el",
+     "start": 7.678375,
+     "end": 7.82925
+    },
+    {
+     "word": "quince",
+     "start": 7.84,
+     "end": 8.238708
+    }
+   ],
+   "wav": "tmp/l0.wav",
+   "trim": 0.053083,
+   "len": 7.968708
+  },
+  {
+   "quien": "narr",
+   "texto": "Y no es que no quieran hablar. Es cómo les preguntas.",
+   "start": 8.418708,
+   "end": 11.695374000000001,
+   "words": [
+    {
+     "word": "Y",
+     "start": 8.458708,
+     "end": 8.577249
+    },
+    {
+     "word": "no",
+     "start": 8.588041,
+     "end": 8.771249
+    },
+    {
+     "word": "es",
+     "start": 8.782,
+     "end": 8.900541
+    },
+    {
+     "word": "que",
+     "start": 8.911332999999999,
+     "end": 8.997541
+    },
+    {
+     "word": "no",
+     "start": 9.008291,
+     "end": 9.169915999999999
+    },
+    {
+     "word": "quieran",
+     "start": 9.180708,
+     "end": 9.460874
+    },
+    {
+     "word": "hablar",
+     "start": 9.471665999999999,
+     "end": 9.838041
+    },
+    {
+     "word": "Es",
+     "start": 10.574666,
+     "end": 10.747081999999999
+    },
+    {
+     "word": "cómo",
+     "start": 10.757875,
+     "end": 10.951833
+    },
+    {
+     "word": "les",
+     "start": 10.962625,
+     "end": 11.091916
+    },
+    {
+     "word": "preguntas",
+     "start": 11.102708,
+     "end": 11.695374
+    }
+   ],
+   "wav": "tmp/l1.wav",
+   "trim": 0.053083,
+   "len": 3.356666
+  },
+  {
+   "quien": "beto",
+   "texto": "Oye... ¿y cómo estás, de verdad?",
+   "start": 11.875374,
+   "end": 14.362748,
+   "words": [
+    {
+     "word": "Oye",
+     "start": 11.915374,
+     "end": 12.323249
+    },
+    {
+     "word": "y",
+     "start": 12.612749,
+     "end": 12.717999
+    },
+    {
+     "word": "cómo",
+     "start": 12.731165,
+     "end": 12.994331
+    },
+    {
+     "word": "estás",
+     "start": 13.007499,
+     "end": 13.454874
+    },
+    {
+     "word": "de",
+     "start": 13.691707000000001,
+     "end": 13.783832
+    },
+    {
+     "word": "verdad",
+     "start": 13.796957,
+     "end": 14.362748
+    }
+   ],
+   "wav": "tmp/l2.wav",
+   "trim": 0.06262499999999999,
+   "len": 2.567374
+  },
+  {
+   "quien": "tono",
+   "texto": "Bien.",
+   "start": 14.542748000000001,
+   "end": 14.889581000000002,
+   "words": [
+    {
+     "word": "Bien",
+     "start": 14.582748000000002,
+     "end": 14.889581000000002
+    }
+   ],
+   "wav": "tmp/l3.wav",
+   "trim": 0.057708,
+   "len": 0.426833
+  },
+  {
+   "quien": "narr",
+   "texto": "Cara a cara, mirándose a los ojos, se siente como un interrogatorio.",
+   "start": 15.069581000000001,
+   "end": 18.762623,
+   "words": [
+    {
+     "word": "Cara",
+     "start": 15.109581,
+     "end": 15.357414
+    },
+    {
+     "word": "a",
+     "start": 15.368206,
+     "end": 15.411289
+    },
+    {
+     "word": "cara",
+     "start": 15.422081,
+     "end": 15.702247
+    },
+    {
+     "word": "mirándose",
+     "start": 15.971664,
+     "end": 16.402705
+    },
+    {
+     "word": "a",
+     "start": 16.413498,
+     "end": 16.435039
+    },
+    {
+     "word": "los",
+     "start": 16.445789,
+     "end": 16.596664
+    },
+    {
+     "word": "ojos",
+     "start": 16.607456,
+     "end": 16.898414
+    },
+    {
+     "word": "se",
+     "start": 17.092373000000002,
+     "end": 17.264789
+    },
+    {
+     "word": "siente",
+     "start": 17.275539000000002,
+     "end": 17.60958
+    },
+    {
+     "word": "como",
+     "start": 17.620373,
+     "end": 17.814331
+    },
+    {
+     "word": "un",
+     "start": 17.825123,
+     "end": 17.965206000000002
+    },
+    {
+     "word": "interrogatorio",
+     "start": 17.975998,
+     "end": 18.762623
+    }
+   ],
+   "wav": "tmp/l4.wav",
+   "trim": 0.053083,
+   "len": 3.7730420000000002
+  },
+  {
+   "quien": "narr",
+   "texto": "Pero siéntalos lado a lado, a pescar...",
+   "start": 18.942623,
+   "end": 20.954623,
+   "words": [
+    {
+     "word": "Pero",
+     "start": 18.982623,
+     "end": 19.155039
+    },
+    {
+     "word": "siéntalos",
+     "start": 19.165831,
+     "end": 19.639956
+    },
+    {
+     "word": "lado",
+     "start": 19.650748,
+     "end": 19.855498
+    },
+    {
+     "word": "a",
+     "start": 19.866248,
+     "end": 19.887789
+    },
+    {
+     "word": "lado",
+     "start": 19.898581,
+     "end": 20.211081
+    },
+    {
+     "word": "a",
+     "start": 20.372748,
+     "end": 20.480498
+    },
+    {
+     "word": "pescar",
+     "start": 20.491248,
+     "end": 20.954623
+    }
+   ],
+   "wav": "tmp/l5.wav",
+   "trim": 0.053083,
+   "len": 2.092
+  },
+  {
+   "quien": "tono",
+   "texto": "Pues mira, mi novia me dejó, odio mi trabajo y creo que me estoy quedando calvo.",
+   "start": 21.134623,
+   "end": 24.742789000000002,
+   "words": [
+    {
+     "word": "Pues",
+     "start": 21.174623,
+     "end": 21.379164
+    },
+    {
+     "word": "mira",
+     "start": 21.424623,
+     "end": 21.685997999999998
+    },
+    {
+     "word": "mi",
+     "start": 21.924623,
+     "end": 22.015539
+    },
+    {
+     "word": "novia",
+     "start": 22.049623,
+     "end": 22.254164
+    },
+    {
+     "word": "me",
+     "start": 22.276873,
+     "end": 22.345039
+    },
+    {
+     "word": "dejó",
+     "start": 22.379165,
+     "end": 22.629165
+    },
+    {
+     "word": "odio",
+     "start": 22.810997999999998,
+     "end": 23.004164
+    },
+    {
+     "word": "mi",
+     "start": 23.026873,
+     "end": 23.095039
+    },
+    {
+     "word": "trabajo",
+     "start": 23.14054,
+     "end": 23.470081
+    },
+    {
+     "word": "y",
+     "start": 23.49279,
+     "end": 23.5154979
+    },
+    {
+     "word": "creo",
+     "start": 23.572331,
+     "end": 23.697331
+    },
+    {
+     "word": "que",
+     "start": 23.74279,
+     "end": 23.788248
+    },
+    {
+     "word": "me",
+     "start": 23.810997999999998,
+     "end": 23.867789
+    },
+    {
+     "word": "estoy",
+     "start": 23.86779,
+     "end": 24.038248
+    },
+    {
+     "word": "quedando",
+     "start": 24.095081,
+     "end": 24.367789
+    },
+    {
+     "word": "calvo",
+     "start": 24.424623,
+     "end": 24.742789
+    }
+   ],
+   "wav": "tmp/l6.wav",
+   "trim": 0.055458,
+   "len": 3.6881660000000003
+  },
+  {
+   "quien": "narr",
+   "texto": "Los psicólogos lo llaman amistad hombro con hombro. ¿Quieres saber cómo está tu amigo? Invítalo a pescar.",
+   "start": 24.922789,
+   "end": 31.07658,
+   "words": [
+    {
+     "word": "Los",
+     "start": 24.962789,
+     "end": 25.102872
+    },
+    {
+     "word": "psicólogos",
+     "start": 25.113664,
+     "end": 25.630914
+    },
+    {
+     "word": "lo",
+     "start": 25.641706,
+     "end": 25.717122
+    },
+    {
+     "word": "llaman",
+     "start": 25.727914000000002,
+     "end": 26.018872
+    },
+    {
+     "word": "amistad",
+     "start": 26.029622,
+     "end": 26.417538
+    },
+    {
+     "word": "hombro",
+     "start": 26.428331,
+     "end": 26.654622
+    },
+    {
+     "word": "con",
+     "start": 26.665414000000002,
+     "end": 26.816289
+    },
+    {
+     "word": "hombro",
+     "start": 26.827039,
+     "end": 27.139539
+    },
+    {
+     "word": "Quieres",
+     "start": 27.876164,
+     "end": 28.134789
+    },
+    {
+     "word": "saber",
+     "start": 28.145581,
+     "end": 28.414997
+    },
+    {
+     "word": "cómo",
+     "start": 28.425747,
+     "end": 28.630497000000002
+    },
+    {
+     "word": "está",
+     "start": 28.641247,
+     "end": 28.845997
+    },
+    {
+     "word": "tu",
+     "start": 28.856789,
+     "end": 28.932205
+    },
+    {
+     "word": "amigo",
+     "start": 28.942997000000002,
+     "end": 29.309372
+    },
+    {
+     "word": "Invítalo",
+     "start": 30.052914,
+     "end": 30.570164000000002
+    },
+    {
+     "word": "a",
+     "start": 30.580914,
+     "end": 30.613247
+    },
+    {
+     "word": "pescar",
+     "start": 30.623997000000003,
+     "end": 31.07658
+    }
+   ],
+   "wav": "tmp/l7.wav",
+   "trim": 0.053083,
+   "len": 6.233791
+  }
+ ]
+}
